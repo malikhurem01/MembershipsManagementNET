@@ -1,7 +1,11 @@
 ﻿using AutoMapper;
 using MembershipsManagement.Data;
+using MembershipsManagement.DTOs.AuthDTOs;
+using MembershipsManagement.DTOs.DzematDTOs;
 using MembershipsManagement.DTOs.User;
 using MembershipsManagement.Entities;
+using MembershipsManagement.Exceptions;
+using MembershipsManagement.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -35,12 +39,23 @@ namespace MembershipsManagement.Services.Authentication
                 .Where(claim => claim.Type
                 .Equals("nameid"))
                 .Select(claim => claim.Value)
-                .SingleOrDefault();
+                .SingleOrDefault();          
 
             var fetchedUser = await _authContext.Korisnici
                 .Where(user => user.Id.Equals(userId))
-                .Include(user => user.Dzemat)
                 .FirstOrDefaultAsync();
+
+            if(fetchedUser is not null)
+            {
+                if (fetchedUser.Position != Pozicija.Admin)
+                {
+                    fetchedUser = await _authContext.Supervisors
+                    .Where(user => user.Id.Equals(userId))
+                    .Include(user => user.Dzemat)
+                    .FirstOrDefaultAsync();
+                }
+            }
+ 
 
             if(fetchedUser is null)
             {
@@ -51,21 +66,20 @@ namespace MembershipsManagement.Services.Authentication
             response.Message = "User has been successfully fetched.";
 
             return response;
-
         }
 
-        public async Task<ServiceResponse<GetUserDto>> Login(UserLoginDto user)
+        public async Task<ServiceResponse<GetUserDto>> LoginSupervisor(UserLoginDto user)
         {
             ServiceResponse<GetUserDto> response = new ServiceResponse<GetUserDto>();
             var fetchedUser = await _userManager.FindByEmailAsync(user.Email);
-            var savedUser = await _authContext.Korisnici.Where(user => user.Id.Equals(fetchedUser.Id)).Include(user => user.Dzemat).FirstOrDefaultAsync();
+            var savedUser = await _authContext.Supervisors.Where(user => user.Id.Equals(fetchedUser.Id)).Include(user => user.Dzemat).FirstOrDefaultAsync();
             if (fetchedUser == null)
             {
                 throw new BadRequestException("Wrong credentials");
             }
             if (savedUser == null)
             {
-                throw new BadRequestException("Fatal error. User logged in but not found in database");
+                throw new BadRequestException("Fatal error!!! Supervisor logged in but not found in database!!!");
             }
             else
             {
@@ -75,17 +89,67 @@ namespace MembershipsManagement.Services.Authentication
                     throw new BadRequestException("Wrong credentials");
                 }
                 var getUserDto = _mapper.Map<GetUserDto>(fetchedUser);
-                getUserDto.Token = CreateToken(savedUser);
+                getUserDto.Token = CreateSupervisorToken(savedUser);
                 response.Data = getUserDto;
-                response.Message = "User " + user.Email + " has successfully logged in.";
+                response.Message = "Supervisor " + user.Email + " has successfully logged in.";
             }
             return response;
         }
 
-        public async Task<ServiceResponse<GetUserDto>> RegisterUser(RegisterUserDto user)
+        public async Task<ServiceResponse<GetDzematDto>> LoginDzemat(DzematLoginDto user)
+        {
+            ServiceResponse<GetDzematDto> response = new ServiceResponse<GetDzematDto>();
+            var fetchedUser = await _userManager.FindByNameAsync(user.UserName);
+            if (fetchedUser == null)
+            {
+                throw new BadRequestException("Wrong credentials");
+            }
+            else
+            {
+                var result = await _signInManager.CheckPasswordSignInAsync(fetchedUser, user.Password, false);
+                if (!result.Succeeded)
+                {
+                    throw new BadRequestException("Wrong credentials");
+                }
+                var getUserDto = _mapper.Map<GetDzematDto>(fetchedUser);
+                response.Data = getUserDto;
+                response.Message = "Džemat " + user.UserName + " has successfully logged in.";
+            }
+            return response;
+        }
+
+        public async Task<ServiceResponse<GetUserDto>> LoginAdmin(UserLoginDto user)
         {
             ServiceResponse<GetUserDto> response = new ServiceResponse<GetUserDto>();
-            var userMap = _mapper.Map<Korisnik>(user);
+            var fetchedUser = await _userManager.FindByEmailAsync(user.Email);
+            var savedUser = await _authContext.Admins.Where(user => user.Id.Equals(fetchedUser.Id)).FirstOrDefaultAsync();
+            if (fetchedUser == null)
+            {
+                throw new BadRequestException("Wrong credentials");
+            }
+            if (savedUser == null)
+            {
+                throw new BadRequestException("Fatal error!!! Admin logged in but not found in database!!!");
+            }
+            else
+            {
+                var result = await _signInManager.CheckPasswordSignInAsync(fetchedUser, user.Password, false);
+                if (!result.Succeeded)
+                {
+                    throw new BadRequestException("Wrong credentials");
+                }
+                var getUserDto = _mapper.Map<GetUserDto>(fetchedUser);
+                getUserDto.Token = CreateAdminToken(savedUser);
+                response.Data = getUserDto;
+                response.Message = "Admin " + user.Email + " has successfully logged in.";
+            }
+            return response;
+        }
+
+        public async Task<ServiceResponse<GetUserDto>> RegisterSupervisor(RegisterUserDto user)
+        {
+            ServiceResponse<GetUserDto> response = new ServiceResponse<GetUserDto>();
+            var userMap = _mapper.Map<Supervisor>(user);
             //Dodati da dva korisnika ne mogu imati isti username
             userMap.UserName = user.FirstName.ToLower() + user.LastName.ToLower();
             var result = await _userManager.CreateAsync(userMap, user.Password);
@@ -98,34 +162,58 @@ namespace MembershipsManagement.Services.Authentication
                 }
                 throw new BadRequestException(stringBuilder.ToString());
             }
-            response = await Login(_mapper.Map<UserLoginDto>(user));
-            return response;
 
+            response = await LoginSupervisor(_mapper.Map<UserLoginDto>(user));
+            return response;
         }
 
-        public string CreateToken(Korisnik user)
+        public async Task<ServiceResponse<GetDzematDto>> RegisterDzemat(RegisterDzematDto user)
         {
-            List<Claim> claims;
-            if(user.DzematId is not null)
+            ServiceResponse<GetDzematDto> response = new ServiceResponse<GetDzematDto>();
+            var userMap = _mapper.Map<Dzemat>(user);
+            //Dodati da dva korisnika ne mogu imati isti username
+            userMap.UserName = user.UserName;
+            var result = await _userManager.CreateAsync(userMap, user.Password);
+            StringBuilder stringBuilder = new StringBuilder();
+            if (!result.Succeeded)
             {
-                claims = new List<Claim>
+                foreach (IdentityError error in result.Errors)
+                {
+                    stringBuilder.Append(error.Description);
+                }
+                throw new BadRequestException(stringBuilder.ToString());
+            }
+
+            response = await LoginDzemat(_mapper.Map<DzematLoginDto>(user));
+           
+            return response;
+        }
+
+        public string CreateSupervisorToken(Supervisor user)
+        {
+            List<Claim> claims = new List<Claim>
              {
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
                 new Claim(ClaimTypes.Name, user.UserName),
                 new Claim(ClaimTypes.UserData, user.Dzemat.Id.ToString())
             };
-            }
-            else
-            {
-                claims = new List<Claim>
+
+            return WriteToken(claims);
+        }
+
+        public string CreateAdminToken(Admin user)
+        {
+            List<Claim> claims = new List<Claim>
              {
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
-                new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(ClaimTypes.UserData, "all")
+                new Claim(ClaimTypes.Name, user.UserName)
             };
-            }
-            
 
+            return WriteToken(claims);
+        }
+
+        private string WriteToken(List<Claim> claims)
+        {
             SymmetricSecurityKey key = new SymmetricSecurityKey(Encoding.UTF8
                 .GetBytes(_configuration.GetSection("JWTSettings:SecurityKey").Value));
 
@@ -142,7 +230,6 @@ namespace MembershipsManagement.Services.Authentication
             SecurityToken token = tokenHandler.CreateToken(tokenDescriptor);
 
             return tokenHandler.WriteToken(token);
-
         }
     }
 }

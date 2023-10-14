@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MembershipsManagement.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20231014125129_initial")]
-    partial class initial
+    [Migration("20231014221629_initial1")]
+    partial class initial1
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -35,8 +35,9 @@ namespace MembershipsManagement.Migrations
                     b.Property<bool>("Archived")
                         .HasColumnType("bit");
 
-                    b.Property<int>("DzematId")
-                        .HasColumnType("int");
+                    b.Property<string>("DzematId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("Year")
                         .HasColumnType("int");
@@ -63,8 +64,8 @@ namespace MembershipsManagement.Migrations
                     b.Property<int?>("BazaId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("DzematId")
-                        .HasColumnType("int");
+                    b.Property<string>("DzematId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("EvBroj")
                         .HasColumnType("int");
@@ -165,17 +166,17 @@ namespace MembershipsManagement.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<string>("Adresa")
+                    b.Property<string>("Address")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Ime")
+                    b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Prezime")
+                    b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -195,53 +196,19 @@ namespace MembershipsManagement.Migrations
                     b.Property<int>("ClanId")
                         .HasColumnType("int");
 
-                    b.Property<int>("IznosDuga")
+                    b.Property<int>("DebtFee")
                         .HasColumnType("int");
 
-                    b.Property<string>("NadlezniId")
+                    b.Property<string>("SupervisorId")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ClanId");
 
-                    b.HasIndex("NadlezniId");
+                    b.HasIndex("SupervisorId");
 
                     b.ToTable("Dugovi");
-                });
-
-            modelBuilder.Entity("MembershipsManagement.Entities.Dzemat", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("Address")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<double?>("Budget")
-                        .HasColumnType("float");
-
-                    b.Property<string>("Ime")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Lokacija")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("MedzlisId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ZipCode")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MedzlisId");
-
-                    b.ToTable("Dzemat");
                 });
 
             modelBuilder.Entity("MembershipsManagement.Entities.Medzlis", b =>
@@ -255,22 +222,22 @@ namespace MembershipsManagement.Migrations
                     b.Property<string>("Address")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("KorisnikId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Lokacija")
+                    b.Property<string>("Location")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("SupervisorId")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<int?>("ZipCode")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("KorisnikId");
+                    b.HasIndex("SupervisorId");
 
                     b.ToTable("Medzlis");
                 });
@@ -283,30 +250,31 @@ namespace MembershipsManagement.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<DateTime>("DatumUplate")
+                    b.Property<double>("Amount")
+                        .HasColumnType("float");
+
+                    b.Property<DateTime>("DateOfPayment")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("DonatorId")
                         .HasColumnType("int");
 
-                    b.Property<int>("DzematId")
-                        .HasColumnType("int");
-
-                    b.Property<double>("Iznos")
-                        .HasColumnType("float");
-
-                    b.Property<string>("KorisnikId")
+                    b.Property<string>("DzematId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("Napomena")
+                    b.Property<string>("IncomeType")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("ProjekatId")
+                    b.Property<string>("Note")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ProjectId")
                         .HasColumnType("int");
 
-                    b.Property<string>("VrstaPrihoda")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("SupervisorId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
@@ -314,9 +282,9 @@ namespace MembershipsManagement.Migrations
 
                     b.HasIndex("DzematId");
 
-                    b.HasIndex("KorisnikId");
+                    b.HasIndex("ProjectId");
 
-                    b.HasIndex("ProjekatId");
+                    b.HasIndex("SupervisorId");
 
                     b.ToTable("Prihodi");
                 });
@@ -329,7 +297,7 @@ namespace MembershipsManagement.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<bool>("Arhiva")
+                    b.Property<bool>("Archive")
                         .HasColumnType("bit");
 
                     b.Property<int>("BazaId")
@@ -338,21 +306,22 @@ namespace MembershipsManagement.Migrations
                     b.Property<double>("Budget")
                         .HasColumnType("float");
 
-                    b.Property<int>("DzematId")
-                        .HasColumnType("int");
+                    b.Property<DateTime?>("DateEnd")
+                        .HasColumnType("datetime2");
 
-                    b.Property<string>("Ime")
+                    b.Property<DateTime>("DateStart")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DzematId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("Kraj")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Opis")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("Start")
-                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -371,13 +340,14 @@ namespace MembershipsManagement.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int>("DzematId")
-                        .HasColumnType("int");
-
-                    b.Property<double>("Iznos")
+                    b.Property<double>("Amount")
                         .HasColumnType("float");
 
-                    b.Property<string>("Naziv")
+                    b.Property<string>("DzematId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -396,19 +366,19 @@ namespace MembershipsManagement.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
+                    b.Property<double>("Amount")
+                        .HasColumnType("float");
+
                     b.Property<int>("BazaId")
                         .HasColumnType("int");
 
                     b.Property<int>("ClanId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("Datum")
+                    b.Property<DateTime>("DateOfPayment")
                         .HasColumnType("datetime2");
 
-                    b.Property<double>("Iznos")
-                        .HasColumnType("float");
-
-                    b.Property<string>("NadlezniId")
+                    b.Property<string>("SupervisorId")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
@@ -417,7 +387,7 @@ namespace MembershipsManagement.Migrations
 
                     b.HasIndex("ClanId");
 
-                    b.HasIndex("NadlezniId");
+                    b.HasIndex("SupervisorId");
 
                     b.ToTable("Uplate");
                 });
@@ -486,10 +456,6 @@ namespace MembershipsManagement.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -541,8 +507,6 @@ namespace MembershipsManagement.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
-
-                    b.HasDiscriminator<string>("Discriminator").HasValue("IdentityUser");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -626,14 +590,40 @@ namespace MembershipsManagement.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("MembershipsManagement.Entities.Dzemat", b =>
+                {
+                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
+
+                    b.Property<string>("Address")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double?>("Budget")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Location")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("MedzlisId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ZipCode")
+                        .HasColumnType("int");
+
+                    b.HasIndex("MedzlisId");
+
+                    b.ToTable("Dzemati", (string)null);
+                });
+
             modelBuilder.Entity("MembershipsManagement.Entities.Korisnik", b =>
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
 
-                    b.Property<int?>("DzematId")
-                        .HasColumnType("int");
-
                     b.Property<string>("FathersName")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FirstName")
@@ -644,12 +634,29 @@ namespace MembershipsManagement.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Pozicija")
+                    b.Property<int>("Position")
                         .HasColumnType("int");
+
+                    b.ToTable("Korisnici", (string)null);
+                });
+
+            modelBuilder.Entity("MembershipsManagement.Models.Admin", b =>
+                {
+                    b.HasBaseType("MembershipsManagement.Entities.Korisnik");
+
+                    b.ToTable("Admins", (string)null);
+                });
+
+            modelBuilder.Entity("MembershipsManagement.Models.Supervisor", b =>
+                {
+                    b.HasBaseType("MembershipsManagement.Entities.Korisnik");
+
+                    b.Property<string>("DzematId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasIndex("DzematId");
 
-                    b.HasDiscriminator().HasValue("Korisnik");
+                    b.ToTable("Supervisors", (string)null);
                 });
 
             modelBuilder.Entity("MembershipsManagement.Entities.Baza", b =>
@@ -669,7 +676,7 @@ namespace MembershipsManagement.Migrations
                         .HasForeignKey("BazaId");
 
                     b.HasOne("MembershipsManagement.Entities.Dzemat", "Dzemat")
-                        .WithMany("Clanovi")
+                        .WithMany("Members")
                         .HasForeignKey("DzematId");
 
                     b.Navigation("Dzemat");
@@ -712,32 +719,22 @@ namespace MembershipsManagement.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MembershipsManagement.Entities.Korisnik", "Nadlezni")
+                    b.HasOne("MembershipsManagement.Models.Supervisor", "Supervisor")
                         .WithMany()
-                        .HasForeignKey("NadlezniId");
+                        .HasForeignKey("SupervisorId");
 
                     b.Navigation("Clan");
 
-                    b.Navigation("Nadlezni");
-                });
-
-            modelBuilder.Entity("MembershipsManagement.Entities.Dzemat", b =>
-                {
-                    b.HasOne("MembershipsManagement.Entities.Medzlis", "Medzlis")
-                        .WithMany("Dzemati")
-                        .HasForeignKey("MedzlisId")
-                        .IsRequired();
-
-                    b.Navigation("Medzlis");
+                    b.Navigation("Supervisor");
                 });
 
             modelBuilder.Entity("MembershipsManagement.Entities.Medzlis", b =>
                 {
-                    b.HasOne("MembershipsManagement.Entities.Korisnik", "Korisnik")
+                    b.HasOne("MembershipsManagement.Models.Supervisor", "Supervisor")
                         .WithMany()
-                        .HasForeignKey("KorisnikId");
+                        .HasForeignKey("SupervisorId");
 
-                    b.Navigation("Korisnik");
+                    b.Navigation("Supervisor");
                 });
 
             modelBuilder.Entity("MembershipsManagement.Entities.Prihod", b =>
@@ -754,23 +751,23 @@ namespace MembershipsManagement.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MembershipsManagement.Entities.Korisnik", "Korisnik")
-                        .WithMany("ProknjizeniPrihodi")
-                        .HasForeignKey("KorisnikId")
+                    b.HasOne("MembershipsManagement.Entities.Projekat", "Project")
+                        .WithMany("Incomes")
+                        .HasForeignKey("ProjectId")
                         .IsRequired();
 
-                    b.HasOne("MembershipsManagement.Entities.Projekat", "Projekat")
-                        .WithMany("Prihodi")
-                        .HasForeignKey("ProjekatId")
+                    b.HasOne("MembershipsManagement.Models.Supervisor", "Supervisor")
+                        .WithMany("ProknjizeniPrihodi")
+                        .HasForeignKey("SupervisorId")
                         .IsRequired();
 
                     b.Navigation("Donator");
 
                     b.Navigation("Dzemat");
 
-                    b.Navigation("Korisnik");
+                    b.Navigation("Project");
 
-                    b.Navigation("Projekat");
+                    b.Navigation("Supervisor");
                 });
 
             modelBuilder.Entity("MembershipsManagement.Entities.Projekat", b =>
@@ -816,15 +813,15 @@ namespace MembershipsManagement.Migrations
                         .HasForeignKey("ClanId")
                         .IsRequired();
 
-                    b.HasOne("MembershipsManagement.Entities.Korisnik", "Nadlezni")
+                    b.HasOne("MembershipsManagement.Models.Supervisor", "Supervisor")
                         .WithMany()
-                        .HasForeignKey("NadlezniId");
+                        .HasForeignKey("SupervisorId");
 
                     b.Navigation("Baza");
 
                     b.Navigation("Clan");
 
-                    b.Navigation("Nadlezni");
+                    b.Navigation("Supervisor");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -878,11 +875,51 @@ namespace MembershipsManagement.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("MembershipsManagement.Entities.Dzemat", b =>
+                {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                        .WithOne()
+                        .HasForeignKey("MembershipsManagement.Entities.Dzemat", "Id")
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired();
+
+                    b.HasOne("MembershipsManagement.Entities.Medzlis", "Medzlis")
+                        .WithMany("Dzemati")
+                        .HasForeignKey("MedzlisId")
+                        .IsRequired();
+
+                    b.Navigation("Medzlis");
+                });
+
             modelBuilder.Entity("MembershipsManagement.Entities.Korisnik", b =>
                 {
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                        .WithOne()
+                        .HasForeignKey("MembershipsManagement.Entities.Korisnik", "Id")
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("MembershipsManagement.Models.Admin", b =>
+                {
+                    b.HasOne("MembershipsManagement.Entities.Korisnik", null)
+                        .WithOne()
+                        .HasForeignKey("MembershipsManagement.Models.Admin", "Id")
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("MembershipsManagement.Models.Supervisor", b =>
+                {
                     b.HasOne("MembershipsManagement.Entities.Dzemat", "Dzemat")
-                        .WithMany("Korisnici")
+                        .WithMany("Supervisors")
                         .HasForeignKey("DzematId");
+
+                    b.HasOne("MembershipsManagement.Entities.Korisnik", null)
+                        .WithOne()
+                        .HasForeignKey("MembershipsManagement.Models.Supervisor", "Id")
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired();
 
                     b.Navigation("Dzemat");
                 });
@@ -905,15 +942,6 @@ namespace MembershipsManagement.Migrations
                     b.Navigation("Uplate");
                 });
 
-            modelBuilder.Entity("MembershipsManagement.Entities.Dzemat", b =>
-                {
-                    b.Navigation("Baze");
-
-                    b.Navigation("Clanovi");
-
-                    b.Navigation("Korisnici");
-                });
-
             modelBuilder.Entity("MembershipsManagement.Entities.Medzlis", b =>
                 {
                     b.Navigation("Dzemati");
@@ -921,10 +949,19 @@ namespace MembershipsManagement.Migrations
 
             modelBuilder.Entity("MembershipsManagement.Entities.Projekat", b =>
                 {
-                    b.Navigation("Prihodi");
+                    b.Navigation("Incomes");
                 });
 
-            modelBuilder.Entity("MembershipsManagement.Entities.Korisnik", b =>
+            modelBuilder.Entity("MembershipsManagement.Entities.Dzemat", b =>
+                {
+                    b.Navigation("Baze");
+
+                    b.Navigation("Members");
+
+                    b.Navigation("Supervisors");
+                });
+
+            modelBuilder.Entity("MembershipsManagement.Models.Supervisor", b =>
                 {
                     b.Navigation("ProknjizeniPrihodi");
                 });

@@ -13,7 +13,7 @@
         public int IznosClanarine { get; set; }
         public List<Uplata>? Uplate { get; set; } = new List<Uplata>();
         public List<ClanPorodice>? FamilyMembers { get; set; } = new List<ClanPorodice>();
-        public int? DzematId { get; set; }
+        public string? DzematId { get; set; }
         public Dzemat? Dzemat { get; set; }
     }
 }

@@ -3,6 +3,7 @@ using AutoMapper.Execution;
 using MembershipsManagement.Data;
 using MembershipsManagement.DTOs.Member;
 using MembershipsManagement.Entities;
+using MembershipsManagement.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using System.IdentityModel.Tokens.Jwt;
@@ -49,12 +50,12 @@ namespace MembershipsManagement.Services.Member
             memberFetched.LastName = memberModified.LastName.Length > 0 ? memberModified.LastName : memberFetched.LastName;
             memberFetched.EvBroj = memberModified.EvBroj > 0 ? memberModified.EvBroj : memberFetched.EvBroj;
             memberFetched.Status = memberModified.Status > 0 ? memberModified.Status : memberFetched.Status;
-            memberFetched.DzematId = memberModified.DzematId > 0 ? memberModified.DzematId : memberFetched.DzematId;
+            memberFetched.DzematId = memberModified.DzematId.Length > 0 ? memberModified.DzematId : memberFetched.DzematId;
 
             await _memberContext.SaveChangesAsync();
 
             response.Data = _mapper.Map<GetMemberDto>(memberFetched);
-            response.Message = "Member has been successfully modified for dzemat " + memberFetched.Dzemat.Ime + ".";
+            response.Message = "Member has been successfully modified for dzemat " + memberFetched.Dzemat.Name + ".";
             return response;
         }
 
@@ -67,9 +68,8 @@ namespace MembershipsManagement.Services.Member
                 .Equals("http://schemas.microsoft.com/ws/2008/06/identity/claims/userdata"))
                 .Select(claim => claim.Value)
                 .SingleOrDefault();
-            Int32.TryParse(dzematId, out int dzematIdInt);
             var membersFetched = await _memberContext.Clanovi
-                .Where(member => member.DzematId == dzematIdInt)
+                .Where(member => member.DzematId.Equals(dzematId))
                 .ToListAsync();
 
             response.Data = membersFetched
@@ -88,10 +88,9 @@ namespace MembershipsManagement.Services.Member
                 .Equals("http://schemas.microsoft.com/ws/2008/06/identity/claims/userdata"))
                 .Select(claim => claim.Value)
                 .SingleOrDefault();
-            Int32.TryParse(dzematId, out int dzematIdInt);
             var memberFetched = await _memberContext.Clanovi
                 .Where(member => member.Id == memberId)
-                .Where(member => member.DzematId == dzematIdInt)
+                .Where(member => member.DzematId.Equals(dzematId))
                 .FirstOrDefaultAsync();
             response.Data = _mapper.Map<GetMemberDto>(memberFetched);
             response.Message = memberFetched != null? "Member has been fetched." : "No member has been found.";
@@ -124,14 +123,14 @@ namespace MembershipsManagement.Services.Member
                 .Equals("http://schemas.microsoft.com/ws/2008/06/identity/claims/userdata"))
                 .Select(claim => claim.Value)
                 .SingleOrDefault();
-            Int32.TryParse(dzematId, out int dzematIdInt);
+
             var memberFetched = await _memberContext.Clanovi
                 .Where(member => member.Id == familyMembers.ClanId)
-                .Where(member => member.DzematId == dzematIdInt)
+                .Where(member => member.DzematId.Equals(dzematId))
                 .FirstOrDefaultAsync();
 
             if (memberFetched is null) 
-                throw new EntityNotFoundException("Member ID: " + familyMembers.ClanId + " in džemat ID: " + dzematIdInt + " was not found.");
+                throw new EntityNotFoundException("Member ID: " + familyMembers.ClanId + " in džemat ID: " + dzematId + " was not found.");
 
             List<ClanPorodice> familyList = familyMembers.FamilyList.Select(f => _mapper.Map<ClanPorodice>(f)).ToList();
             memberFetched.FamilyMembers.AddRange(familyList);

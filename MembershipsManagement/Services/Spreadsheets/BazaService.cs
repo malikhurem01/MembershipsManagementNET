@@ -1,7 +1,8 @@
 ﻿using AutoMapper;
 using MembershipsManagement.Data;
-using MembershipsManagement.DTOs.Baza;
+using MembershipsManagement.DTOs.BazaDTOs;
 using MembershipsManagement.Entities;
+using MembershipsManagement.Exceptions;
 using Microsoft.EntityFrameworkCore;
 
 namespace MembershipsManagement.Services.SpreadSheets
@@ -22,7 +23,7 @@ namespace MembershipsManagement.Services.SpreadSheets
         {
             var response = new ServiceResponse<GetBazaDto>();
             var fetchedBaza = await _context.Baze
-                .Where(b => b.DzematId == baza.DzematId)
+                .Where(b => b.DzematId.Equals(baza.DzematId))
                 .Where(b => b.Year == baza.Year)
                 .FirstOrDefaultAsync();
 
@@ -52,7 +53,7 @@ namespace MembershipsManagement.Services.SpreadSheets
         {
             var response = new ServiceResponse<string>();
             var fetchedBaza = await _context.Baze
-                .Where(b => b.DzematId == baza.DzematId)
+                .Where(b => b.DzematId.Equals(baza.DzematId))
                 .Where(b => b.Id == baza.Id)
                 .FirstOrDefaultAsync();
 
@@ -72,7 +73,7 @@ namespace MembershipsManagement.Services.SpreadSheets
         public async Task<ServiceResponse<List<GetBazaDto>>> GetBazaList(int dzematId)
         {
             var response = new ServiceResponse<List<GetBazaDto>>();
-            var fetched = await _context.Baze.Where(b => b.DzematId == dzematId).ToListAsync();
+            var fetched = await _context.Baze.Where(b => b.DzematId.Equals(dzematId)).ToListAsync();
 
             if (fetched.Count == 0) {
                 response.Message = "No baza available.";

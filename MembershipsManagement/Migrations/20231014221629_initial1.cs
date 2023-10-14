@@ -4,7 +4,7 @@
 
 namespace MembershipsManagement.Migrations
 {
-    public partial class initial2 : Migration
+    public partial class initial1 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

@@ -1,16 +1,18 @@
-﻿namespace MembershipsManagement.Entities
+﻿using MembershipsManagement.Models;
+using Microsoft.AspNetCore.Identity;
+
+namespace MembershipsManagement.Entities
 {
-    public class Dzemat
+    public class Dzemat : IdentityUser
     {
-        public int Id { get; set; }
         public int MedzlisId { get; set; }
         public Medzlis Medzlis { get; set; }
-        public string Ime { get; set; } = string.Empty;
-        public string? Lokacija { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string? Location { get; set; } = string.Empty;
         public string? Address { get; set; } = string.Empty;
         public int? ZipCode { get; set; }
-        public List<Clan>? Clanovi { get; set; } = new List<Clan>();
-        public List<Korisnik>? Korisnici { get; set; } = new List<Korisnik>();
+        public List<Clan>? Members { get; set; } = new List<Clan>();
+        public List<Supervisor>? Supervisors { get; set; } = new List<Supervisor>();
         public List<Baza>? Baze { get; set; } = new List<Baza>();
         public double? Budget { get; set; }
         

@@ -1,7 +1,6 @@
 using MembershipsManagement.Extensions;
-var builder = WebApplication.CreateBuilder(args);
 
-const string CorsPolicyName = "MyReactFrontEndServer";
+var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -10,7 +9,7 @@ builder.Services.RegisterServices();
 builder.Services.RegisterDBContext(builder.Configuration);
 builder.Services.RegisterIdentityAuthentication(builder.Configuration);
 builder.Services.RegisterAutoMapper();
-builder.Services.RegisterCORSPolicy(CorsPolicyName, builder.Configuration);
+builder.Services.RegisterCORSPolicy(builder.Configuration);
 
 var app = builder.Build();
 

@@ -1,6 +1,6 @@
 ﻿using MembershipsManagement.Entities;
 
-namespace MembershipsManagement.DTOs.User
+namespace MembershipsManagement.DTOs.AuthDTOs
 {
     public class RegisterUserDto
     {
@@ -9,7 +9,7 @@ namespace MembershipsManagement.DTOs.User
         public string Email { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
         public string ImeOca { get; set; } = string.Empty;
-        public int? DzematId { get; set; }
-        public Pozicija Pozicija { get; set; }
+        public string? DzematId { get; set; }
+        public Pozicija Position { get; set; }
     }
 }

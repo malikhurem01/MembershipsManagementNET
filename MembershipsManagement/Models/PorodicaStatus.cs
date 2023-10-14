@@ -2,8 +2,9 @@
 {
     public enum PorodicaStatus
     {
-        Zena,
-        MuskoDijete,
-        ZenskoDijete
+        Husband,
+        Wife,
+        MaleChild,
+        FemaleChild
     }
 }

@@ -11,6 +11,6 @@ namespace MembershipsManagement.DTOs.Member
         public Status Status { get; set; }
         public int IznosClanarine { get; set; }
         public int EvBroj { get; set; }
-        public int? DzematId { get; set; }
+        public string? DzematId { get; set; }
     }
 }

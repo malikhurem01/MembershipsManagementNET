@@ -1,4 +1,6 @@
-﻿namespace MembershipsManagement.DTOs.User
+﻿using MembershipsManagement.Entities;
+
+namespace MembershipsManagement.DTOs.AuthDTOs
 {
     public class UserLoginDto
     {

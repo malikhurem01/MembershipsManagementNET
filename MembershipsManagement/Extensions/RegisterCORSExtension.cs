@@ -5,7 +5,7 @@ namespace MembershipsManagement.Extensions
     public static class RegisterCORSExtension
     {
         public static string origin = "FrontEndReactServerApp";
-        public static void RegisterCORSPolicy(this IServiceCollection service, string CorsName, ConfigurationManager config)
+        public static void RegisterCORSPolicy(this IServiceCollection service, ConfigurationManager config)
         {
             service.AddCors(options =>
             {

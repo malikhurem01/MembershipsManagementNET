@@ -1,4 +1,4 @@
-﻿using MembershipsManagement.DTOs.Baza;
+﻿using MembershipsManagement.DTOs.BazaDTOs;
 using MembershipsManagement.Entities;
 using MembershipsManagement.Services.SpreadSheets;
 using Microsoft.AspNetCore.Mvc;

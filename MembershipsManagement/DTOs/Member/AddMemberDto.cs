@@ -13,6 +13,6 @@ namespace MembershipsManagement.DTOs.Member
         public int IznosClanarine { get; set; }
         public int EvBroj { get; set; }
         public List<AddMemberFamilyListDto>? Domacinstvo { get; set; } = new List<AddMemberFamilyListDto>();
-        public int? DzematId { get; set; }
+        public string? DzematId { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using MembershipsManagement.Entities;
+using MembershipsManagement.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,23 +16,31 @@ namespace MembershipsManagement.Data
         {
             base.OnModelCreating(_modelBuilder);
 
-            _modelBuilder.Entity<Projekat>().HasMany(p => p.Prihodi).WithOne(p => p.Projekat).HasForeignKey(p => p.ProjekatId).OnDelete(DeleteBehavior.ClientSetNull);
-            _modelBuilder.Entity<Prihod>().HasOne(p => p.Korisnik).WithMany(p => p.ProknjizeniPrihodi).HasForeignKey(p => p.KorisnikId).OnDelete(DeleteBehavior.ClientSetNull);
-            _modelBuilder.Entity<Clan>().HasOne(c => c.Dzemat).WithMany(d => d.Clanovi).HasForeignKey(c => c.DzematId).OnDelete(DeleteBehavior.ClientSetNull);
+            _modelBuilder.Entity<Projekat>().HasMany(p => p.Incomes).WithOne(p => p.Project).HasForeignKey(p => p.ProjectId).OnDelete(DeleteBehavior.ClientSetNull);
+            _modelBuilder.Entity<Prihod>().HasOne(p => p.Supervisor).WithMany(p => p.ProknjizeniPrihodi).HasForeignKey(p => p.SupervisorId).OnDelete(DeleteBehavior.ClientSetNull);
+            _modelBuilder.Entity<Clan>().HasOne(c => c.Dzemat).WithMany(d => d.Members).HasForeignKey(c => c.DzematId).OnDelete(DeleteBehavior.ClientSetNull);
             _modelBuilder.Entity<Dzemat>().HasOne(d => d.Medzlis).WithMany(m => m.Dzemati).HasForeignKey(d => d.MedzlisId).OnDelete(DeleteBehavior.ClientSetNull);
             _modelBuilder.Entity<Dzemat>().HasMany(d => d.Baze).WithOne(b => b.Dzemat).HasForeignKey(b => b.DzematId).OnDelete(DeleteBehavior.ClientSetNull);
             _modelBuilder.Entity<Uplata>().HasOne(u => u.Clan).WithMany(c => c.Uplate).HasForeignKey(u => u.ClanId).OnDelete(DeleteBehavior.ClientSetNull);
             _modelBuilder.Entity<Baza>().HasMany(b => b.ClanInfo).WithOne(c => c.Baza).HasForeignKey(b => b.BazaId).OnDelete(DeleteBehavior.ClientSetNull);
+
+            // Authentication models |INHERITANCE|
+            _modelBuilder.Entity<Korisnik>().ToTable("Korisnici");
+            _modelBuilder.Entity<Supervisor>().ToTable("Supervisors");
+            _modelBuilder.Entity<Admin>().ToTable("Admins");
+            _modelBuilder.Entity<Dzemat>().ToTable("Dzemati");
         }
 
         public DbSet<Korisnik> Korisnici { get; set; }
+        public DbSet<Supervisor> Supervisors { get; set; }
+        public DbSet<Admin> Admins { get; set; }
+        public DbSet<Dzemat> Dzemati { get; set; }
         public DbSet<Baza> Baze { get; set; }
         public DbSet<Clan> Clanovi { get; set; }
         public DbSet<ClanInfo> ClanInfo { get; set; }
         public DbSet<ClanPorodice> ClanPorodice { get; set; }
         public DbSet<Donator> Donatori { get; set; }
         public DbSet<Dug> Dugovi { get; set; }
-        public DbSet<Dzemat> Dzemat { get; set; }
         public DbSet<Medzlis> Medzlis { get; set; }
         public DbSet<Prihod> Prihodi { get; set; }
         public DbSet<Projekat> Projekti { get; set; }

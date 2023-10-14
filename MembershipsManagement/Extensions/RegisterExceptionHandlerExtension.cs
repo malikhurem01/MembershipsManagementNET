@@ -1,4 +1,5 @@
 ﻿using MembershipsManagement.Entities;
+using MembershipsManagement.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using NLog.Fluent;
 using System.Text;

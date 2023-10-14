@@ -1,4 +1,4 @@
-﻿using MembershipsManagement.DTOs.Baza;
+﻿using MembershipsManagement.DTOs.BazaDTOs;
 using MembershipsManagement.Entities;
 
 namespace MembershipsManagement.Services.SpreadSheets

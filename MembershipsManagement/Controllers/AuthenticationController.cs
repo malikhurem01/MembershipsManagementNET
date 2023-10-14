@@ -1,4 +1,6 @@
-﻿using MembershipsManagement.DTOs.User;
+﻿using MembershipsManagement.DTOs.AuthDTOs;
+using MembershipsManagement.DTOs.DzematDTOs;
+using MembershipsManagement.DTOs.User;
 using MembershipsManagement.Entities;
 using MembershipsManagement.Services.Authentication;
 using Microsoft.AspNetCore.Mvc;
@@ -15,17 +17,31 @@ namespace MembershipsManagement.Controllers
             _authService = authService;
         }
 
-        [HttpPost("register")]
-        public async Task<ActionResult<ServiceResponse<GetUserDto>>> RegisterUser(RegisterUserDto user)
+        [HttpPost("register/dzemat")]
+        public async Task<ActionResult<ServiceResponse<GetDzematDto>>> RegisterDzemat(RegisterDzematDto user)
         {
-            var response = await _authService.RegisterUser(user);
+            var response = await _authService.RegisterDzemat(user);
             return Ok(response);
         }
 
-        [HttpPost("login")]
+        [HttpPost("register/supervisor")]
+        public async Task<ActionResult<ServiceResponse<GetUserDto>>> RegisterSupervisor(RegisterUserDto user)
+        {
+            var response = await _authService.RegisterSupervisor(user);
+            return Ok(response);
+        }
+
+        [HttpPost("login/dzemat")]
+        public async Task<ActionResult<ServiceResponse<GetDzematDto>>> LoginDzemat(DzematLoginDto user)
+        {
+            var response = await _authService.LoginDzemat(user);
+            return Ok(response);
+        }
+
+        [HttpPost("login/supervisor")]
         public async Task<ActionResult<ServiceResponse<GetUserDto>>> LoginUser(UserLoginDto user)
         {
-            var response = await _authService.Login(user);
+            var response = await _authService.LoginSupervisor(user);
             return Ok(response);
         }
 

@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace MembershipsManagement.Entities
+namespace MembershipsManagement.Exceptions
 {
     public class ErrorModel
     {

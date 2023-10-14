@@ -3,8 +3,9 @@
     public class Trosak
     {
         public int Id { get; set; }
+        public string DzematId { get; set; } = string.Empty;
         public Dzemat Dzemat { get; set; }
-        public string Naziv { get; set; } = string.Empty;
-        public double Iznos { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public double Amount { get; set; }
     }
 }

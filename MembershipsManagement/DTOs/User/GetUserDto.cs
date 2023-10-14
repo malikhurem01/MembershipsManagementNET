@@ -10,7 +10,7 @@ namespace MembershipsManagement.DTOs.User
         public string FathersName { get; set; } = string.Empty;
         public string UserName { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
-        public Pozicija Pozicija { get; set; }
+        public Pozicija Position { get; set; }
         public string Token { get; set; } = string.Empty;
     }
 }

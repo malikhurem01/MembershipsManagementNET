@@ -1,4 +1,4 @@
-﻿namespace MembershipsManagement.Entities
+﻿namespace MembershipsManagement.Exceptions
 {
     public class BadRequestException : Exception
     {
