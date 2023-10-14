@@ -22,7 +22,7 @@ namespace MembershipsManagement.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
-            modelBuilder.Entity("MembershipsManagement.Entities.Baza", b =>
+            modelBuilder.Entity("MembershipsManagement.Entities.Debt", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -30,130 +30,23 @@ namespace MembershipsManagement.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<bool>("Archived")
-                        .HasColumnType("bit");
+                    b.Property<int>("DebtFee")
+                        .HasColumnType("int");
 
-                    b.Property<string>("DzematId")
+                    b.Property<int>("MemberId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SupervisorId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("Year")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("DzematId");
+                    b.HasIndex("MemberId");
 
-                    b.ToTable("Baze");
-                });
+                    b.HasIndex("SupervisorId");
 
-            modelBuilder.Entity("MembershipsManagement.Entities.Clan", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("Address")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("BazaId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("DzematId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("EvBroj")
-                        .HasColumnType("int");
-
-                    b.Property<string>("FathersName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("IznosClanarine")
-                        .HasColumnType("int");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ZipCode")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BazaId");
-
-                    b.HasIndex("DzematId");
-
-                    b.ToTable("Clanovi");
-                });
-
-            modelBuilder.Entity("MembershipsManagement.Entities.ClanInfo", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<int>("BazaId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ClanId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("ImaDug")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Napomena")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BazaId");
-
-                    b.HasIndex("ClanId");
-
-                    b.ToTable("ClanInfo");
-                });
-
-            modelBuilder.Entity("MembershipsManagement.Entities.ClanPorodice", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<int>("ClanId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("DatumRodjenja")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ClanId");
-
-                    b.ToTable("ClanPorodice");
+                    b.ToTable("Debt");
                 });
 
             modelBuilder.Entity("MembershipsManagement.Entities.Donator", b =>
@@ -180,10 +73,10 @@ namespace MembershipsManagement.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Donatori");
+                    b.ToTable("Donators");
                 });
 
-            modelBuilder.Entity("MembershipsManagement.Entities.Dug", b =>
+            modelBuilder.Entity("MembershipsManagement.Entities.Expense", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -191,56 +84,58 @@ namespace MembershipsManagement.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int>("ClanId")
-                        .HasColumnType("int");
+                    b.Property<double>("Amount")
+                        .HasColumnType("float");
 
-                    b.Property<int>("DebtFee")
-                        .HasColumnType("int");
-
-                    b.Property<string>("SupervisorId")
+                    b.Property<string>("DzematId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ClanId");
-
-                    b.HasIndex("SupervisorId");
-
-                    b.ToTable("Dugovi");
-                });
-
-            modelBuilder.Entity("MembershipsManagement.Entities.Medzlis", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<string>("Address")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Location")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("SupervisorId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int?>("ZipCode")
+                    b.Property<int>("ProjectId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SupervisorId");
+                    b.HasIndex("DzematId");
 
-                    b.ToTable("Medzlis");
+                    b.HasIndex("ProjectId");
+
+                    b.ToTable("Expenses");
                 });
 
-            modelBuilder.Entity("MembershipsManagement.Entities.Prihod", b =>
+            modelBuilder.Entity("MembershipsManagement.Entities.FamilyMember", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<DateTime>("DateOfBirth")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("MemberId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MemberId");
+
+                    b.ToTable("FamilyMembers");
+                });
+
+            modelBuilder.Entity("MembershipsManagement.Entities.Income", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -267,7 +162,7 @@ namespace MembershipsManagement.Migrations
                     b.Property<string>("Note")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("ProjectId")
+                    b.Property<int?>("ProjectId")
                         .HasColumnType("int");
 
                     b.Property<string>("SupervisorId")
@@ -284,10 +179,152 @@ namespace MembershipsManagement.Migrations
 
                     b.HasIndex("SupervisorId");
 
-                    b.ToTable("Prihodi");
+                    b.ToTable("Incomes");
                 });
 
-            modelBuilder.Entity("MembershipsManagement.Entities.Projekat", b =>
+            modelBuilder.Entity("MembershipsManagement.Entities.Medzlis", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Address")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Location")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ZipCode")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Medzlisi");
+                });
+
+            modelBuilder.Entity("MembershipsManagement.Entities.Member", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DzematId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("EvNumber")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FathersName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("MembershipFee")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("SpreadSheetId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ZipCode")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DzematId");
+
+                    b.HasIndex("SpreadSheetId");
+
+                    b.ToTable("Members");
+                });
+
+            modelBuilder.Entity("MembershipsManagement.Entities.MemberInfo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<bool>("HasDebt")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("MemberId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Note")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SpreadSheetId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MemberId");
+
+                    b.HasIndex("SpreadSheetId");
+
+                    b.ToTable("MembersInfo");
+                });
+
+            modelBuilder.Entity("MembershipsManagement.Entities.Payment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<double>("Amount")
+                        .HasColumnType("float");
+
+                    b.Property<DateTime>("DateOfPayment")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("MemberId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SpreadSheetId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SupervisorId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MemberId");
+
+                    b.HasIndex("SpreadSheetId");
+
+                    b.HasIndex("SupervisorId");
+
+                    b.ToTable("Payments");
+                });
+
+            modelBuilder.Entity("MembershipsManagement.Entities.Project", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -297,9 +334,6 @@ namespace MembershipsManagement.Migrations
 
                     b.Property<bool>("Archive")
                         .HasColumnType("bit");
-
-                    b.Property<int>("BazaId")
-                        .HasColumnType("int");
 
                     b.Property<double>("Budget")
                         .HasColumnType("float");
@@ -321,16 +355,19 @@ namespace MembershipsManagement.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.Property<int>("SpreadSheetId")
+                        .HasColumnType("int");
 
-                    b.HasIndex("BazaId");
+                    b.HasKey("Id");
 
                     b.HasIndex("DzematId");
 
-                    b.ToTable("Projekti");
+                    b.HasIndex("SpreadSheetId");
+
+                    b.ToTable("Projects");
                 });
 
-            modelBuilder.Entity("MembershipsManagement.Entities.Trosak", b =>
+            modelBuilder.Entity("MembershipsManagement.Entities.SpreadSheet", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -338,56 +375,21 @@ namespace MembershipsManagement.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<double>("Amount")
-                        .HasColumnType("float");
+                    b.Property<bool>("Archived")
+                        .HasColumnType("bit");
 
                     b.Property<string>("DzematId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Year")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("DzematId");
 
-                    b.ToTable("Troskovi");
-                });
-
-            modelBuilder.Entity("MembershipsManagement.Entities.Uplata", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<double>("Amount")
-                        .HasColumnType("float");
-
-                    b.Property<int>("BazaId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ClanId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("DateOfPayment")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("SupervisorId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BazaId");
-
-                    b.HasIndex("ClanId");
-
-                    b.HasIndex("SupervisorId");
-
-                    b.ToTable("Uplate");
+                    b.ToTable("SpreadSheets");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -616,7 +618,7 @@ namespace MembershipsManagement.Migrations
                     b.ToTable("Dzemati", (string)null);
                 });
 
-            modelBuilder.Entity("MembershipsManagement.Entities.Korisnik", b =>
+            modelBuilder.Entity("MembershipsManagement.Entities.User", b =>
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
 
@@ -635,107 +637,82 @@ namespace MembershipsManagement.Migrations
                     b.Property<int>("Position")
                         .HasColumnType("int");
 
-                    b.ToTable("Korisnici", (string)null);
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("MembershipsManagement.Models.Admin", b =>
                 {
-                    b.HasBaseType("MembershipsManagement.Entities.Korisnik");
+                    b.HasBaseType("MembershipsManagement.Entities.User");
 
                     b.ToTable("Admins", (string)null);
                 });
 
             modelBuilder.Entity("MembershipsManagement.Models.Supervisor", b =>
                 {
-                    b.HasBaseType("MembershipsManagement.Entities.Korisnik");
+                    b.HasBaseType("MembershipsManagement.Entities.User");
 
                     b.Property<string>("DzematId")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<int?>("MedzlisId")
+                        .HasColumnType("int");
+
                     b.HasIndex("DzematId");
+
+                    b.HasIndex("MedzlisId");
 
                     b.ToTable("Supervisors", (string)null);
                 });
 
-            modelBuilder.Entity("MembershipsManagement.Entities.Baza", b =>
+            modelBuilder.Entity("MembershipsManagement.Entities.Debt", b =>
+                {
+                    b.HasOne("MembershipsManagement.Entities.Member", "Member")
+                        .WithMany()
+                        .HasForeignKey("MemberId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MembershipsManagement.Models.Supervisor", "Supervisor")
+                        .WithMany()
+                        .HasForeignKey("SupervisorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Member");
+
+                    b.Navigation("Supervisor");
+                });
+
+            modelBuilder.Entity("MembershipsManagement.Entities.Expense", b =>
                 {
                     b.HasOne("MembershipsManagement.Entities.Dzemat", "Dzemat")
-                        .WithMany("Baze")
+                        .WithMany()
                         .HasForeignKey("DzematId")
-                        .IsRequired();
-
-                    b.Navigation("Dzemat");
-                });
-
-            modelBuilder.Entity("MembershipsManagement.Entities.Clan", b =>
-                {
-                    b.HasOne("MembershipsManagement.Entities.Baza", null)
-                        .WithMany("Clanovi")
-                        .HasForeignKey("BazaId");
-
-                    b.HasOne("MembershipsManagement.Entities.Dzemat", "Dzemat")
-                        .WithMany("Members")
-                        .HasForeignKey("DzematId");
-
-                    b.Navigation("Dzemat");
-                });
-
-            modelBuilder.Entity("MembershipsManagement.Entities.ClanInfo", b =>
-                {
-                    b.HasOne("MembershipsManagement.Entities.Baza", "Baza")
-                        .WithMany("ClanInfo")
-                        .HasForeignKey("BazaId")
-                        .IsRequired();
-
-                    b.HasOne("MembershipsManagement.Entities.Clan", "Clan")
-                        .WithMany()
-                        .HasForeignKey("ClanId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Baza");
+                    b.HasOne("MembershipsManagement.Entities.Project", "Project")
+                        .WithMany("Expenses")
+                        .HasForeignKey("ProjectId")
+                        .IsRequired();
 
-                    b.Navigation("Clan");
+                    b.Navigation("Dzemat");
+
+                    b.Navigation("Project");
                 });
 
-            modelBuilder.Entity("MembershipsManagement.Entities.ClanPorodice", b =>
+            modelBuilder.Entity("MembershipsManagement.Entities.FamilyMember", b =>
                 {
-                    b.HasOne("MembershipsManagement.Entities.Clan", "Clan")
+                    b.HasOne("MembershipsManagement.Entities.Member", "Member")
                         .WithMany("FamilyMembers")
-                        .HasForeignKey("ClanId")
+                        .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Clan");
+                    b.Navigation("Member");
                 });
 
-            modelBuilder.Entity("MembershipsManagement.Entities.Dug", b =>
-                {
-                    b.HasOne("MembershipsManagement.Entities.Clan", "Clan")
-                        .WithMany()
-                        .HasForeignKey("ClanId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MembershipsManagement.Models.Supervisor", "Supervisor")
-                        .WithMany()
-                        .HasForeignKey("SupervisorId");
-
-                    b.Navigation("Clan");
-
-                    b.Navigation("Supervisor");
-                });
-
-            modelBuilder.Entity("MembershipsManagement.Entities.Medzlis", b =>
-                {
-                    b.HasOne("MembershipsManagement.Models.Supervisor", "Supervisor")
-                        .WithMany()
-                        .HasForeignKey("SupervisorId");
-
-                    b.Navigation("Supervisor");
-                });
-
-            modelBuilder.Entity("MembershipsManagement.Entities.Prihod", b =>
+            modelBuilder.Entity("MembershipsManagement.Entities.Income", b =>
                 {
                     b.HasOne("MembershipsManagement.Entities.Donator", "Donator")
                         .WithMany()
@@ -749,13 +726,12 @@ namespace MembershipsManagement.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MembershipsManagement.Entities.Projekat", "Project")
+                    b.HasOne("MembershipsManagement.Entities.Project", "Project")
                         .WithMany("Incomes")
-                        .HasForeignKey("ProjectId")
-                        .IsRequired();
+                        .HasForeignKey("ProjectId");
 
                     b.HasOne("MembershipsManagement.Models.Supervisor", "Supervisor")
-                        .WithMany("ProknjizeniPrihodi")
+                        .WithMany("RecordedIncomes")
                         .HasForeignKey("SupervisorId")
                         .IsRequired();
 
@@ -768,58 +744,90 @@ namespace MembershipsManagement.Migrations
                     b.Navigation("Supervisor");
                 });
 
-            modelBuilder.Entity("MembershipsManagement.Entities.Projekat", b =>
+            modelBuilder.Entity("MembershipsManagement.Entities.Member", b =>
                 {
-                    b.HasOne("MembershipsManagement.Entities.Baza", "Baza")
-                        .WithMany("Projekti")
-                        .HasForeignKey("BazaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("MembershipsManagement.Entities.Dzemat", "Dzemat")
-                        .WithMany()
-                        .HasForeignKey("DzematId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .WithMany("Members")
+                        .HasForeignKey("DzematId");
 
-                    b.Navigation("Baza");
+                    b.HasOne("MembershipsManagement.Entities.SpreadSheet", null)
+                        .WithMany("Members")
+                        .HasForeignKey("SpreadSheetId");
 
                     b.Navigation("Dzemat");
                 });
 
-            modelBuilder.Entity("MembershipsManagement.Entities.Trosak", b =>
+            modelBuilder.Entity("MembershipsManagement.Entities.MemberInfo", b =>
                 {
-                    b.HasOne("MembershipsManagement.Entities.Dzemat", "Dzemat")
+                    b.HasOne("MembershipsManagement.Entities.Member", "Member")
                         .WithMany()
-                        .HasForeignKey("DzematId")
+                        .HasForeignKey("MemberId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Dzemat");
+                    b.HasOne("MembershipsManagement.Entities.SpreadSheet", "SpreadSheet")
+                        .WithMany("MemberInfo")
+                        .HasForeignKey("SpreadSheetId")
+                        .IsRequired();
+
+                    b.Navigation("Member");
+
+                    b.Navigation("SpreadSheet");
                 });
 
-            modelBuilder.Entity("MembershipsManagement.Entities.Uplata", b =>
+            modelBuilder.Entity("MembershipsManagement.Entities.Payment", b =>
                 {
-                    b.HasOne("MembershipsManagement.Entities.Baza", "Baza")
-                        .WithMany("Uplate")
-                        .HasForeignKey("BazaId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                    b.HasOne("MembershipsManagement.Entities.Member", "Member")
+                        .WithMany("Payments")
+                        .HasForeignKey("MemberId")
                         .IsRequired();
 
-                    b.HasOne("MembershipsManagement.Entities.Clan", "Clan")
-                        .WithMany("Uplate")
-                        .HasForeignKey("ClanId")
+                    b.HasOne("MembershipsManagement.Entities.SpreadSheet", "SpreadSheet")
+                        .WithMany("Payments")
+                        .HasForeignKey("SpreadSheetId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("MembershipsManagement.Models.Supervisor", "Supervisor")
                         .WithMany()
-                        .HasForeignKey("SupervisorId");
+                        .HasForeignKey("SupervisorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("Baza");
+                    b.Navigation("Member");
 
-                    b.Navigation("Clan");
+                    b.Navigation("SpreadSheet");
 
                     b.Navigation("Supervisor");
+                });
+
+            modelBuilder.Entity("MembershipsManagement.Entities.Project", b =>
+                {
+                    b.HasOne("MembershipsManagement.Entities.Dzemat", "Dzemat")
+                        .WithMany()
+                        .HasForeignKey("DzematId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MembershipsManagement.Entities.SpreadSheet", "SpreadSheet")
+                        .WithMany("Projects")
+                        .HasForeignKey("SpreadSheetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Dzemat");
+
+                    b.Navigation("SpreadSheet");
+                });
+
+            modelBuilder.Entity("MembershipsManagement.Entities.SpreadSheet", b =>
+                {
+                    b.HasOne("MembershipsManagement.Entities.Dzemat", "Dzemat")
+                        .WithMany("SpreadSheets")
+                        .HasForeignKey("DzematId")
+                        .IsRequired();
+
+                    b.Navigation("Dzemat");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -889,18 +897,18 @@ namespace MembershipsManagement.Migrations
                     b.Navigation("Medzlis");
                 });
 
-            modelBuilder.Entity("MembershipsManagement.Entities.Korisnik", b =>
+            modelBuilder.Entity("MembershipsManagement.Entities.User", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
                         .WithOne()
-                        .HasForeignKey("MembershipsManagement.Entities.Korisnik", "Id")
+                        .HasForeignKey("MembershipsManagement.Entities.User", "Id")
                         .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
                 });
 
             modelBuilder.Entity("MembershipsManagement.Models.Admin", b =>
                 {
-                    b.HasOne("MembershipsManagement.Entities.Korisnik", null)
+                    b.HasOne("MembershipsManagement.Entities.User", null)
                         .WithOne()
                         .HasForeignKey("MembershipsManagement.Models.Admin", "Id")
                         .OnDelete(DeleteBehavior.ClientCascade)
@@ -913,55 +921,65 @@ namespace MembershipsManagement.Migrations
                         .WithMany("Supervisors")
                         .HasForeignKey("DzematId");
 
-                    b.HasOne("MembershipsManagement.Entities.Korisnik", null)
+                    b.HasOne("MembershipsManagement.Entities.User", null)
                         .WithOne()
                         .HasForeignKey("MembershipsManagement.Models.Supervisor", "Id")
                         .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
 
+                    b.HasOne("MembershipsManagement.Entities.Medzlis", "Medzlis")
+                        .WithMany("Supervisors")
+                        .HasForeignKey("MedzlisId");
+
                     b.Navigation("Dzemat");
-                });
 
-            modelBuilder.Entity("MembershipsManagement.Entities.Baza", b =>
-                {
-                    b.Navigation("ClanInfo");
-
-                    b.Navigation("Clanovi");
-
-                    b.Navigation("Projekti");
-
-                    b.Navigation("Uplate");
-                });
-
-            modelBuilder.Entity("MembershipsManagement.Entities.Clan", b =>
-                {
-                    b.Navigation("FamilyMembers");
-
-                    b.Navigation("Uplate");
+                    b.Navigation("Medzlis");
                 });
 
             modelBuilder.Entity("MembershipsManagement.Entities.Medzlis", b =>
                 {
                     b.Navigation("Dzemati");
+
+                    b.Navigation("Supervisors");
                 });
 
-            modelBuilder.Entity("MembershipsManagement.Entities.Projekat", b =>
+            modelBuilder.Entity("MembershipsManagement.Entities.Member", b =>
                 {
+                    b.Navigation("FamilyMembers");
+
+                    b.Navigation("Payments");
+                });
+
+            modelBuilder.Entity("MembershipsManagement.Entities.Project", b =>
+                {
+                    b.Navigation("Expenses");
+
                     b.Navigation("Incomes");
+                });
+
+            modelBuilder.Entity("MembershipsManagement.Entities.SpreadSheet", b =>
+                {
+                    b.Navigation("MemberInfo");
+
+                    b.Navigation("Members");
+
+                    b.Navigation("Payments");
+
+                    b.Navigation("Projects");
                 });
 
             modelBuilder.Entity("MembershipsManagement.Entities.Dzemat", b =>
                 {
-                    b.Navigation("Baze");
-
                     b.Navigation("Members");
+
+                    b.Navigation("SpreadSheets");
 
                     b.Navigation("Supervisors");
                 });
 
             modelBuilder.Entity("MembershipsManagement.Models.Supervisor", b =>
                 {
-                    b.Navigation("ProknjizeniPrihodi");
+                    b.Navigation("RecordedIncomes");
                 });
 #pragma warning restore 612, 618
         }

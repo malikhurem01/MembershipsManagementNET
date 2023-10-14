@@ -1,4 +1,4 @@
-﻿namespace MembershipsManagement.DTOs.Member
+﻿namespace MembershipsManagement.DTOs.MemberDTOs
 {
     public class DeleteMemberDto
     {

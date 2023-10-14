@@ -22,7 +22,7 @@ namespace MembershipsManagement.Services.SpreadSheets
         public async Task<ServiceResponse<GetBazaDto>> CreateBaza(AddBazaDto baza)
         {
             var response = new ServiceResponse<GetBazaDto>();
-            var fetchedBaza = await _context.Baze
+            var fetchedBaza = await _context.SpreadSheets
                 .Where(b => b.DzematId.Equals(baza.DzematId))
                 .Where(b => b.Year == baza.Year)
                 .FirstOrDefaultAsync();
@@ -40,8 +40,8 @@ namespace MembershipsManagement.Services.SpreadSheets
                 throw new BadRequestException("Year can not be greater than: " + DateTime.Now.Year);
             }
 
-            var bazaToAdd = _mapper.Map<Baza>(baza);
-            _context.Baze.Add(bazaToAdd);
+            var bazaToAdd = _mapper.Map<SpreadSheet>(baza);
+            _context.SpreadSheets.Add(bazaToAdd);
             await _context.SaveChangesAsync();
 
             response.Data = _mapper.Map<GetBazaDto>(bazaToAdd);
@@ -52,7 +52,7 @@ namespace MembershipsManagement.Services.SpreadSheets
         public async Task<ServiceResponse<string>> DeleteBaza(DeleteBazaDto baza)
         {
             var response = new ServiceResponse<string>();
-            var fetchedBaza = await _context.Baze
+            var fetchedBaza = await _context.SpreadSheets
                 .Where(b => b.DzematId.Equals(baza.DzematId))
                 .Where(b => b.Id == baza.Id)
                 .FirstOrDefaultAsync();
@@ -62,7 +62,7 @@ namespace MembershipsManagement.Services.SpreadSheets
                 throw new BadRequestException("Baza with ID: " + baza.Id + " for džemat ID: " + baza.DzematId + " does not exist.");
             }
 
-            _context.Baze.Remove(fetchedBaza);
+            _context.SpreadSheets.Remove(fetchedBaza);
             await _context.SaveChangesAsync();
 
             response.Data = "Baza with ID: " + baza.Id + " for džemat ID: " + baza.DzematId + " was deleted.";
@@ -73,7 +73,7 @@ namespace MembershipsManagement.Services.SpreadSheets
         public async Task<ServiceResponse<List<GetBazaDto>>> GetBazaList(int dzematId)
         {
             var response = new ServiceResponse<List<GetBazaDto>>();
-            var fetched = await _context.Baze.Where(b => b.DzematId.Equals(dzematId)).ToListAsync();
+            var fetched = await _context.SpreadSheets.Where(b => b.DzematId.Equals(dzematId)).ToListAsync();
 
             if (fetched.Count == 0) {
                 response.Message = "No baza available.";
@@ -87,7 +87,7 @@ namespace MembershipsManagement.Services.SpreadSheets
         public async Task<ServiceResponse<GetBazaDto>> GetSingleBaza(int bazaId)
         {
             var response = new ServiceResponse<GetBazaDto>();
-            var fetched = await _context.Baze.Where(b => b.Id == bazaId).FirstOrDefaultAsync();
+            var fetched = await _context.SpreadSheets.Where(b => b.Id == bazaId).FirstOrDefaultAsync();
 
 
             response.Data = _mapper.Map<GetBazaDto>(fetched);
@@ -98,7 +98,7 @@ namespace MembershipsManagement.Services.SpreadSheets
         public async Task<ServiceResponse<GetBazaDto>> ArchiveBaza(int bazaId)
         {
             var response = new ServiceResponse<GetBazaDto>();
-            var fetched = await _context.Baze.Where(b => b.Id == bazaId).FirstOrDefaultAsync();
+            var fetched = await _context.SpreadSheets.Where(b => b.Id == bazaId).FirstOrDefaultAsync();
             if(fetched is null)
             {
                 throw new EntityNotFoundException("Baza with ID: " + bazaId + " was not found.");
@@ -113,7 +113,7 @@ namespace MembershipsManagement.Services.SpreadSheets
         public async Task<ServiceResponse<GetBazaDto>> UnarchiveBaza(int bazaId)
         {
             var response = new ServiceResponse<GetBazaDto>();
-            var fetched = await _context.Baze.Where(b => b.Id == bazaId).FirstOrDefaultAsync();
+            var fetched = await _context.SpreadSheets.Where(b => b.Id == bazaId).FirstOrDefaultAsync();
             if (fetched is null)
             {
                 throw new EntityNotFoundException("Baza with ID: " + bazaId + " was not found.");

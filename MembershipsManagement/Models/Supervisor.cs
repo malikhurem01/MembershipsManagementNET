@@ -2,10 +2,12 @@
 
 namespace MembershipsManagement.Models
 {
-    public class Supervisor : Korisnik
+    public class Supervisor : User
     {
         public string? DzematId { get; set; }
         public Dzemat? Dzemat { get; set; }
-        public List<Prihod>? ProknjizeniPrihodi { get; set; } = new List<Prihod>();
+        public int? MedzlisId { get; set; }
+        public Medzlis? Medzlis { get; set; }
+        public List<Income>? RecordedIncomes { get; set; } = new List<Income>();
     }
 }

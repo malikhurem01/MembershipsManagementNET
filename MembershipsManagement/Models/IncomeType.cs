@@ -1,6 +1,6 @@
 ﻿namespace MembershipsManagement.Entities
 {
-    public enum VrstaPrihoda
+    public enum IncomeType
     {
         Clanarina,
         Donacija,

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace MembershipsManagement.Migrations
 {
-    public partial class initial : Migration
+    public partial class Initial : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -49,7 +49,7 @@ namespace MembershipsManagement.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Donatori",
+                name: "Donators",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -61,7 +61,23 @@ namespace MembershipsManagement.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Donatori", x => x.Id);
+                    table.PrimaryKey("PK_Donators", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Medzlisi",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Location = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ZipCode = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Medzlisi", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -171,7 +187,7 @@ namespace MembershipsManagement.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Korisnici",
+                name: "Users",
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
@@ -182,134 +198,12 @@ namespace MembershipsManagement.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Korisnici", x => x.Id);
+                    table.PrimaryKey("PK_Users", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Korisnici_AspNetUsers_Id",
+                        name: "FK_Users_AspNetUsers_Id",
                         column: x => x.Id,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Admins",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Admins", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Admins_Korisnici_Id",
-                        column: x => x.Id,
-                        principalTable: "Korisnici",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Baze",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Archived = table.Column<bool>(type: "bit", nullable: false),
-                    Year = table.Column<int>(type: "int", nullable: false),
-                    DzematId = table.Column<string>(type: "nvarchar(450)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Baze", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ClanInfo",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    BazaId = table.Column<int>(type: "int", nullable: false),
-                    ClanId = table.Column<int>(type: "int", nullable: false),
-                    ImaDug = table.Column<bool>(type: "bit", nullable: false),
-                    Napomena = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ClanInfo", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ClanInfo_Baze_BazaId",
-                        column: x => x.BazaId,
-                        principalTable: "Baze",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Clanovi",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    EvBroj = table.Column<int>(type: "int", nullable: false),
-                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FathersName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ZipCode = table.Column<int>(type: "int", nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false),
-                    IznosClanarine = table.Column<int>(type: "int", nullable: false),
-                    DzematId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    BazaId = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Clanovi", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Clanovi_Baze_BazaId",
-                        column: x => x.BazaId,
-                        principalTable: "Baze",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ClanPorodice",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DatumRodjenja = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false),
-                    ClanId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ClanPorodice", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ClanPorodice_Clanovi_ClanId",
-                        column: x => x.ClanId,
-                        principalTable: "Clanovi",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Dugovi",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    DebtFee = table.Column<int>(type: "int", nullable: false),
-                    ClanId = table.Column<int>(type: "int", nullable: false),
-                    SupervisorId = table.Column<string>(type: "nvarchar(450)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Dugovi", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Dugovi_Clanovi_ClanId",
-                        column: x => x.ClanId,
-                        principalTable: "Clanovi",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -332,38 +226,47 @@ namespace MembershipsManagement.Migrations
                         column: x => x.Id,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Dzemati_Medzlisi_MedzlisId",
+                        column: x => x.MedzlisId,
+                        principalTable: "Medzlisi",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
-                name: "Projekti",
+                name: "Admins",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Admins", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Admins_Users_Id",
+                        column: x => x.Id,
+                        principalTable: "Users",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SpreadSheets",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Archive = table.Column<bool>(type: "bit", nullable: false),
-                    DzematId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DateStart = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    DateEnd = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    BazaId = table.Column<int>(type: "int", nullable: false),
-                    Budget = table.Column<double>(type: "float", nullable: false)
+                    Archived = table.Column<bool>(type: "bit", nullable: false),
+                    Year = table.Column<int>(type: "int", nullable: false),
+                    DzematId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Projekti", x => x.Id);
+                    table.PrimaryKey("PK_SpreadSheets", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Projekti_Baze_BazaId",
-                        column: x => x.BazaId,
-                        principalTable: "Baze",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Projekti_Dzemati_DzematId",
+                        name: "FK_SpreadSheets_Dzemati_DzematId",
                         column: x => x.DzematId,
                         principalTable: "Dzemati",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -371,7 +274,8 @@ namespace MembershipsManagement.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    DzematId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    DzematId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    MedzlisId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -382,63 +286,226 @@ namespace MembershipsManagement.Migrations
                         principalTable: "Dzemati",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Supervisors_Korisnici_Id",
+                        name: "FK_Supervisors_Medzlisi_MedzlisId",
+                        column: x => x.MedzlisId,
+                        principalTable: "Medzlisi",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Supervisors_Users_Id",
                         column: x => x.Id,
-                        principalTable: "Korisnici",
+                        principalTable: "Users",
                         principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
-                name: "Troskovi",
+                name: "Members",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    DzematId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Amount = table.Column<double>(type: "float", nullable: false)
+                    EvNumber = table.Column<int>(type: "int", nullable: false),
+                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FathersName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ZipCode = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    MembershipFee = table.Column<int>(type: "int", nullable: false),
+                    DzematId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    SpreadSheetId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Troskovi", x => x.Id);
+                    table.PrimaryKey("PK_Members", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Troskovi_Dzemati_DzematId",
+                        name: "FK_Members_Dzemati_DzematId",
                         column: x => x.DzematId,
                         principalTable: "Dzemati",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Members_SpreadSheets_SpreadSheetId",
+                        column: x => x.SpreadSheetId,
+                        principalTable: "SpreadSheets",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Projects",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Archive = table.Column<bool>(type: "bit", nullable: false),
+                    DzematId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DateStart = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DateEnd = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    SpreadSheetId = table.Column<int>(type: "int", nullable: false),
+                    Budget = table.Column<double>(type: "float", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Projects", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Projects_Dzemati_DzematId",
+                        column: x => x.DzematId,
+                        principalTable: "Dzemati",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Projects_SpreadSheets_SpreadSheetId",
+                        column: x => x.SpreadSheetId,
+                        principalTable: "SpreadSheets",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Medzlis",
+                name: "Debt",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Location = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ZipCode = table.Column<int>(type: "int", nullable: true),
-                    SupervisorId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    DebtFee = table.Column<int>(type: "int", nullable: false),
+                    MemberId = table.Column<int>(type: "int", nullable: false),
+                    SupervisorId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Medzlis", x => x.Id);
+                    table.PrimaryKey("PK_Debt", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Medzlis_Supervisors_SupervisorId",
+                        name: "FK_Debt_Members_MemberId",
+                        column: x => x.MemberId,
+                        principalTable: "Members",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Debt_Supervisors_SupervisorId",
                         column: x => x.SupervisorId,
                         principalTable: "Supervisors",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "FamilyMembers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    MemberId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FamilyMembers", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_FamilyMembers_Members_MemberId",
+                        column: x => x.MemberId,
+                        principalTable: "Members",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "MembersInfo",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SpreadSheetId = table.Column<int>(type: "int", nullable: false),
+                    MemberId = table.Column<int>(type: "int", nullable: false),
+                    HasDebt = table.Column<bool>(type: "bit", nullable: false),
+                    Note = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MembersInfo", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_MembersInfo_Members_MemberId",
+                        column: x => x.MemberId,
+                        principalTable: "Members",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_MembersInfo_SpreadSheets_SpreadSheetId",
+                        column: x => x.SpreadSheetId,
+                        principalTable: "SpreadSheets",
                         principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
-                name: "Prihodi",
+                name: "Payments",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Amount = table.Column<double>(type: "float", nullable: false),
+                    DateOfPayment = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    MemberId = table.Column<int>(type: "int", nullable: false),
+                    SupervisorId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    SpreadSheetId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Payments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Payments_Members_MemberId",
+                        column: x => x.MemberId,
+                        principalTable: "Members",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Payments_SpreadSheets_SpreadSheetId",
+                        column: x => x.SpreadSheetId,
+                        principalTable: "SpreadSheets",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Payments_Supervisors_SupervisorId",
+                        column: x => x.SupervisorId,
+                        principalTable: "Supervisors",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Expenses",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     DzematId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ProjectId = table.Column<int>(type: "int", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Amount = table.Column<double>(type: "float", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Expenses", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Expenses_Dzemati_DzematId",
+                        column: x => x.DzematId,
+                        principalTable: "Dzemati",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Expenses_Projects_ProjectId",
+                        column: x => x.ProjectId,
+                        principalTable: "Projects",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Incomes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    DzematId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ProjectId = table.Column<int>(type: "int", nullable: true),
                     Amount = table.Column<double>(type: "float", nullable: false),
                     Note = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DateOfPayment = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -448,59 +515,26 @@ namespace MembershipsManagement.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Prihodi", x => x.Id);
+                    table.PrimaryKey("PK_Incomes", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Prihodi_Donatori_DonatorId",
+                        name: "FK_Incomes_Donators_DonatorId",
                         column: x => x.DonatorId,
-                        principalTable: "Donatori",
+                        principalTable: "Donators",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Prihodi_Dzemati_DzematId",
+                        name: "FK_Incomes_Dzemati_DzematId",
                         column: x => x.DzematId,
                         principalTable: "Dzemati",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Prihodi_Projekti_ProjectId",
+                        name: "FK_Incomes_Projects_ProjectId",
                         column: x => x.ProjectId,
-                        principalTable: "Projekti",
+                        principalTable: "Projects",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Prihodi_Supervisors_SupervisorId",
-                        column: x => x.SupervisorId,
-                        principalTable: "Supervisors",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Uplate",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Amount = table.Column<double>(type: "float", nullable: false),
-                    DateOfPayment = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ClanId = table.Column<int>(type: "int", nullable: false),
-                    SupervisorId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    BazaId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Uplate", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Uplate_Baze_BazaId",
-                        column: x => x.BazaId,
-                        principalTable: "Baze",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Uplate_Clanovi_ClanId",
-                        column: x => x.ClanId,
-                        principalTable: "Clanovi",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Uplate_Supervisors_SupervisorId",
+                        name: "FK_Incomes_Supervisors_SupervisorId",
                         column: x => x.SupervisorId,
                         principalTable: "Supervisors",
                         principalColumn: "Id");
@@ -546,43 +580,13 @@ namespace MembershipsManagement.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Baze_DzematId",
-                table: "Baze",
-                column: "DzematId");
+                name: "IX_Debt_MemberId",
+                table: "Debt",
+                column: "MemberId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ClanInfo_BazaId",
-                table: "ClanInfo",
-                column: "BazaId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ClanInfo_ClanId",
-                table: "ClanInfo",
-                column: "ClanId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Clanovi_BazaId",
-                table: "Clanovi",
-                column: "BazaId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Clanovi_DzematId",
-                table: "Clanovi",
-                column: "DzematId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ClanPorodice_ClanId",
-                table: "ClanPorodice",
-                column: "ClanId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Dugovi_ClanId",
-                table: "Dugovi",
-                column: "ClanId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Dugovi_SupervisorId",
-                table: "Dugovi",
+                name: "IX_Debt_SupervisorId",
+                table: "Debt",
                 column: "SupervisorId");
 
             migrationBuilder.CreateIndex(
@@ -591,38 +595,88 @@ namespace MembershipsManagement.Migrations
                 column: "MedzlisId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Medzlis_SupervisorId",
-                table: "Medzlis",
-                column: "SupervisorId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Prihodi_DonatorId",
-                table: "Prihodi",
-                column: "DonatorId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Prihodi_DzematId",
-                table: "Prihodi",
+                name: "IX_Expenses_DzematId",
+                table: "Expenses",
                 column: "DzematId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Prihodi_ProjectId",
-                table: "Prihodi",
+                name: "IX_Expenses_ProjectId",
+                table: "Expenses",
                 column: "ProjectId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Prihodi_SupervisorId",
-                table: "Prihodi",
+                name: "IX_FamilyMembers_MemberId",
+                table: "FamilyMembers",
+                column: "MemberId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Incomes_DonatorId",
+                table: "Incomes",
+                column: "DonatorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Incomes_DzematId",
+                table: "Incomes",
+                column: "DzematId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Incomes_ProjectId",
+                table: "Incomes",
+                column: "ProjectId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Incomes_SupervisorId",
+                table: "Incomes",
                 column: "SupervisorId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Projekti_BazaId",
-                table: "Projekti",
-                column: "BazaId");
+                name: "IX_Members_DzematId",
+                table: "Members",
+                column: "DzematId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Projekti_DzematId",
-                table: "Projekti",
+                name: "IX_Members_SpreadSheetId",
+                table: "Members",
+                column: "SpreadSheetId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MembersInfo_MemberId",
+                table: "MembersInfo",
+                column: "MemberId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MembersInfo_SpreadSheetId",
+                table: "MembersInfo",
+                column: "SpreadSheetId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Payments_MemberId",
+                table: "Payments",
+                column: "MemberId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Payments_SpreadSheetId",
+                table: "Payments",
+                column: "SpreadSheetId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Payments_SupervisorId",
+                table: "Payments",
+                column: "SupervisorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Projects_DzematId",
+                table: "Projects",
+                column: "DzematId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Projects_SpreadSheetId",
+                table: "Projects",
+                column: "SpreadSheetId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SpreadSheets_DzematId",
+                table: "SpreadSheets",
                 column: "DzematId");
 
             migrationBuilder.CreateIndex(
@@ -631,76 +685,13 @@ namespace MembershipsManagement.Migrations
                 column: "DzematId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Troskovi_DzematId",
-                table: "Troskovi",
-                column: "DzematId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Uplate_BazaId",
-                table: "Uplate",
-                column: "BazaId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Uplate_ClanId",
-                table: "Uplate",
-                column: "ClanId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Uplate_SupervisorId",
-                table: "Uplate",
-                column: "SupervisorId");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Baze_Dzemati_DzematId",
-                table: "Baze",
-                column: "DzematId",
-                principalTable: "Dzemati",
-                principalColumn: "Id");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_ClanInfo_Clanovi_ClanId",
-                table: "ClanInfo",
-                column: "ClanId",
-                principalTable: "Clanovi",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Clanovi_Dzemati_DzematId",
-                table: "Clanovi",
-                column: "DzematId",
-                principalTable: "Dzemati",
-                principalColumn: "Id");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Dugovi_Supervisors_SupervisorId",
-                table: "Dugovi",
-                column: "SupervisorId",
-                principalTable: "Supervisors",
-                principalColumn: "Id");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Dzemati_Medzlis_MedzlisId",
-                table: "Dzemati",
-                column: "MedzlisId",
-                principalTable: "Medzlis",
-                principalColumn: "Id");
+                name: "IX_Supervisors_MedzlisId",
+                table: "Supervisors",
+                column: "MedzlisId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Supervisors_Korisnici_Id",
-                table: "Supervisors");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_Dzemati_AspNetUsers_Id",
-                table: "Dzemati");
-
-            migrationBuilder.DropForeignKey(
-                name: "FK_Supervisors_Dzemati_DzematId",
-                table: "Supervisors");
-
             migrationBuilder.DropTable(
                 name: "Admins");
 
@@ -720,52 +711,52 @@ namespace MembershipsManagement.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "ClanInfo");
+                name: "Debt");
 
             migrationBuilder.DropTable(
-                name: "ClanPorodice");
+                name: "Expenses");
 
             migrationBuilder.DropTable(
-                name: "Dugovi");
+                name: "FamilyMembers");
 
             migrationBuilder.DropTable(
-                name: "Prihodi");
+                name: "Incomes");
 
             migrationBuilder.DropTable(
-                name: "Troskovi");
+                name: "MembersInfo");
 
             migrationBuilder.DropTable(
-                name: "Uplate");
+                name: "Payments");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "Donatori");
+                name: "Donators");
 
             migrationBuilder.DropTable(
-                name: "Projekti");
+                name: "Projects");
 
             migrationBuilder.DropTable(
-                name: "Clanovi");
+                name: "Members");
 
             migrationBuilder.DropTable(
-                name: "Baze");
+                name: "Supervisors");
 
             migrationBuilder.DropTable(
-                name: "Korisnici");
+                name: "SpreadSheets");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "Users");
 
             migrationBuilder.DropTable(
                 name: "Dzemati");
 
             migrationBuilder.DropTable(
-                name: "Medzlis");
+                name: "AspNetUsers");
 
             migrationBuilder.DropTable(
-                name: "Supervisors");
+                name: "Medzlisi");
         }
     }
 }

@@ -1,11 +1,11 @@
 ﻿using MembershipsManagement.Entities;
 
-namespace MembershipsManagement.DTOs.Member
+namespace MembershipsManagement.DTOs.MemberDTOs
 {
     public class AddMemberFamilyDto
     {
         public string FirstName { get; set; } = string.Empty;
-        public DateTime? DatumRodjenja { get; set; }
-        public PorodicaStatus Status { get; set; }
+        public DateTime? DateOfBirth { get; set; }
+        public FamilyStatus Status { get; set; }
     }
 }

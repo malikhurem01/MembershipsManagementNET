@@ -8,8 +8,8 @@ namespace MembershipsManagement.DTOs.AuthDTOs
         public string LastName { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
-        public string ImeOca { get; set; } = string.Empty;
-        public string? DzematId { get; set; }
-        public Pozicija Position { get; set; }
+        public string FathersName { get; set; } = string.Empty;
+        public string? DzematId { get; set; } = string.Empty;
+        public Position Position { get; set; }
     }
 }

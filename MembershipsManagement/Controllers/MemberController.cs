@@ -1,4 +1,4 @@
-﻿using MembershipsManagement.DTOs.Member;
+﻿using MembershipsManagement.DTOs.MemberDTOs;
 using MembershipsManagement.Entities;
 using MembershipsManagement.Services.Member;
 using Microsoft.AspNetCore.Mvc;

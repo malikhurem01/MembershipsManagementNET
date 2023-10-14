@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using MembershipsManagement.DTOs.Member;
+using MembershipsManagement.DTOs.MemberDTOs;
 using MembershipsManagement.Entities;
 
 namespace MembershipsManagement.AutoMapperMaps
@@ -8,9 +8,9 @@ namespace MembershipsManagement.AutoMapperMaps
     {
         public MemberMap()
         {
-            CreateMap<Clan, GetMemberDto>();
-            CreateMap<AddMemberDto, Clan>();
-            CreateMap<AddMemberFamilyDto, Clan>();
+            CreateMap<Member, GetMemberDto>();
+            CreateMap<AddMemberDto, Member>();
+            CreateMap<AddMemberFamilyDto, Member>();
         }
     }
 }

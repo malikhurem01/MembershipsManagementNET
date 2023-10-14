@@ -1,6 +1,6 @@
 ﻿namespace MembershipsManagement.Entities
 {
-    public enum PorodicaStatus
+    public enum FamilyStatus
     {
         Husband,
         Wife,
