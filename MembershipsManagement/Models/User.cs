@@ -2,11 +2,11 @@
 
 namespace MembershipsManagement.Entities
 {
-    public class Korisnik : IdentityUser
+    public class User : IdentityUser
     {
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
         public string FathersName { get; set; } = string.Empty;
-        public Pozicija Position { get; set; }
+        public Position Position { get; set; }
     }
 }

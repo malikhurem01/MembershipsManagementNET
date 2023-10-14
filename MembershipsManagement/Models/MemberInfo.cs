@@ -1,0 +1,13 @@
+﻿namespace MembershipsManagement.Entities
+{
+    public class MemberInfo
+    {
+        public int Id { get; set; }
+        public int SpreadSheetId { get; set; }
+        public SpreadSheet SpreadSheet { get; set; }
+        public int MemberId { get; set; }
+        public Member Member { get; set; }
+        public bool HasDebt { get; set; }
+        public string Note { get; set; } = string.Empty;
+    }
+}

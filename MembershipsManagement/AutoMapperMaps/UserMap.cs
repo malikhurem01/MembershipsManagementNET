@@ -12,12 +12,12 @@ namespace MembershipsManagement.AutoMapperMaps
     {
         public UserMap()
         {
-            CreateMap<Korisnik, GetUserDto>();
+            CreateMap<User, GetUserDto>();
             CreateMap<Admin, GetUserDto>();
             CreateMap<Supervisor, GetUserDto>();
             CreateMap<RegisterUserDto, Admin>();
             CreateMap<RegisterUserDto, Supervisor>();
-            CreateMap<RegisterUserDto, Korisnik>();
+            CreateMap<RegisterUserDto, User>();
             CreateMap<RegisterUserDto, UserLoginDto>();
             CreateMap<RegisterDzematDto, DzematLoginDto>();
             CreateMap<RegisterDzematDto, Dzemat>();

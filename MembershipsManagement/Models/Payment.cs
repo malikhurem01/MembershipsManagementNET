@@ -2,14 +2,15 @@
 
 namespace MembershipsManagement.Entities
 {
-    public class Uplata
+    public class Payment
     {
         public int Id { get; set; }
         public double Amount { get; set; }
         public DateTime DateOfPayment { get; set; }
-        public int ClanId { get; set; }
-        public Clan Clan { get; set; }
+        public int MemberId { get; set; }
+        public Member Member { get; set; }
+        public string SupervisorId { get; set; } = string.Empty;
         public Supervisor Supervisor { get; set; }
-        public Baza Baza { get; set; }
+        public SpreadSheet SpreadSheet { get; set; }
     }
 }

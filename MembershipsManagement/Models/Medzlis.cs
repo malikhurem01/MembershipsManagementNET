@@ -9,7 +9,7 @@ namespace MembershipsManagement.Entities
         public string? Location { get; set; } = string.Empty;
         public string? Address { get; set; } = string.Empty;
         public int? ZipCode { get; set; }
-        public Supervisor? Supervisor { get; set; }
+        public List<Supervisor>? Supervisors { get; set; } = new List<Supervisor>();
         public List<Dzemat>? Dzemati { get; set; } = new List<Dzemat>();
         
     }

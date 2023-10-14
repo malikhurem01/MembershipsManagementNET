@@ -11,9 +11,9 @@ namespace MembershipsManagement.Entities
         public string? Location { get; set; } = string.Empty;
         public string? Address { get; set; } = string.Empty;
         public int? ZipCode { get; set; }
-        public List<Clan>? Members { get; set; } = new List<Clan>();
+        public List<Member>? Members { get; set; } = new List<Member>();
         public List<Supervisor>? Supervisors { get; set; } = new List<Supervisor>();
-        public List<Baza>? Baze { get; set; } = new List<Baza>();
+        public List<SpreadSheet>? SpreadSheets { get; set; } = new List<SpreadSheet>();
         public double? Budget { get; set; }
         
     }

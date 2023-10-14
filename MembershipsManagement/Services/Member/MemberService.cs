@@ -1,11 +1,10 @@
 ﻿using AutoMapper;
 using AutoMapper.Execution;
 using MembershipsManagement.Data;
-using MembershipsManagement.DTOs.Member;
+using MembershipsManagement.DTOs.MemberDTOs;
 using MembershipsManagement.Entities;
 using MembershipsManagement.Exceptions;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json.Linq;
 using System.IdentityModel.Tokens.Jwt;
 
 namespace MembershipsManagement.Services.Member
@@ -23,8 +22,8 @@ namespace MembershipsManagement.Services.Member
         public async Task<ServiceResponse<GetMemberDto>> AddMember(AddMemberDto member)
         {
             var response = new ServiceResponse<GetMemberDto>();
-            var memberToAdd = _mapper.Map<Clan>(member);
-            _memberContext.Clanovi.Add(memberToAdd);
+            var memberToAdd = _mapper.Map<Entities.Member>(member);
+            _memberContext.Members.Add(memberToAdd);
             await _memberContext.SaveChangesAsync();
             response.Data = _mapper.Map<GetMemberDto>(memberToAdd);
             response.Message = "Member has been successfully added";
@@ -35,7 +34,7 @@ namespace MembershipsManagement.Services.Member
         {
             var response = new ServiceResponse<GetMemberDto>();
 
-            var memberFetched = await _memberContext.Clanovi
+            var memberFetched = await _memberContext.Members
                 .Where(member => member.Id == memberModified.Id)
                 .Include(member => member.Dzemat)
                 .FirstOrDefaultAsync();
@@ -48,9 +47,8 @@ namespace MembershipsManagement.Services.Member
             memberFetched.FirstName = memberModified.FirstName.Length > 0 ? memberModified.FirstName : memberFetched.FirstName;
             memberFetched.FathersName = memberModified.FathersName.Length > 0 ? memberModified.FathersName : memberFetched.FathersName;
             memberFetched.LastName = memberModified.LastName.Length > 0 ? memberModified.LastName : memberFetched.LastName;
-            memberFetched.EvBroj = memberModified.EvBroj > 0 ? memberModified.EvBroj : memberFetched.EvBroj;
+            memberFetched.EvNumber = memberModified.EvNumber > 0 ? memberModified.EvNumber : memberFetched.EvNumber;
             memberFetched.Status = memberModified.Status > 0 ? memberModified.Status : memberFetched.Status;
-            memberFetched.DzematId = memberModified.DzematId.Length > 0 ? memberModified.DzematId : memberFetched.DzematId;
 
             await _memberContext.SaveChangesAsync();
 
@@ -68,7 +66,7 @@ namespace MembershipsManagement.Services.Member
                 .Equals("http://schemas.microsoft.com/ws/2008/06/identity/claims/userdata"))
                 .Select(claim => claim.Value)
                 .SingleOrDefault();
-            var membersFetched = await _memberContext.Clanovi
+            var membersFetched = await _memberContext.Members
                 .Where(member => member.DzematId.Equals(dzematId))
                 .ToListAsync();
 
@@ -88,7 +86,7 @@ namespace MembershipsManagement.Services.Member
                 .Equals("http://schemas.microsoft.com/ws/2008/06/identity/claims/userdata"))
                 .Select(claim => claim.Value)
                 .SingleOrDefault();
-            var memberFetched = await _memberContext.Clanovi
+            var memberFetched = await _memberContext.Members
                 .Where(member => member.Id == memberId)
                 .Where(member => member.DzematId.Equals(dzematId))
                 .FirstOrDefaultAsync();
@@ -100,14 +98,14 @@ namespace MembershipsManagement.Services.Member
         public async Task<ServiceResponse<string>> DeleteMember(DeleteMemberDto member)
         {
             var response = new ServiceResponse<string>();
-            var memberToDelete = await _memberContext.Clanovi
+            var memberToDelete = await _memberContext.Members
                 .Where(c => c.Id == member.Id)
                 .FirstOrDefaultAsync();
             if(memberToDelete == null)
             {
                 throw new EntityNotFoundException("Member with ID: " + member.Id + " was not found in database.");
             }
-            _memberContext.Clanovi.Remove(memberToDelete);
+            _memberContext.Members.Remove(memberToDelete);
             await _memberContext.SaveChangesAsync();
             response.Data = "No response data.";
             response.Message = "Member with ID: " + member.Id + " was successfully deleted from database.";
@@ -124,15 +122,15 @@ namespace MembershipsManagement.Services.Member
                 .Select(claim => claim.Value)
                 .SingleOrDefault();
 
-            var memberFetched = await _memberContext.Clanovi
-                .Where(member => member.Id == familyMembers.ClanId)
+            var memberFetched = await _memberContext.Members
+                .Where(member => member.Id == familyMembers.MemberId)
                 .Where(member => member.DzematId.Equals(dzematId))
                 .FirstOrDefaultAsync();
 
             if (memberFetched is null) 
-                throw new EntityNotFoundException("Member ID: " + familyMembers.ClanId + " in džemat ID: " + dzematId + " was not found.");
+                throw new EntityNotFoundException("Member ID: " + familyMembers.MemberId + " in džemat ID: " + dzematId + " was not found.");
 
-            List<ClanPorodice> familyList = familyMembers.FamilyList.Select(f => _mapper.Map<ClanPorodice>(f)).ToList();
+            List<FamilyMember> familyList = familyMembers.FamilyList.Select(f => _mapper.Map<FamilyMember>(f)).ToList();
             memberFetched.FamilyMembers.AddRange(familyList);
 
             await _memberContext.SaveChangesAsync();

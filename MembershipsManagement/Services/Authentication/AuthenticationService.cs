@@ -41,13 +41,13 @@ namespace MembershipsManagement.Services.Authentication
                 .Select(claim => claim.Value)
                 .SingleOrDefault();          
 
-            var fetchedUser = await _authContext.Korisnici
+            var fetchedUser = await _authContext.Users
                 .Where(user => user.Id.Equals(userId))
                 .FirstOrDefaultAsync();
 
             if(fetchedUser is not null)
             {
-                if (fetchedUser.Position != Pozicija.Admin)
+                if (fetchedUser.Position != Position.Admin)
                 {
                     fetchedUser = await _authContext.Supervisors
                     .Where(user => user.Id.Equals(userId))

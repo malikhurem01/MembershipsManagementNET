@@ -16,35 +16,36 @@ namespace MembershipsManagement.Data
         {
             base.OnModelCreating(_modelBuilder);
 
-            _modelBuilder.Entity<Projekat>().HasMany(p => p.Incomes).WithOne(p => p.Project).HasForeignKey(p => p.ProjectId).OnDelete(DeleteBehavior.ClientSetNull);
-            _modelBuilder.Entity<Prihod>().HasOne(p => p.Supervisor).WithMany(p => p.ProknjizeniPrihodi).HasForeignKey(p => p.SupervisorId).OnDelete(DeleteBehavior.ClientSetNull);
-            _modelBuilder.Entity<Clan>().HasOne(c => c.Dzemat).WithMany(d => d.Members).HasForeignKey(c => c.DzematId).OnDelete(DeleteBehavior.ClientSetNull);
+            _modelBuilder.Entity<Project>().HasMany(p => p.Incomes).WithOne(p => p.Project).HasForeignKey(p => p.ProjectId).OnDelete(DeleteBehavior.ClientSetNull);
+            _modelBuilder.Entity<Income>().HasOne(p => p.Supervisor).WithMany(p => p.RecordedIncomes).HasForeignKey(p => p.SupervisorId).OnDelete(DeleteBehavior.ClientSetNull);
+            _modelBuilder.Entity<Member>().HasOne(c => c.Dzemat).WithMany(d => d.Members).HasForeignKey(c => c.DzematId).OnDelete(DeleteBehavior.ClientSetNull);
             _modelBuilder.Entity<Dzemat>().HasOne(d => d.Medzlis).WithMany(m => m.Dzemati).HasForeignKey(d => d.MedzlisId).OnDelete(DeleteBehavior.ClientSetNull);
-            _modelBuilder.Entity<Dzemat>().HasMany(d => d.Baze).WithOne(b => b.Dzemat).HasForeignKey(b => b.DzematId).OnDelete(DeleteBehavior.ClientSetNull);
-            _modelBuilder.Entity<Uplata>().HasOne(u => u.Clan).WithMany(c => c.Uplate).HasForeignKey(u => u.ClanId).OnDelete(DeleteBehavior.ClientSetNull);
-            _modelBuilder.Entity<Baza>().HasMany(b => b.ClanInfo).WithOne(c => c.Baza).HasForeignKey(b => b.BazaId).OnDelete(DeleteBehavior.ClientSetNull);
+            _modelBuilder.Entity<Dzemat>().HasMany(d => d.SpreadSheets).WithOne(b => b.Dzemat).HasForeignKey(b => b.DzematId).OnDelete(DeleteBehavior.ClientSetNull);
+            _modelBuilder.Entity<Payment>().HasOne(u => u.Member).WithMany(c => c.Payments).HasForeignKey(u => u.MemberId).OnDelete(DeleteBehavior.ClientSetNull);
+            _modelBuilder.Entity<SpreadSheet>().HasMany(b => b.MemberInfo).WithOne(c => c.SpreadSheet).HasForeignKey(b => b.SpreadSheetId).OnDelete(DeleteBehavior.ClientSetNull);
+            _modelBuilder.Entity<Project>().HasMany(p => p.Expenses).WithOne(e => e.Project).HasForeignKey(e => e.ProjectId).OnDelete(DeleteBehavior.ClientSetNull);
 
             // Authentication models |INHERITANCE|
-            _modelBuilder.Entity<Korisnik>().ToTable("Korisnici");
+            _modelBuilder.Entity<User>().ToTable("Users");
             _modelBuilder.Entity<Supervisor>().ToTable("Supervisors");
             _modelBuilder.Entity<Admin>().ToTable("Admins");
             _modelBuilder.Entity<Dzemat>().ToTable("Dzemati");
         }
 
-        public DbSet<Korisnik> Korisnici { get; set; }
+        public DbSet<User> Users { get; set; }
         public DbSet<Supervisor> Supervisors { get; set; }
         public DbSet<Admin> Admins { get; set; }
         public DbSet<Dzemat> Dzemati { get; set; }
-        public DbSet<Baza> Baze { get; set; }
-        public DbSet<Clan> Clanovi { get; set; }
-        public DbSet<ClanInfo> ClanInfo { get; set; }
-        public DbSet<ClanPorodice> ClanPorodice { get; set; }
-        public DbSet<Donator> Donatori { get; set; }
-        public DbSet<Dug> Dugovi { get; set; }
-        public DbSet<Medzlis> Medzlis { get; set; }
-        public DbSet<Prihod> Prihodi { get; set; }
-        public DbSet<Projekat> Projekti { get; set; }
-        public DbSet<Trosak> Troskovi { get; set; }
-        public DbSet<Uplata> Uplate { get; set; }
+        public DbSet<SpreadSheet> SpreadSheets { get; set; }
+        public DbSet<Member> Members { get; set; }
+        public DbSet<MemberInfo> MembersInfo { get; set; }
+        public DbSet<FamilyMember> FamilyMembers { get; set; }
+        public DbSet<Donator> Donators { get; set; }
+        public DbSet<Debt> Debt { get; set; }
+        public DbSet<Medzlis> Medzlisi { get; set; }
+        public DbSet<Income> Incomes { get; set; }
+        public DbSet<Project> Projects { get; set; }
+        public DbSet<Expense> Expenses { get; set; }
+        public DbSet<Payment> Payments { get; set; }
     }
 }

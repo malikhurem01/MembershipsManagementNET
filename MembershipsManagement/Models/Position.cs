@@ -1,6 +1,6 @@
 ﻿namespace MembershipsManagement.Entities
 {
-    public enum Pozicija
+    public enum Position
     {
         Admin,
         MedzlisNadlezni,

@@ -8,8 +8,8 @@ namespace MembershipsManagement.AutoMapperMaps
     {
         public BazaMap()
         {
-            CreateMap<Baza, GetBazaDto>();
-            CreateMap<AddBazaDto, Baza>();
+            CreateMap<SpreadSheet, GetBazaDto>();
+            CreateMap<AddBazaDto, SpreadSheet>();
         }
     }
 }

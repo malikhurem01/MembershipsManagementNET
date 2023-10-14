@@ -2,7 +2,7 @@
 
 namespace MembershipsManagement.Models
 {
-    public class Admin : Korisnik
+    public class Admin : User
     {
     }
 }
