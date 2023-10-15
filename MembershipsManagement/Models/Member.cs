@@ -13,6 +13,7 @@
         public int MembershipFee { get; set; }
         public List<Payment>? Payments { get; set; } = new List<Payment>();
         public List<FamilyMember>? FamilyMembers { get; set; } = new List<FamilyMember>();
+        public List<Spreadsheet>? Spreadsheets { get; set; } = new List<Spreadsheet>();
         public string? DzematId { get; set; }
         public Dzemat? Dzemat { get; set; }
     }

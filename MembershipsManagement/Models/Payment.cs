@@ -11,6 +11,6 @@ namespace MembershipsManagement.Entities
         public Member Member { get; set; }
         public string SupervisorId { get; set; } = string.Empty;
         public Supervisor Supervisor { get; set; }
-        public SpreadSheet SpreadSheet { get; set; }
+        public Spreadsheet Spreadsheet { get; set; }
     }
 }

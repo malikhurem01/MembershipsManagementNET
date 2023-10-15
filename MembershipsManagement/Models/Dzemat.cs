@@ -13,7 +13,7 @@ namespace MembershipsManagement.Entities
         public int? ZipCode { get; set; }
         public List<Member>? Members { get; set; } = new List<Member>();
         public List<Supervisor>? Supervisors { get; set; } = new List<Supervisor>();
-        public List<SpreadSheet>? SpreadSheets { get; set; } = new List<SpreadSheet>();
+        public List<Spreadsheet>? Spreadsheets { get; set; } = new List<Spreadsheet>();
         public double? Budget { get; set; }
         
     }

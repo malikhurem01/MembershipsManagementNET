@@ -8,7 +8,8 @@ namespace MembershipsManagement.Extensions
         {
             service.AddAutoMapper(typeof(UserMap));
             service.AddAutoMapper(typeof(MemberMap));
-            service.AddAutoMapper(typeof(BazaMap));
+            service.AddAutoMapper(typeof(SpreadsheetMap));
+            service.AddAutoMapper(typeof(MedzlisMap));
         }
     }
 }

@@ -14,7 +14,7 @@ namespace MembershipsManagement.DTOs.DzematDTOs
         public int? ZipCode { get; set; }
         public List<Entities.Member>? Members { get; set; } = new List<Entities.Member>();
         public List<Supervisor>? Supervisors { get; set; } = new List<Supervisor>();
-        public List<SpreadSheet>? SpreadSheets { get; set; } = new List<SpreadSheet>();
+        public List<Spreadsheet>? Spreadsheets { get; set; } = new List<Spreadsheet>();
         public double? Budget { get; set; }
     }
 }

@@ -12,8 +12,8 @@
         public List<Expense>? Expenses { get; set; } = new List<Expense>();
         public DateTime DateStart { get; set; }
         public DateTime? DateEnd { get; set; }
-        public int SpreadSheetId { get; set; }
-        public SpreadSheet SpreadSheet { get; set; }
+        public int SpreadsheetId { get; set; }
+        public Spreadsheet Spreadsheet { get; set; }
         public double Budget { get; set; }
 
     }

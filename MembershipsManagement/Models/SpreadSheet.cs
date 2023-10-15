@@ -1,6 +1,6 @@
 ﻿namespace MembershipsManagement.Entities
 {
-    public class SpreadSheet
+    public class Spreadsheet
     {
         public int Id { get; set; }
         public bool Archived { get; set; }

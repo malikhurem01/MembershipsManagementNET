@@ -1,9 +1,9 @@
 ﻿namespace MembershipsManagement.DTOs.BazaDTOs
 {
-    public class AddBazaDto
+    public class AddSpreadsheetDto
     {
         public string DzematId { get; set; } = string.Empty;
-        public int Year;
-        public bool Archived = false;
+        public int Year { get; set; }
+        public bool Archived { get; set; } = false;
     }
 }

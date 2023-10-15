@@ -47,8 +47,8 @@ namespace MembershipsManagement.Services.Member
             memberFetched.FirstName = memberModified.FirstName.Length > 0 ? memberModified.FirstName : memberFetched.FirstName;
             memberFetched.FathersName = memberModified.FathersName.Length > 0 ? memberModified.FathersName : memberFetched.FathersName;
             memberFetched.LastName = memberModified.LastName.Length > 0 ? memberModified.LastName : memberFetched.LastName;
-            memberFetched.EvNumber = memberModified.EvNumber > 0 ? memberModified.EvNumber : memberFetched.EvNumber;
-            memberFetched.Status = memberModified.Status > 0 ? memberModified.Status : memberFetched.Status;
+            memberFetched.EvNumber = memberModified.EvNumber > 0 ? (int)memberModified.EvNumber : memberFetched.EvNumber;
+            memberFetched.Status = (Status)(memberModified.Status > 0 ? memberModified.Status : memberFetched.Status);
 
             await _memberContext.SaveChangesAsync();
 

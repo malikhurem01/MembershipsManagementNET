@@ -250,7 +250,33 @@ namespace MembershipsManagement.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "SpreadSheets",
+                name: "Members",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    EvNumber = table.Column<int>(type: "int", nullable: false),
+                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FathersName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ZipCode = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    MembershipFee = table.Column<int>(type: "int", nullable: false),
+                    DzematId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Members", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Members_Dzemati_DzematId",
+                        column: x => x.DzematId,
+                        principalTable: "Dzemati",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Spreadsheets",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -261,9 +287,9 @@ namespace MembershipsManagement.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SpreadSheets", x => x.Id);
+                    table.PrimaryKey("PK_Spreadsheets", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_SpreadSheets_Dzemati_DzematId",
+                        name: "FK_Spreadsheets_Dzemati_DzematId",
                         column: x => x.DzematId,
                         principalTable: "Dzemati",
                         principalColumn: "Id");
@@ -298,97 +324,6 @@ namespace MembershipsManagement.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Members",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    EvNumber = table.Column<int>(type: "int", nullable: false),
-                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FathersName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ZipCode = table.Column<int>(type: "int", nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false),
-                    MembershipFee = table.Column<int>(type: "int", nullable: false),
-                    DzematId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    SpreadSheetId = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Members", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Members_Dzemati_DzematId",
-                        column: x => x.DzematId,
-                        principalTable: "Dzemati",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Members_SpreadSheets_SpreadSheetId",
-                        column: x => x.SpreadSheetId,
-                        principalTable: "SpreadSheets",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Projects",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Archive = table.Column<bool>(type: "bit", nullable: false),
-                    DzematId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DateStart = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    DateEnd = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    SpreadSheetId = table.Column<int>(type: "int", nullable: false),
-                    Budget = table.Column<double>(type: "float", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Projects", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Projects_Dzemati_DzematId",
-                        column: x => x.DzematId,
-                        principalTable: "Dzemati",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Projects_SpreadSheets_SpreadSheetId",
-                        column: x => x.SpreadSheetId,
-                        principalTable: "SpreadSheets",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Debt",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    DebtFee = table.Column<int>(type: "int", nullable: false),
-                    MemberId = table.Column<int>(type: "int", nullable: false),
-                    SupervisorId = table.Column<string>(type: "nvarchar(450)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Debt", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Debt_Members_MemberId",
-                        column: x => x.MemberId,
-                        principalTable: "Members",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Debt_Supervisors_SupervisorId",
-                        column: x => x.SupervisorId,
-                        principalTable: "Supervisors",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "FamilyMembers",
                 columns: table => new
                 {
@@ -411,12 +346,39 @@ namespace MembershipsManagement.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Debt",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    DebtFee = table.Column<int>(type: "int", nullable: false),
+                    MemberId = table.Column<int>(type: "int", nullable: false),
+                    SpreadsheetId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Debt", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Debt_Members_MemberId",
+                        column: x => x.MemberId,
+                        principalTable: "Members",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Debt_Spreadsheets_SpreadsheetId",
+                        column: x => x.SpreadsheetId,
+                        principalTable: "Spreadsheets",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "MembersInfo",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    SpreadSheetId = table.Column<int>(type: "int", nullable: false),
+                    SpreadsheetId = table.Column<int>(type: "int", nullable: false),
                     MemberId = table.Column<int>(type: "int", nullable: false),
                     HasDebt = table.Column<bool>(type: "bit", nullable: false),
                     Note = table.Column<string>(type: "nvarchar(max)", nullable: false)
@@ -431,10 +393,66 @@ namespace MembershipsManagement.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_MembersInfo_SpreadSheets_SpreadSheetId",
-                        column: x => x.SpreadSheetId,
-                        principalTable: "SpreadSheets",
+                        name: "FK_MembersInfo_Spreadsheets_SpreadsheetId",
+                        column: x => x.SpreadsheetId,
+                        principalTable: "Spreadsheets",
                         principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "MemberSpreadsheet",
+                columns: table => new
+                {
+                    MembersId = table.Column<int>(type: "int", nullable: false),
+                    SpreadsheetsId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MemberSpreadsheet", x => new { x.MembersId, x.SpreadsheetsId });
+                    table.ForeignKey(
+                        name: "FK_MemberSpreadsheet_Members_MembersId",
+                        column: x => x.MembersId,
+                        principalTable: "Members",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_MemberSpreadsheet_Spreadsheets_SpreadsheetsId",
+                        column: x => x.SpreadsheetsId,
+                        principalTable: "Spreadsheets",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Projects",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Archive = table.Column<bool>(type: "bit", nullable: false),
+                    DzematId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DateStart = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DateEnd = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    SpreadsheetId = table.Column<int>(type: "int", nullable: false),
+                    Budget = table.Column<double>(type: "float", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Projects", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Projects_Dzemati_DzematId",
+                        column: x => x.DzematId,
+                        principalTable: "Dzemati",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Projects_Spreadsheets_SpreadsheetId",
+                        column: x => x.SpreadsheetId,
+                        principalTable: "Spreadsheets",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -447,7 +465,7 @@ namespace MembershipsManagement.Migrations
                     DateOfPayment = table.Column<DateTime>(type: "datetime2", nullable: false),
                     MemberId = table.Column<int>(type: "int", nullable: false),
                     SupervisorId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    SpreadSheetId = table.Column<int>(type: "int", nullable: false)
+                    SpreadsheetId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -458,9 +476,9 @@ namespace MembershipsManagement.Migrations
                         principalTable: "Members",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Payments_SpreadSheets_SpreadSheetId",
-                        column: x => x.SpreadSheetId,
-                        principalTable: "SpreadSheets",
+                        name: "FK_Payments_Spreadsheets_SpreadsheetId",
+                        column: x => x.SpreadsheetId,
+                        principalTable: "Spreadsheets",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -585,9 +603,9 @@ namespace MembershipsManagement.Migrations
                 column: "MemberId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Debt_SupervisorId",
+                name: "IX_Debt_SpreadsheetId",
                 table: "Debt",
-                column: "SupervisorId");
+                column: "SpreadsheetId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Dzemati_MedzlisId",
@@ -635,19 +653,19 @@ namespace MembershipsManagement.Migrations
                 column: "DzematId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Members_SpreadSheetId",
-                table: "Members",
-                column: "SpreadSheetId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_MembersInfo_MemberId",
                 table: "MembersInfo",
                 column: "MemberId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MembersInfo_SpreadSheetId",
+                name: "IX_MembersInfo_SpreadsheetId",
                 table: "MembersInfo",
-                column: "SpreadSheetId");
+                column: "SpreadsheetId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MemberSpreadsheet_SpreadsheetsId",
+                table: "MemberSpreadsheet",
+                column: "SpreadsheetsId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Payments_MemberId",
@@ -655,9 +673,9 @@ namespace MembershipsManagement.Migrations
                 column: "MemberId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Payments_SpreadSheetId",
+                name: "IX_Payments_SpreadsheetId",
                 table: "Payments",
-                column: "SpreadSheetId");
+                column: "SpreadsheetId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Payments_SupervisorId",
@@ -670,13 +688,13 @@ namespace MembershipsManagement.Migrations
                 column: "DzematId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Projects_SpreadSheetId",
+                name: "IX_Projects_SpreadsheetId",
                 table: "Projects",
-                column: "SpreadSheetId");
+                column: "SpreadsheetId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SpreadSheets_DzematId",
-                table: "SpreadSheets",
+                name: "IX_Spreadsheets_DzematId",
+                table: "Spreadsheets",
                 column: "DzematId");
 
             migrationBuilder.CreateIndex(
@@ -726,6 +744,9 @@ namespace MembershipsManagement.Migrations
                 name: "MembersInfo");
 
             migrationBuilder.DropTable(
+                name: "MemberSpreadsheet");
+
+            migrationBuilder.DropTable(
                 name: "Payments");
 
             migrationBuilder.DropTable(
@@ -744,7 +765,7 @@ namespace MembershipsManagement.Migrations
                 name: "Supervisors");
 
             migrationBuilder.DropTable(
-                name: "SpreadSheets");
+                name: "Spreadsheets");
 
             migrationBuilder.DropTable(
                 name: "Users");

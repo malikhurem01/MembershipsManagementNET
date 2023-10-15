@@ -36,15 +36,14 @@ namespace MembershipsManagement.Migrations
                     b.Property<int>("MemberId")
                         .HasColumnType("int");
 
-                    b.Property<string>("SupervisorId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("SpreadsheetId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("MemberId");
 
-                    b.HasIndex("SupervisorId");
+                    b.HasIndex("SpreadsheetId");
 
                     b.ToTable("Debt");
                 });
@@ -241,9 +240,6 @@ namespace MembershipsManagement.Migrations
                     b.Property<int>("MembershipFee")
                         .HasColumnType("int");
 
-                    b.Property<int?>("SpreadSheetId")
-                        .HasColumnType("int");
-
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
@@ -253,8 +249,6 @@ namespace MembershipsManagement.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("DzematId");
-
-                    b.HasIndex("SpreadSheetId");
 
                     b.ToTable("Members");
                 });
@@ -277,14 +271,14 @@ namespace MembershipsManagement.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("SpreadSheetId")
+                    b.Property<int>("SpreadsheetId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("MemberId");
 
-                    b.HasIndex("SpreadSheetId");
+                    b.HasIndex("SpreadsheetId");
 
                     b.ToTable("MembersInfo");
                 });
@@ -306,7 +300,7 @@ namespace MembershipsManagement.Migrations
                     b.Property<int>("MemberId")
                         .HasColumnType("int");
 
-                    b.Property<int>("SpreadSheetId")
+                    b.Property<int>("SpreadsheetId")
                         .HasColumnType("int");
 
                     b.Property<string>("SupervisorId")
@@ -317,7 +311,7 @@ namespace MembershipsManagement.Migrations
 
                     b.HasIndex("MemberId");
 
-                    b.HasIndex("SpreadSheetId");
+                    b.HasIndex("SpreadsheetId");
 
                     b.HasIndex("SupervisorId");
 
@@ -355,19 +349,19 @@ namespace MembershipsManagement.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("SpreadSheetId")
+                    b.Property<int>("SpreadsheetId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("DzematId");
 
-                    b.HasIndex("SpreadSheetId");
+                    b.HasIndex("SpreadsheetId");
 
                     b.ToTable("Projects");
                 });
 
-            modelBuilder.Entity("MembershipsManagement.Entities.SpreadSheet", b =>
+            modelBuilder.Entity("MembershipsManagement.Entities.Spreadsheet", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -389,7 +383,22 @@ namespace MembershipsManagement.Migrations
 
                     b.HasIndex("DzematId");
 
-                    b.ToTable("SpreadSheets");
+                    b.ToTable("Spreadsheets");
+                });
+
+            modelBuilder.Entity("MemberSpreadsheet", b =>
+                {
+                    b.Property<int>("MembersId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SpreadsheetsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("MembersId", "SpreadsheetsId");
+
+                    b.HasIndex("SpreadsheetsId");
+
+                    b.ToTable("MemberSpreadsheet");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -672,15 +681,15 @@ namespace MembershipsManagement.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MembershipsManagement.Models.Supervisor", "Supervisor")
+                    b.HasOne("MembershipsManagement.Entities.Spreadsheet", "Spreadsheet")
                         .WithMany()
-                        .HasForeignKey("SupervisorId")
+                        .HasForeignKey("SpreadsheetId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Member");
 
-                    b.Navigation("Supervisor");
+                    b.Navigation("Spreadsheet");
                 });
 
             modelBuilder.Entity("MembershipsManagement.Entities.Expense", b =>
@@ -750,10 +759,6 @@ namespace MembershipsManagement.Migrations
                         .WithMany("Members")
                         .HasForeignKey("DzematId");
 
-                    b.HasOne("MembershipsManagement.Entities.SpreadSheet", null)
-                        .WithMany("Members")
-                        .HasForeignKey("SpreadSheetId");
-
                     b.Navigation("Dzemat");
                 });
 
@@ -765,14 +770,14 @@ namespace MembershipsManagement.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MembershipsManagement.Entities.SpreadSheet", "SpreadSheet")
+                    b.HasOne("MembershipsManagement.Entities.Spreadsheet", "Spreadsheet")
                         .WithMany("MemberInfo")
-                        .HasForeignKey("SpreadSheetId")
+                        .HasForeignKey("SpreadsheetId")
                         .IsRequired();
 
                     b.Navigation("Member");
 
-                    b.Navigation("SpreadSheet");
+                    b.Navigation("Spreadsheet");
                 });
 
             modelBuilder.Entity("MembershipsManagement.Entities.Payment", b =>
@@ -782,9 +787,9 @@ namespace MembershipsManagement.Migrations
                         .HasForeignKey("MemberId")
                         .IsRequired();
 
-                    b.HasOne("MembershipsManagement.Entities.SpreadSheet", "SpreadSheet")
+                    b.HasOne("MembershipsManagement.Entities.Spreadsheet", "Spreadsheet")
                         .WithMany("Payments")
-                        .HasForeignKey("SpreadSheetId")
+                        .HasForeignKey("SpreadsheetId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -796,7 +801,7 @@ namespace MembershipsManagement.Migrations
 
                     b.Navigation("Member");
 
-                    b.Navigation("SpreadSheet");
+                    b.Navigation("Spreadsheet");
 
                     b.Navigation("Supervisor");
                 });
@@ -809,25 +814,40 @@ namespace MembershipsManagement.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MembershipsManagement.Entities.SpreadSheet", "SpreadSheet")
+                    b.HasOne("MembershipsManagement.Entities.Spreadsheet", "Spreadsheet")
                         .WithMany("Projects")
-                        .HasForeignKey("SpreadSheetId")
+                        .HasForeignKey("SpreadsheetId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Dzemat");
 
-                    b.Navigation("SpreadSheet");
+                    b.Navigation("Spreadsheet");
                 });
 
-            modelBuilder.Entity("MembershipsManagement.Entities.SpreadSheet", b =>
+            modelBuilder.Entity("MembershipsManagement.Entities.Spreadsheet", b =>
                 {
                     b.HasOne("MembershipsManagement.Entities.Dzemat", "Dzemat")
-                        .WithMany("SpreadSheets")
+                        .WithMany("Spreadsheets")
                         .HasForeignKey("DzematId")
                         .IsRequired();
 
                     b.Navigation("Dzemat");
+                });
+
+            modelBuilder.Entity("MemberSpreadsheet", b =>
+                {
+                    b.HasOne("MembershipsManagement.Entities.Member", null)
+                        .WithMany()
+                        .HasForeignKey("MembersId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MembershipsManagement.Entities.Spreadsheet", null)
+                        .WithMany()
+                        .HasForeignKey("SpreadsheetsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -957,11 +977,9 @@ namespace MembershipsManagement.Migrations
                     b.Navigation("Incomes");
                 });
 
-            modelBuilder.Entity("MembershipsManagement.Entities.SpreadSheet", b =>
+            modelBuilder.Entity("MembershipsManagement.Entities.Spreadsheet", b =>
                 {
                     b.Navigation("MemberInfo");
-
-                    b.Navigation("Members");
 
                     b.Navigation("Payments");
 
@@ -972,7 +990,7 @@ namespace MembershipsManagement.Migrations
                 {
                     b.Navigation("Members");
 
-                    b.Navigation("SpreadSheets");
+                    b.Navigation("Spreadsheets");
 
                     b.Navigation("Supervisors");
                 });
