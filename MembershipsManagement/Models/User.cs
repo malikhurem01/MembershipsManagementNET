@@ -7,6 +7,6 @@ namespace MembershipsManagement.Entities
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
         public string FathersName { get; set; } = string.Empty;
-        public Position Position { get; set; }
+        public Roles Position { get; set; }
     }
 }

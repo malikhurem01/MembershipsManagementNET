@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using AutoMapper.Execution;
 using MembershipsManagement.Data;
 using MembershipsManagement.DTOs.MemberDTOs;
 using MembershipsManagement.Entities;
@@ -7,7 +6,7 @@ using MembershipsManagement.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using System.IdentityModel.Tokens.Jwt;
 
-namespace MembershipsManagement.Services.Member
+namespace MembershipsManagement.Services.MemberServiceImpl
 {
     public class MemberService : IMemberService
     {
@@ -22,7 +21,7 @@ namespace MembershipsManagement.Services.Member
         public async Task<ServiceResponse<GetMemberDto>> AddMember(AddMemberDto member)
         {
             var response = new ServiceResponse<GetMemberDto>();
-            var memberToAdd = _mapper.Map<Entities.Member>(member);
+            var memberToAdd = _mapper.Map<Member>(member);
             _memberContext.Members.Add(memberToAdd);
             await _memberContext.SaveChangesAsync();
             response.Data = _mapper.Map<GetMemberDto>(memberToAdd);

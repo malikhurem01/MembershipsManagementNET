@@ -24,6 +24,7 @@ namespace MembershipsManagement.Data
             _modelBuilder.Entity<Payment>().HasOne(u => u.Member).WithMany(c => c.Payments).HasForeignKey(u => u.MemberId).OnDelete(DeleteBehavior.ClientSetNull);
             _modelBuilder.Entity<Spreadsheet>().HasMany(b => b.MemberInfo).WithOne(c => c.Spreadsheet).HasForeignKey(b => b.SpreadsheetId).OnDelete(DeleteBehavior.ClientSetNull);
             _modelBuilder.Entity<Project>().HasMany(p => p.Expenses).WithOne(e => e.Project).HasForeignKey(e => e.ProjectId).OnDelete(DeleteBehavior.ClientSetNull);
+            _modelBuilder.Entity<Member>().HasMany(m => m.MemberInfo).WithOne(m => m.Member).HasForeignKey(m => m.MemberId).OnDelete(DeleteBehavior.ClientSetNull);
             // Authentication models |INHERITANCE|
             _modelBuilder.Entity<User>().ToTable("Users");
             _modelBuilder.Entity<Supervisor>().ToTable("Supervisors");
@@ -40,7 +41,6 @@ namespace MembershipsManagement.Data
         public DbSet<MemberInfo> MembersInfo { get; set; }
         public DbSet<FamilyMember> FamilyMembers { get; set; }
         public DbSet<Donator> Donators { get; set; }
-        public DbSet<Debt> Debt { get; set; }
         public DbSet<Medzlis> Medzlisi { get; set; }
         public DbSet<Income> Incomes { get; set; }
         public DbSet<Project> Projects { get; set; }

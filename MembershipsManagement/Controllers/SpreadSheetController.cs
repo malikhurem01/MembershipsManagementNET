@@ -1,24 +1,32 @@
 ﻿using MembershipsManagement.DTOs.BazaDTOs;
+using MembershipsManagement.DTOs.SpreadsheetDTOs;
 using MembershipsManagement.Entities;
 using MembershipsManagement.Services.SpreadSheets;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MembershipsManagement.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/[controller]")]
-    public class SpreadSheetController : Controller
+    public class SpreadsheetController : Controller
     {
         private readonly ISpreadsheetService _bazaService;
 
-        public SpreadSheetController(ISpreadsheetService bazaService)
+        public SpreadsheetController(ISpreadsheetService bazaService)
         {
             _bazaService = bazaService;
         }
 
         [HttpPost("create")]
         public async Task<ActionResult<ServiceResponse<GetSpreadsheetDto>>> CreateBaza(AddSpreadsheetDto baza) {
-            var response = await _bazaService.CreateBaza(baza);
+            Request.Headers.TryGetValue("Authorization", out var token);
+            string tokenValue = token
+                .ToString()
+                .Split(" ")
+                .ElementAt(1);
+            var response = await _bazaService.CreateBaza(tokenValue, baza);
             return Ok(response);
         }
         [HttpGet("get/all")]
@@ -32,8 +40,13 @@ namespace MembershipsManagement.Controllers
             return Ok(response);
         }
         [HttpPatch("archive")]
-        public async Task<ActionResult<ServiceResponse<GetSpreadsheetDto>>> ArchiveBaza(int bazaId) {
-            var response = await _bazaService.ArchiveBaza(bazaId);
+        public async Task<ActionResult<ServiceResponse<GetSpreadsheetDto>>> ArchiveBaza(ArchiveSpreadsheetDto spreadsheet) {
+            Request.Headers.TryGetValue("Authorization", out var token);
+            string tokenValue = token
+                .ToString()
+                .Split(" ")
+                .ElementAt(1);
+            var response = await _bazaService.ArchiveBaza(tokenValue, spreadsheet);
             return Ok(response);
         }
         [HttpPatch("unarchive")]
@@ -43,7 +56,12 @@ namespace MembershipsManagement.Controllers
         }
         [HttpDelete("delete")]
         public async Task<ActionResult<ServiceResponse<string>>> DeleteBaza(DeleteSpreadsheetDto baza) {
-            var response = await _bazaService.DeleteBaza(baza);
+            Request.Headers.TryGetValue("Authorization", out var token);
+            string tokenValue = token
+                .ToString()
+                .Split(" ")
+                .ElementAt(1);
+            var response = await _bazaService.DeleteBaza(tokenValue, baza);
             return Ok(response);
         }
     }

@@ -1,4 +1,5 @@
-﻿using MembershipsManagement.Entities;
+﻿using MembershipsManagement.DTOs.DzematDTOs;
+using MembershipsManagement.Entities;
 
 namespace MembershipsManagement.DTOs.User
 {
@@ -10,7 +11,8 @@ namespace MembershipsManagement.DTOs.User
         public string FathersName { get; set; } = string.Empty;
         public string UserName { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
-        public Position Position { get; set; }
+        public GetDzematDto? Dzemat { get; set; }
+        public Roles Position { get; set; }
         public string Token { get; set; } = string.Empty;
     }
 }

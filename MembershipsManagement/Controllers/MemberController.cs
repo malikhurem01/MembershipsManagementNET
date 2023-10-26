@@ -1,11 +1,13 @@
 ﻿using MembershipsManagement.DTOs.MemberDTOs;
 using MembershipsManagement.Entities;
-using MembershipsManagement.Services.Member;
+using MembershipsManagement.Services.MemberServiceImpl;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MembershipsManagement.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/[controller]")]
     public class MemberController : ControllerBase
     {

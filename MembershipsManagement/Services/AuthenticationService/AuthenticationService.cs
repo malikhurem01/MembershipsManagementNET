@@ -23,7 +23,12 @@ namespace MembershipsManagement.Services.Authentication
         private readonly DataContext _authContext;
         private readonly IMapper _mapper;
 
-        public AuthenticationService(UserManager<IdentityUser> userManager, IConfiguration configuration, SignInManager<IdentityUser> signInManager, IMapper mapper, DataContext authContext)
+        public AuthenticationService(
+            UserManager<IdentityUser> userManager,
+            IConfiguration configuration,
+            SignInManager<IdentityUser> signInManager, 
+            IMapper mapper, DataContext authContext
+         )
         {
             _userManager = userManager;
             _configuration = configuration;
@@ -47,17 +52,16 @@ namespace MembershipsManagement.Services.Authentication
 
             if(fetchedUser is not null)
             {
-                if (fetchedUser.Position != Position.Admin)
+                if (fetchedUser.Position != Roles.Admin)
                 {
                     fetchedUser = await _authContext.Supervisors
                     .Where(user => user.Id.Equals(userId))
                     .Include(user => user.Dzemat)
+                    .ThenInclude(dzemat => dzemat.Medzlis)
                     .FirstOrDefaultAsync();
                 }
             }
- 
-
-            if(fetchedUser is null)
+            else
             {
                 throw new EntityNotFoundException("Fatal Error. USER NOT FOUND.");
             }
@@ -72,14 +76,18 @@ namespace MembershipsManagement.Services.Authentication
         {
             ServiceResponse<GetUserDto> response = new ServiceResponse<GetUserDto>();
             var fetchedUser = await _userManager.FindByEmailAsync(user.Email);
-            var savedUser = await _authContext.Supervisors.Where(user => user.Id.Equals(fetchedUser.Id)).Include(user => user.Dzemat).FirstOrDefaultAsync();
-            if (fetchedUser == null)
+            var savedUser = await _authContext.Supervisors
+                .Where(u => u.Id.Equals(fetchedUser.Id))
+                .Where(u => u.DzematId.Equals(user.DzematId))
+                .Include(u => u.Dzemat).FirstOrDefaultAsync();
+            
+            if (fetchedUser is null)
             {
                 throw new BadRequestException("Wrong credentials");
             }
-            if (savedUser == null)
+            if (fetchedUser is not null && savedUser is null)
             {
-                throw new BadRequestException("Fatal error!!! Supervisor logged in but not found in database!!!");
+                throw new BadRequestException("Fatal error!!! Supervisor from different dzemat tried to log in into another dzemat.");
             }
             else
             {
@@ -149,6 +157,10 @@ namespace MembershipsManagement.Services.Authentication
         public async Task<ServiceResponse<GetUserDto>> RegisterSupervisor(RegisterUserDto user)
         {
             ServiceResponse<GetUserDto> response = new ServiceResponse<GetUserDto>();
+            var userExists = await _userManager.FindByEmailAsync(user.Email);
+            if (userExists != null)
+                throw new BadRequestException("User already exists");
+
             var userMap = _mapper.Map<Supervisor>(user);
             //Dodati da dva korisnika ne mogu imati isti username
             userMap.UserName = user.FirstName.ToLower() + user.LastName.ToLower();

@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using MembershipsManagement.Data;
 using MembershipsManagement.DTOs.BazaDTOs;
+using MembershipsManagement.DTOs.SpreadsheetDTOs;
 using MembershipsManagement.Entities;
 using MembershipsManagement.Exceptions;
 using Microsoft.EntityFrameworkCore;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace MembershipsManagement.Services.SpreadSheets
 {
@@ -19,25 +21,49 @@ namespace MembershipsManagement.Services.SpreadSheets
             _mapper = mapper;
         }
 
-        public async Task<ServiceResponse<GetSpreadsheetDto>> CreateBaza(AddSpreadsheetDto baza)
+        public async Task<ServiceResponse<GetSpreadsheetDto>> CreateBaza(string token, AddSpreadsheetDto baza)
         {
             var response = new ServiceResponse<GetSpreadsheetDto>();
+            var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
+            var userId = decodedToken.Claims
+                .Where(claim => claim.Type
+                .Equals("nameid"))
+                .Select(claim => claim.Value)
+                .SingleOrDefault();
+
             var fetchedBaza = await _context.Spreadsheets
                 .Where(b => b.DzematId.Equals(baza.DzematId))
                 .Where(b => b.Year == baza.Year)
                 .FirstOrDefaultAsync();
 
+            var activeBaza = await _context.Spreadsheets
+                .Where(b => b.DzematId.Equals(baza.DzematId))
+                .Where(b => b.Archived == false)
+                .FirstOrDefaultAsync();
+
+            var member = await _context.Supervisors
+                .Where(s => s.Id.Equals(userId))
+                .Where(s => s.DzematId.Equals(baza.DzematId))
+                .FirstOrDefaultAsync();
+
+            if (member is null)
+            {
+                throw new BadRequestException("FATAL ERROR. Supervisor which is not a part of Dzemat tried to create a new spreadsheet.");
+            }
+
+            if(activeBaza is not null)
+            {
+                throw new BadRequestException("Arhivirajte sve prethodne baze");
+            }
+
             if(fetchedBaza is not null)
             {
-                throw new BadRequestException("Baza for year " 
-                    + baza.Year + " for Džemat ID: " 
-                    + baza.DzematId 
-                    + " already exists.");
+                throw new BadRequestException("Baza za godinu " + baza.Year + " već postoji");
             }
 
             if (baza.Year > DateTime.Now.Year)
             {
-                throw new BadRequestException("Year can not be greater than: " + DateTime.Now.Year);
+                throw new BadRequestException("Godina mora biti manja od " + (DateTime.Now.Year + 1) + ".");
             }
 
             var bazaToAdd = _mapper.Map<Spreadsheet>(baza);
@@ -45,13 +71,25 @@ namespace MembershipsManagement.Services.SpreadSheets
             await _context.SaveChangesAsync();
 
             response.Data = _mapper.Map<GetSpreadsheetDto>(bazaToAdd);
-            response.Message = "Baza has been successfully created";
+            response.Message = "Baza uspješno kreirana";
             return response;
         }
 
-        public async Task<ServiceResponse<string>> DeleteBaza(DeleteSpreadsheetDto baza)
+        public async Task<ServiceResponse<string>> DeleteBaza(string token, DeleteSpreadsheetDto baza)
         {
             var response = new ServiceResponse<string>();
+            var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
+            var userId = decodedToken.Claims
+               .Where(claim => claim.Type
+               .Equals("nameid"))
+               .Select(claim => claim.Value)
+               .SingleOrDefault();
+            var member = await _context.Supervisors.Where(s => s.Id.Equals(userId)).Where(s => s.DzematId.Equals(baza.DzematId)).FirstOrDefaultAsync();
+            if (member is null)
+            {
+                throw new BadRequestException("FATAL ERROR. Supervisor which is not a part of Dzemat tried to delete a spreadsheet.");
+
+            }
             var fetchedBaza = await _context.Spreadsheets
                 .Where(b => b.DzematId.Equals(baza.DzematId))
                 .Where(b => b.Id == baza.Id)
@@ -73,7 +111,7 @@ namespace MembershipsManagement.Services.SpreadSheets
         public async Task<ServiceResponse<List<GetSpreadsheetDto>>> GetBazaList(string dzematId)
         {
             var response = new ServiceResponse<List<GetSpreadsheetDto>>();
-            var fetched = await _context.Spreadsheets.Where(b => b.DzematId.Equals(dzematId)).ToListAsync();
+            var fetched = await _context.Spreadsheets.Where(b => b.DzematId.Equals(dzematId)).OrderByDescending(b => b.Year).ToListAsync();
 
             if (fetched.Count == 0) {
                 response.Message = "No baza available.";
@@ -95,18 +133,29 @@ namespace MembershipsManagement.Services.SpreadSheets
             return response;
         }
 
-        public async Task<ServiceResponse<GetSpreadsheetDto>> ArchiveBaza(int bazaId)
+        public async Task<ServiceResponse<GetSpreadsheetDto>> ArchiveBaza(string token, ArchiveSpreadsheetDto spreadsheet)
         {
             var response = new ServiceResponse<GetSpreadsheetDto>();
-            var fetched = await _context.Spreadsheets.Where(b => b.Id == bazaId).FirstOrDefaultAsync();
-            if(fetched is null)
+            var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
+            var userId = decodedToken.Claims
+               .Where(claim => claim.Type
+               .Equals("nameid"))
+               .Select(claim => claim.Value)
+               .SingleOrDefault();
+
+            var fetchedSpreadsheet = await _context.Spreadsheets
+                .Where(b => b.Id == spreadsheet.SpreadsheetId)
+                .Where(s => s.DzematId.Equals(spreadsheet.DzematId))
+                .FirstOrDefaultAsync();
+
+            if(fetchedSpreadsheet is null)
             {
-                throw new EntityNotFoundException("Baza with ID: " + bazaId + " was not found.");
+                throw new EntityNotFoundException("Baza with ID: " + spreadsheet.SpreadsheetId + " was not found.");
             }
-            fetched.Archived = true;
+            fetchedSpreadsheet.Archived = true;
             await _context.SaveChangesAsync();
-            response.Data = _mapper.Map<GetSpreadsheetDto>(fetched);
-            response.Message = fetched != null ? "Baza with ID: " + bazaId + " was archived." : "No baza was found.";
+            response.Data = _mapper.Map<GetSpreadsheetDto>(fetchedSpreadsheet);
+            response.Message = fetchedSpreadsheet != null ? "Spreadsheet with ID: " + fetchedSpreadsheet.Id + " was archived." : "No spreadsheet was found.";
             return response;
         }
 

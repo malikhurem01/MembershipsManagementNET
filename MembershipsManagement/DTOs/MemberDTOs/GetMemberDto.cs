@@ -12,7 +12,6 @@ namespace MembershipsManagement.DTOs.MemberDTOs
         public int EvNumber { get; set; }
         public List<FamilyMember> FamilyMembers { get; set; } = new List<FamilyMember>();
         public List<Payment> Payments { get; set; } = new List<Payment>();
-        public MemberInfo? MemberInfo { get; set; }
         public string DzematId { get; set; } = string.Empty;
     }
 }

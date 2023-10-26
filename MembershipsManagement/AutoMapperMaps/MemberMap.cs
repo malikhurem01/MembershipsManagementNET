@@ -9,6 +9,8 @@ namespace MembershipsManagement.AutoMapperMaps
         public MemberMap()
         {
             CreateMap<Member, GetMemberDto>();
+            CreateMap<MemberInfo, Member>();
+            CreateMap<MemberInfo, GetMemberDto>();
             CreateMap<AddMemberDto, Member>();
             CreateMap<AddMemberFamilyDto, Member>();
         }

@@ -3,6 +3,7 @@ using MembershipsManagement.DTOs.DzematDTOs;
 using MembershipsManagement.DTOs.User;
 using MembershipsManagement.Entities;
 using MembershipsManagement.Services.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MembershipsManagement.Controllers
@@ -39,12 +40,13 @@ namespace MembershipsManagement.Controllers
         }
 
         [HttpPost("login/supervisor")]
-        public async Task<ActionResult<ServiceResponse<GetUserDto>>> LoginUser(UserLoginDto user)
+        public async Task<ActionResult<ServiceResponse<GetUserDto>>> LoginSupervisor(UserLoginDto user)
         {
             var response = await _authService.LoginSupervisor(user);
             return Ok(response);
         }
 
+        [Authorize]
         [HttpGet("current/user")]
         public async Task<ActionResult<ServiceResponse<GetUserDto>>> GetUserByToken()
         {

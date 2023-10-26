@@ -1,7 +1,7 @@
 ﻿using MembershipsManagement.DTOs.MemberDTOs;
 using MembershipsManagement.Entities;
 
-namespace MembershipsManagement.Services.Member
+namespace MembershipsManagement.Services.MemberServiceImpl
 {
     public interface IMemberService
     {

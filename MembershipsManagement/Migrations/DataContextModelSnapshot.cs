@@ -22,32 +22,6 @@ namespace MembershipsManagement.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
-            modelBuilder.Entity("MembershipsManagement.Entities.Debt", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<int>("DebtFee")
-                        .HasColumnType("int");
-
-                    b.Property<int>("MemberId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SpreadsheetId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("MemberId");
-
-                    b.HasIndex("SpreadsheetId");
-
-                    b.ToTable("Debt");
-                });
-
             modelBuilder.Entity("MembershipsManagement.Entities.Donator", b =>
                 {
                     b.Property<int>("Id")
@@ -190,16 +164,18 @@ namespace MembershipsManagement.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
                     b.Property<string>("Address")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Location")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("ZipCode")
+                    b.Property<int>("ZipCode")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -261,6 +237,9 @@ namespace MembershipsManagement.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
+                    b.Property<double>("Debt")
+                        .HasColumnType("float");
+
                     b.Property<bool>("HasDebt")
                         .HasColumnType("bit");
 
@@ -273,6 +252,9 @@ namespace MembershipsManagement.Migrations
 
                     b.Property<int>("SpreadsheetId")
                         .HasColumnType("int");
+
+                    b.Property<double>("TotalAmountPayed")
+                        .HasColumnType("float");
 
                     b.HasKey("Id");
 
@@ -673,25 +655,6 @@ namespace MembershipsManagement.Migrations
                     b.ToTable("Supervisors", (string)null);
                 });
 
-            modelBuilder.Entity("MembershipsManagement.Entities.Debt", b =>
-                {
-                    b.HasOne("MembershipsManagement.Entities.Member", "Member")
-                        .WithMany()
-                        .HasForeignKey("MemberId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MembershipsManagement.Entities.Spreadsheet", "Spreadsheet")
-                        .WithMany()
-                        .HasForeignKey("SpreadsheetId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Member");
-
-                    b.Navigation("Spreadsheet");
-                });
-
             modelBuilder.Entity("MembershipsManagement.Entities.Expense", b =>
                 {
                     b.HasOne("MembershipsManagement.Entities.Dzemat", "Dzemat")
@@ -765,9 +728,8 @@ namespace MembershipsManagement.Migrations
             modelBuilder.Entity("MembershipsManagement.Entities.MemberInfo", b =>
                 {
                     b.HasOne("MembershipsManagement.Entities.Member", "Member")
-                        .WithMany()
+                        .WithMany("MemberInfo")
                         .HasForeignKey("MemberId")
-                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("MembershipsManagement.Entities.Spreadsheet", "Spreadsheet")
@@ -966,6 +928,8 @@ namespace MembershipsManagement.Migrations
             modelBuilder.Entity("MembershipsManagement.Entities.Member", b =>
                 {
                     b.Navigation("FamilyMembers");
+
+                    b.Navigation("MemberInfo");
 
                     b.Navigation("Payments");
                 });

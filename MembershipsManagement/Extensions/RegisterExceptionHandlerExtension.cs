@@ -1,47 +1,73 @@
-﻿using MembershipsManagement.Entities;
-using MembershipsManagement.Exceptions;
-using Microsoft.AspNetCore.Diagnostics;
-using NLog.Fluent;
-using System.Text;
+﻿using MembershipsManagement.Exceptions;
+using System.Net;
+using System.Text.Json;
 
 namespace MembershipsManagement.Extensions
 {
-    public static class RegisterExceptionHandler
+    public class GlobalErrorHandlingMiddleware
     {
-        public static void ConfigureExceptionHandler(this IApplicationBuilder app)
+        private readonly RequestDelegate _next;
+
+        public GlobalErrorHandlingMiddleware(RequestDelegate next)
         {
-            app.UseExceptionHandler(error =>
+            _next = next;
+        }
+
+        public async Task Invoke(HttpContext context)
+        {
+            try
             {
-                error.Run(async context =>
-                {
-                    var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
-                    StringBuilder message = new StringBuilder();
-                    if (contextFeature?.Error is Exception)
-                    {
-                        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-                        context.Response.ContentType = "application/json";
-                        message.Append(contextFeature.Error.Message);
-                    }
-                    else if (contextFeature?.Error is BadRequestException)
-                    {
-                        context.Response.StatusCode = StatusCodes.Status400BadRequest;
-                        context.Response.ContentType = "application/json";
-                        message.Append("Bad Request. Parameters not valid.");
-                    }
-                    else if (contextFeature?.Error is EntityNotFoundException)
-                    {
-                        context.Response.StatusCode = StatusCodes.Status404NotFound;
-                        context.Response.ContentType = "application/json";
-                        message.Append("The requested resource was not found.");
-                    }
-                    Log.Error($"Something Went Wrong in the {contextFeature.Error}");
-                    await context.Response.WriteAsync(new ErrorModel
-                    {
-                        StatusCode = context.Response.StatusCode,
-                        Message = message.ToString()
-                    }.ToString());
-                });
-            });
+                await _next(context);
+            }
+            catch (Exception ex)
+            {
+                await HandleExceptionAsync(context, ex);
+            }
+        }
+
+        private static Task HandleExceptionAsync(HttpContext context, Exception exception)
+        {
+            HttpStatusCode statusCode;
+            string message;
+
+            var exceptionType = exception.GetType();
+
+            if (exceptionType == typeof(BadRequestException))
+            {
+                message = exception.Message;
+                statusCode = HttpStatusCode.BadRequest;
+            }
+            else if (exceptionType == typeof(EntityNotFoundException))
+            {
+                message = exception.Message;
+                statusCode = HttpStatusCode.NotFound;
+            }
+            else if (exceptionType == typeof(NotImplementedException))
+            {
+                statusCode = HttpStatusCode.NotImplemented;
+                message = exception.Message;
+            }
+            else if (exceptionType == typeof(UnauthorizedAccessException))
+            {
+                statusCode = HttpStatusCode.Unauthorized;
+                message = exception.Message;
+            }
+            else if (exceptionType == typeof(KeyNotFoundException))
+            {
+                statusCode = HttpStatusCode.Unauthorized;
+                message = exception.Message;
+            }
+            else
+            {
+                statusCode = HttpStatusCode.InternalServerError;
+                message = exception.Message;
+            }
+
+            var exceptionResult = JsonSerializer.Serialize(new { message, statusCode });
+            context.Response.ContentType = "application/json";
+            context.Response.StatusCode = (int)statusCode;
+
+            return context.Response.WriteAsync(exceptionResult);
         }
     }
 }

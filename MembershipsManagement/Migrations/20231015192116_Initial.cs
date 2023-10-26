@@ -71,9 +71,9 @@ namespace MembershipsManagement.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Location = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ZipCode = table.Column<int>(type: "int", nullable: true)
+                    Location = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ZipCode = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -346,33 +346,6 @@ namespace MembershipsManagement.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Debt",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    DebtFee = table.Column<int>(type: "int", nullable: false),
-                    MemberId = table.Column<int>(type: "int", nullable: false),
-                    SpreadsheetId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Debt", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Debt_Members_MemberId",
-                        column: x => x.MemberId,
-                        principalTable: "Members",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Debt_Spreadsheets_SpreadsheetId",
-                        column: x => x.SpreadsheetId,
-                        principalTable: "Spreadsheets",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "MembersInfo",
                 columns: table => new
                 {
@@ -380,7 +353,9 @@ namespace MembershipsManagement.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     SpreadsheetId = table.Column<int>(type: "int", nullable: false),
                     MemberId = table.Column<int>(type: "int", nullable: false),
+                    TotalAmountPayed = table.Column<double>(type: "float", nullable: false),
                     HasDebt = table.Column<bool>(type: "bit", nullable: false),
+                    Debt = table.Column<double>(type: "float", nullable: false),
                     Note = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
@@ -390,8 +365,7 @@ namespace MembershipsManagement.Migrations
                         name: "FK_MembersInfo_Members_MemberId",
                         column: x => x.MemberId,
                         principalTable: "Members",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_MembersInfo_Spreadsheets_SpreadsheetId",
                         column: x => x.SpreadsheetId,
@@ -598,16 +572,6 @@ namespace MembershipsManagement.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Debt_MemberId",
-                table: "Debt",
-                column: "MemberId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Debt_SpreadsheetId",
-                table: "Debt",
-                column: "SpreadsheetId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Dzemati_MedzlisId",
                 table: "Dzemati",
                 column: "MedzlisId");
@@ -727,9 +691,6 @@ namespace MembershipsManagement.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
-
-            migrationBuilder.DropTable(
-                name: "Debt");
 
             migrationBuilder.DropTable(
                 name: "Expenses");
