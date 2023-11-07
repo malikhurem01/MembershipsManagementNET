@@ -1,4 +1,5 @@
 ﻿using MembershipsManagement.DTOs.BazaDTOs;
+using MembershipsManagement.DTOs.MemberInfoDTOs;
 using MembershipsManagement.DTOs.SpreadsheetDTOs;
 using MembershipsManagement.Entities;
 
@@ -10,6 +11,7 @@ namespace MembershipsManagement.Services.SpreadSheets
         Task<ServiceResponse<string>> DeleteBaza(string token, DeleteSpreadsheetDto baza);
         Task<ServiceResponse<List<GetSpreadsheetDto>>> GetBazaList(string dzematId);
         Task<ServiceResponse<GetSpreadsheetDto>> GetSingleBaza(int id);
+        Task<ServiceResponse<object>> GetActiveSpreadsheet(string token);
         Task<ServiceResponse<GetSpreadsheetDto>> ArchiveBaza(string token, ArchiveSpreadsheetDto spreadsheet);
         Task<ServiceResponse<GetSpreadsheetDto>> UnarchiveBaza(int bazaId);
 

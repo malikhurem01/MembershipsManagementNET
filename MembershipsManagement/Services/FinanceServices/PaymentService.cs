@@ -30,9 +30,27 @@ namespace MembershipsManagement.Services.FinanceServices
                             .SingleOrDefault();
 
             var paymentToAdd = _mapper.Map<Payment>(payment);
+
             paymentToAdd.SupervisorId = supervisorId;
 
-            _context.Payments.Add(paymentToAdd);
+            var memberInfo = await _context.MembersInfo
+                .Where(mi => mi.MemberId == payment.MemberId)
+                .Where(mi => mi.SpreadsheetId == payment.SpreadsheetId)
+                .FirstOrDefaultAsync();
+
+            memberInfo.TotalAmountPayed += payment.Amount;
+
+            if(memberInfo is null)
+            {
+                throw new EntityNotFoundException("No join info for member ID: " 
+                    + payment.MemberId 
+                    + " and spreadsheet ID: " 
+                    + payment.SpreadsheetId 
+                    + " was found.");
+            }
+
+            memberInfo.Payments.Add(paymentToAdd);
+
             await _context.SaveChangesAsync();
 
             response.Data = _mapper.Map<GetPaymentDto>(paymentToAdd);
@@ -50,15 +68,31 @@ namespace MembershipsManagement.Services.FinanceServices
                 .Where(p => p.SpreadsheetId == payment.SpreadsheetId)
                 .FirstOrDefaultAsync();
 
-            if(paymentToDelete is null)
+            if (paymentToDelete is null)
             {
-                throw new EntityNotFoundException("Payment with ID: " 
-                    + payment.Id + " for member ID: " 
-                    + payment.MemberId + " for spreadsheet ID: " 
+                throw new EntityNotFoundException("Payment with ID: "
+                    + payment.Id + " for member ID: "
+                    + payment.MemberId + " for spreadsheet ID: "
                     + payment.SpreadsheetId + " was not found.");
             }
 
+            var memberInfo = await _context.MembersInfo
+                .Where(mi => mi.MemberId == payment.MemberId)
+                .Where(mi => mi.SpreadsheetId == payment.SpreadsheetId)
+                .FirstOrDefaultAsync();
+
+            if (memberInfo is null)
+            {
+                throw new EntityNotFoundException("Payment with ID: "
+                    + payment.Id + " for member ID: "
+                    + payment.MemberId + " for spreadsheet ID: "
+                    + payment.SpreadsheetId + " was not found.");
+            }
+
+            memberInfo.TotalAmountPayed -= paymentToDelete.Amount;
+
             _context.Payments.Remove(paymentToDelete);
+
             await _context.SaveChangesAsync();
 
             response.Data = "";
@@ -70,14 +104,68 @@ namespace MembershipsManagement.Services.FinanceServices
             return response;
         }
 
-        public Task<ServiceResponse<List<GetPaymentDto>>> GetMemberPaymentList(string token, int memberId)
+        public async Task<ServiceResponse<List<GetPaymentDto>>> GetMemberPaymentList(string token, int memberId)
         {
-            throw new NotImplementedException();
+            var response = new ServiceResponse<List<GetPaymentDto>>();
+            var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
+            var supervisorId = decodedToken.Claims
+                            .Where(claim => claim.Type
+                            .Equals("nameid"))
+                            .Select(claim => claim.Value)
+                            .SingleOrDefault();
+
+            var supervisor = await _context.Supervisors.Where(s => s.Id.Equals(supervisorId)).FirstOrDefaultAsync();
+            if(supervisor is null)
+            {
+                throw new EntityNotFoundException("FATAL ERROR: Supervisor with ID: " + supervisorId + " was not found in the database.");
+            }
+
+            var member = await _context.Members.Where(m => m.Id == memberId).Where(m => m.DzematId.Equals(supervisor.DzematId)).Include(m => m.Payments).FirstOrDefaultAsync();
+
+            if(member is null)
+            {
+                throw new EntityNotFoundException("FATAL ERROR: Member with ID: " + member + " in supervisor's (ID: " + supervisorId + ") Dzemat was not found.");
+            }
+
+            response.Data = member.Payments.Select(p => _mapper.Map<GetPaymentDto>(p)).ToList();
+            response.Message = "Payments for member with ID: " + memberId + " were successfully fetched.";
+
+            return response;
         }
 
-        public Task<ServiceResponse<List<GetPaymentDto>>> GetMemberSpreadsheetPaymentList(string token, int memberId, int spreadsheetId)
+        public async Task<ServiceResponse<List<GetPaymentDto>>> GetMemberSpreadsheetPaymentList(string token, int memberId, int spreadsheetId)
         {
-            throw new NotImplementedException();
+            var response = new ServiceResponse<List<GetPaymentDto>>();
+            var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
+            var supervisorId = decodedToken.Claims
+                            .Where(claim => claim.Type
+                            .Equals("nameid"))
+                            .Select(claim => claim.Value)
+                            .SingleOrDefault();
+
+            var supervisor = await _context.Supervisors.Where(s => s.Id.Equals(supervisorId)).FirstOrDefaultAsync();
+            if (supervisor is null)
+            {
+                throw new EntityNotFoundException("FATAL ERROR: Supervisor with ID: " + supervisorId + " was not found in the database.");
+            }
+
+            var member = await _context.Members
+                .Where(m => m.Id == memberId)
+                .Where(m => m.DzematId
+                .Equals(supervisor.DzematId))
+                .Include(m => m.Payments
+                .Where(p => p.SpreadsheetId == spreadsheetId))
+                .FirstOrDefaultAsync();
+
+            if (member is null)
+            {
+                throw new EntityNotFoundException("FATAL ERROR: Member with ID: " + member + " in supervisor's (ID: " + supervisorId + ") Dzemat was not found.");
+            }
+
+            response.Data = member.Payments.Select(p => _mapper.Map<GetPaymentDto>(p)).ToList();
+            response.Message = "Payments for member with ID: " + memberId + " for spreadsheet with ID: " + spreadsheetId + " were successfully fetched.";
+
+            return response;
         }
 
         public Task<ServiceResponse<GetPaymentDto>> GetPayment(string token, int memberId)
@@ -85,9 +173,38 @@ namespace MembershipsManagement.Services.FinanceServices
             throw new NotImplementedException();
         }
 
-        public Task<ServiceResponse<List<GetPaymentDto>>> GetPaymentList(string token, int spreadsheetId)
+        public async Task<ServiceResponse<List<GetPaymentDto>>> GetPaymentSpreadsheetList(string token, int spreadsheetId)
         {
-            throw new NotImplementedException();
+            var response = new ServiceResponse<List<GetPaymentDto>>();
+            var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
+            var supervisorId = decodedToken.Claims
+                            .Where(claim => claim.Type
+                            .Equals("nameid"))
+                            .Select(claim => claim.Value)
+                            .SingleOrDefault();
+
+            var supervisor = await _context.Supervisors.Where(s => s.Id.Equals(supervisorId)).FirstOrDefaultAsync();
+            if (supervisor is null)
+            {
+                throw new EntityNotFoundException("FATAL ERROR: Supervisor with ID: " + supervisorId + " was not found in the database.");
+            }
+
+            var spreadsheet = await _context.Spreadsheets
+                .Where(s => s.DzematId
+                .Equals(supervisor.DzematId))
+                .Where(s => s.Id == spreadsheetId)
+                .Include(s => s.Payments)
+                .FirstOrDefaultAsync();
+
+            if (supervisor is null)
+            {
+                throw new EntityNotFoundException("FATAL ERROR: Spreadsheet with ID: " + spreadsheetId + " was not found in the database.");
+            }
+
+            response.Data = spreadsheet.Payments.Select(p => _mapper.Map<GetPaymentDto>(p)).ToList();
+            response.Message = "Payments for spreadsheet with ID: " + spreadsheetId + " were successfully fetched.";
+
+            return response;
         }
     }
 }

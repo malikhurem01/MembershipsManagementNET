@@ -29,6 +29,7 @@ namespace MembershipsManagement.Extensions
         {
             HttpStatusCode statusCode;
             string message;
+            string specialMessage = "";
 
             var exceptionType = exception.GetType();
 
@@ -60,10 +61,11 @@ namespace MembershipsManagement.Extensions
             else
             {
                 statusCode = HttpStatusCode.InternalServerError;
-                message = exception.Message;
+                message = "Dogodila se greška. Molimo kontaktirajte podršku";
+                specialMessage = exception.Message;
             }
 
-            var exceptionResult = JsonSerializer.Serialize(new { message, statusCode });
+            var exceptionResult = JsonSerializer.Serialize(new { message, statusCode, specialMessage});
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = (int)statusCode;
 

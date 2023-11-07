@@ -18,14 +18,43 @@ namespace MembershipsManagement.Services.MemberServiceImpl
             _memberContext = memberContext;
         }
 
-        public async Task<ServiceResponse<GetMemberDto>> AddMember(AddMemberDto member)
+        public async Task<ServiceResponse<GetMemberDto>> AddMember(string token, AddMemberDto member)
         {
             var response = new ServiceResponse<GetMemberDto>();
+            var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
+            var userId = decodedToken.Claims
+                .Where(claim => claim.Type
+                .Equals("nameid"))
+                .Select(claim => claim.Value)
+                .SingleOrDefault();
+
+            var supervisor = await _memberContext.Supervisors
+                .Where(s => s.Id.Equals(userId))
+                .Where(s => s.DzematId.Equals(member.DzematId))
+                .FirstOrDefaultAsync();
+
+            if (supervisor is null)
+            {
+                throw new EntityNotFoundException("FATAL ERROR. No supervisor ID: " + userId + " for dzemat with ID: " + member.DzematId + " was found.");
+            }
+
             var memberToAdd = _mapper.Map<Member>(member);
+
+            if (member.AddToSpreadsheet == true)
+            {
+                var activeDzematSpreadsheet = await _memberContext.Spreadsheets
+                    .Where(s => s.DzematId.Equals(member.DzematId))
+                    .Where(s => s.Archived == false)
+                    .FirstOrDefaultAsync();
+                if(activeDzematSpreadsheet is not null)
+                {
+                    memberToAdd.Spreadsheets.Add(activeDzematSpreadsheet);
+                }
+            }
             _memberContext.Members.Add(memberToAdd);
             await _memberContext.SaveChangesAsync();
             response.Data = _mapper.Map<GetMemberDto>(memberToAdd);
-            response.Message = "Member has been successfully added";
+            response.Message = "Član je uspješno dodan.";
             return response;
         }
 

@@ -22,6 +22,7 @@ namespace MembershipsManagement.Data
             _modelBuilder.Entity<Dzemat>().HasOne(d => d.Medzlis).WithMany(m => m.Dzemati).HasForeignKey(d => d.MedzlisId).OnDelete(DeleteBehavior.ClientSetNull);
             _modelBuilder.Entity<Dzemat>().HasMany(d => d.Spreadsheets).WithOne(b => b.Dzemat).HasForeignKey(b => b.DzematId).OnDelete(DeleteBehavior.ClientSetNull);
             _modelBuilder.Entity<Payment>().HasOne(u => u.Member).WithMany(c => c.Payments).HasForeignKey(u => u.MemberId).OnDelete(DeleteBehavior.ClientSetNull);
+            _modelBuilder.Entity<Spreadsheet>().HasMany(s => s.Members).WithMany(m => m.Spreadsheets).UsingEntity<MemberInfo>();
             _modelBuilder.Entity<Spreadsheet>().HasMany(b => b.MemberInfo).WithOne(c => c.Spreadsheet).HasForeignKey(b => b.SpreadsheetId).OnDelete(DeleteBehavior.ClientSetNull);
             _modelBuilder.Entity<Project>().HasMany(p => p.Expenses).WithOne(e => e.Project).HasForeignKey(e => e.ProjectId).OnDelete(DeleteBehavior.ClientSetNull);
             _modelBuilder.Entity<Member>().HasMany(m => m.MemberInfo).WithOne(m => m.Member).HasForeignKey(m => m.MemberId).OnDelete(DeleteBehavior.ClientSetNull);

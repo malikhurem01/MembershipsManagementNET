@@ -9,9 +9,11 @@ namespace MembershipsManagement.Entities
         public DateTime DateOfPayment { get; set; }
         public int MemberId { get; set; }
         public Member Member { get; set; }
-        public string SupervisorId { get; set; } = string.Empty;
-        public Supervisor Supervisor { get; set; }
         public int SpreadsheetId { get; set; }
         public Spreadsheet Spreadsheet { get; set; }
+        public string SupervisorId { get; set; } = string.Empty;
+        public Supervisor Supervisor { get; set; }
+        public int MemberInfoId { get; set; }
+        public MemberInfo MemberInfo { get; set; }
     }
 }

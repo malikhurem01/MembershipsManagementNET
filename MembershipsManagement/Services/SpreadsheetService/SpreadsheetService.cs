@@ -1,11 +1,15 @@
 ﻿using AutoMapper;
 using MembershipsManagement.Data;
 using MembershipsManagement.DTOs.BazaDTOs;
+using MembershipsManagement.DTOs.MemberDTOs;
+using MembershipsManagement.DTOs.MemberInfoDTOs;
 using MembershipsManagement.DTOs.SpreadsheetDTOs;
 using MembershipsManagement.Entities;
 using MembershipsManagement.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using System.IdentityModel.Tokens.Jwt;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace MembershipsManagement.Services.SpreadSheets
 {
@@ -67,6 +71,8 @@ namespace MembershipsManagement.Services.SpreadSheets
             }
 
             var bazaToAdd = _mapper.Map<Spreadsheet>(baza);
+
+            bazaToAdd.Members = await _context.Members.Where(m => m.DzematId.Equals(bazaToAdd.DzematId)).Where(m => m.Active == true).ToListAsync();
             _context.Spreadsheets.Add(bazaToAdd);
             await _context.SaveChangesAsync();
 
@@ -155,7 +161,7 @@ namespace MembershipsManagement.Services.SpreadSheets
             fetchedSpreadsheet.Archived = true;
             await _context.SaveChangesAsync();
             response.Data = _mapper.Map<GetSpreadsheetDto>(fetchedSpreadsheet);
-            response.Message = fetchedSpreadsheet != null ? "Spreadsheet with ID: " + fetchedSpreadsheet.Id + " was archived." : "No spreadsheet was found.";
+            response.Message = fetchedSpreadsheet != null ? "Baza za godinu " + fetchedSpreadsheet.Year + " je uspješno arhivirana" : "No spreadsheet was found.";
             return response;
         }
 
@@ -174,5 +180,63 @@ namespace MembershipsManagement.Services.SpreadSheets
             return response;
         }
 
+        public async Task<ServiceResponse<object>> GetActiveSpreadsheet(string token)
+        {
+            var response = new ServiceResponse<object>();
+            var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
+            var userId = decodedToken.Claims
+               .Where(claim => claim.Type
+               .Equals("nameid"))
+               .Select(claim => claim.Value)
+               .SingleOrDefault();
+
+            var activeSpreadsheet = await _context.Supervisors
+                .Where(s => s.Id.Equals(userId)).Select(s => new { 
+                 spreadsheet = s.Dzemat.Spreadsheets
+                 .Where(s => s.Archived == false)
+                 .Select(s => new 
+                 {
+                     id = s.Id, 
+                     year = s.Year
+                 })
+                 .First()
+                }).FirstOrDefaultAsync();
+
+            if(activeSpreadsheet is null)
+            {
+                throw new EntityNotFoundException("Aktivna baza ne postoji. Molimo Vas da je kreirate");
+            }
+
+            var rawMembersInfo = await _context.MembersInfo
+                .Where(mi => mi.SpreadsheetId == activeSpreadsheet.spreadsheet.id)
+                .Select(mi => new
+                {
+                    totalAmountPayed = mi.TotalAmountPayed,
+                    debt = mi.Debt,
+                    member = _mapper.Map<GetMemberDto>(mi.Member),
+                    note = mi.Note,
+                    payments = mi.Payments.Select(y => new
+                    {
+                        amount = y.Amount,
+                        dateOfPayment = y.DateOfPayment
+                    }).ToArray()
+                }).ToListAsync();
+            /*
+            .Include(mi => mi.Member)
+            .Include(mi => mi.Spreadsheet)
+            .Include(mi => mi.Payments)
+            .ToListAsync();*/
+
+            //
+            //
+            //var membersInfo = rawMembersInfo.Select(mi => _mapper.Map<GetMemberInfoDTO>(mi)).ToList();
+            var options = new JsonSerializerOptions()
+            {
+                ReferenceHandler = ReferenceHandler.Preserve
+            };
+            response.Data = JsonSerializer.Serialize(new { spreadsheet = activeSpreadsheet.spreadsheet, rawMembersInfo}, options);
+            response.Message = "Aktivna baza uspješno učitana";
+            return response;
+        }
     }
 }

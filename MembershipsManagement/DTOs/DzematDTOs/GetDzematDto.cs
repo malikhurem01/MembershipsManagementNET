@@ -1,5 +1,7 @@
-﻿using MembershipsManagement.DTOs.MedzlisDTOs;
+﻿using MembershipsManagement.DTOs.BazaDTOs;
+using MembershipsManagement.DTOs.MedzlisDTOs;
 using MembershipsManagement.DTOs.MemberDTOs;
+using MembershipsManagement.DTOs.User;
 using MembershipsManagement.Entities;
 using MembershipsManagement.Models;
 
@@ -15,8 +17,8 @@ namespace MembershipsManagement.DTOs.DzematDTOs
         public string? Address { get; set; } = string.Empty;
         public int? ZipCode { get; set; }
         public List<GetMemberDto>? Members { get; set; } = new List<GetMemberDto>();
-        public List<Supervisor>? Supervisors { get; set; } = new List<Supervisor>();
-        public List<Spreadsheet>? Spreadsheets { get; set; } = new List<Spreadsheet>();
+        public List<GetUserDto>? Supervisors { get; set; } = new List<GetUserDto>();
+        public List<GetSpreadsheetDto>? Spreadsheets { get; set; } = new List<GetSpreadsheetDto>();
         public double? Budget { get; set; }
     }
 }

@@ -1,11 +1,13 @@
 ﻿using MembershipsManagement.DTOs.PaymentDTOs;
 using MembershipsManagement.Entities;
 using MembershipsManagement.Services.FinanceServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MembershipsManagement.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/[controller]")]
     public class PaymentController : ControllerBase
     {

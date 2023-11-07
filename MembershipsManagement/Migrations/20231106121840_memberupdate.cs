@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace MembershipsManagement.Migrations
 {
-    public partial class Initial : Migration
+    public partial class memberupdate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -259,11 +259,13 @@ namespace MembershipsManagement.Migrations
                     FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FathersName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ZipCode = table.Column<int>(type: "int", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Active = table.Column<bool>(type: "bit", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     MembershipFee = table.Column<int>(type: "int", nullable: false),
-                    DzematId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    DzematId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -351,10 +353,9 @@ namespace MembershipsManagement.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    SpreadsheetId = table.Column<int>(type: "int", nullable: false),
                     MemberId = table.Column<int>(type: "int", nullable: false),
+                    SpreadsheetId = table.Column<int>(type: "int", nullable: false),
                     TotalAmountPayed = table.Column<double>(type: "float", nullable: false),
-                    HasDebt = table.Column<bool>(type: "bit", nullable: false),
                     Debt = table.Column<double>(type: "float", nullable: false),
                     Note = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
@@ -371,30 +372,6 @@ namespace MembershipsManagement.Migrations
                         column: x => x.SpreadsheetId,
                         principalTable: "Spreadsheets",
                         principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "MemberSpreadsheet",
-                columns: table => new
-                {
-                    MembersId = table.Column<int>(type: "int", nullable: false),
-                    SpreadsheetsId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_MemberSpreadsheet", x => new { x.MembersId, x.SpreadsheetsId });
-                    table.ForeignKey(
-                        name: "FK_MemberSpreadsheet_Members_MembersId",
-                        column: x => x.MembersId,
-                        principalTable: "Members",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_MemberSpreadsheet_Spreadsheets_SpreadsheetsId",
-                        column: x => x.SpreadsheetsId,
-                        principalTable: "Spreadsheets",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -438,8 +415,9 @@ namespace MembershipsManagement.Migrations
                     Amount = table.Column<double>(type: "float", nullable: false),
                     DateOfPayment = table.Column<DateTime>(type: "datetime2", nullable: false),
                     MemberId = table.Column<int>(type: "int", nullable: false),
+                    SpreadsheetId = table.Column<int>(type: "int", nullable: false),
                     SupervisorId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    SpreadsheetId = table.Column<int>(type: "int", nullable: false)
+                    MemberInfoId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -449,6 +427,12 @@ namespace MembershipsManagement.Migrations
                         column: x => x.MemberId,
                         principalTable: "Members",
                         principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Payments_MembersInfo_MemberInfoId",
+                        column: x => x.MemberInfoId,
+                        principalTable: "MembersInfo",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Payments_Spreadsheets_SpreadsheetId",
                         column: x => x.SpreadsheetId,
@@ -627,14 +611,14 @@ namespace MembershipsManagement.Migrations
                 column: "SpreadsheetId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MemberSpreadsheet_SpreadsheetsId",
-                table: "MemberSpreadsheet",
-                column: "SpreadsheetsId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Payments_MemberId",
                 table: "Payments",
                 column: "MemberId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Payments_MemberInfoId",
+                table: "Payments",
+                column: "MemberInfoId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Payments_SpreadsheetId",
@@ -702,12 +686,6 @@ namespace MembershipsManagement.Migrations
                 name: "Incomes");
 
             migrationBuilder.DropTable(
-                name: "MembersInfo");
-
-            migrationBuilder.DropTable(
-                name: "MemberSpreadsheet");
-
-            migrationBuilder.DropTable(
                 name: "Payments");
 
             migrationBuilder.DropTable(
@@ -720,10 +698,13 @@ namespace MembershipsManagement.Migrations
                 name: "Projects");
 
             migrationBuilder.DropTable(
-                name: "Members");
+                name: "MembersInfo");
 
             migrationBuilder.DropTable(
                 name: "Supervisors");
+
+            migrationBuilder.DropTable(
+                name: "Members");
 
             migrationBuilder.DropTable(
                 name: "Spreadsheets");

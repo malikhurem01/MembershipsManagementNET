@@ -20,7 +20,12 @@ namespace MembershipsManagement.Controllers
         [HttpPost("add")]
         public async Task<ActionResult<ServiceResponse<GetMemberDto>>> AddMember(AddMemberDto member)
         {
-            var response = await _memberService.AddMember(member);
+            Request.Headers.TryGetValue("Authorization", out var token);
+            string tokenValue = token
+                .ToString()
+                .Split(" ")
+                .ElementAt(1);
+            var response = await _memberService.AddMember(tokenValue, member);
             return Ok(response);
         }
 
