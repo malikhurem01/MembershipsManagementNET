@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MembershipsManagement.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20231106121840_memberupdate")]
-    partial class memberupdate
+    [Migration("20231108164138_membershipfeeupdate")]
+    partial class membershipfeeupdate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -223,9 +223,6 @@ namespace MembershipsManagement.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("MembershipFee")
-                        .HasColumnType("int");
-
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -364,12 +361,21 @@ namespace MembershipsManagement.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
+                    b.Property<int>("AgeLimitFee")
+                        .HasColumnType("int");
+
                     b.Property<bool>("Archived")
                         .HasColumnType("bit");
 
                     b.Property<string>("DzematId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("MarriageFee")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WidowerFee")
+                        .HasColumnType("int");
 
                     b.Property<int>("Year")
                         .HasColumnType("int");

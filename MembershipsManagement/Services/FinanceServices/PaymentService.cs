@@ -29,16 +29,13 @@ namespace MembershipsManagement.Services.FinanceServices
                             .Select(claim => claim.Value)
                             .SingleOrDefault();
 
-            var paymentToAdd = _mapper.Map<Payment>(payment);
-
-            paymentToAdd.SupervisorId = supervisorId;
-
             var memberInfo = await _context.MembersInfo
                 .Where(mi => mi.MemberId == payment.MemberId)
                 .Where(mi => mi.SpreadsheetId == payment.SpreadsheetId)
+                .Include(mi => mi.Spreadsheet)
+                .Include(mi => mi.Member)
+                .Include(mi => mi.Payments)
                 .FirstOrDefaultAsync();
-
-            memberInfo.TotalAmountPayed += payment.Amount;
 
             if(memberInfo is null)
             {
@@ -49,12 +46,32 @@ namespace MembershipsManagement.Services.FinanceServices
                     + " was found.");
             }
 
+            if (payment.Amount == 0)
+            {
+                throw new BadRequestException("Iznos mora biti veći od 0KM");
+            }
+
+            if (payment.Amount > memberInfo.MembershipFee)
+            {
+                throw new BadRequestException("Iznos ne može biti veći od iznosa članarine (" + memberInfo.MembershipFee + "KM)");
+            }
+
+            if ((memberInfo.TotalAmountPayed + payment.Amount) > memberInfo.MembershipFee)
+            {
+                throw new BadRequestException("Možete uplatiti najviše " + (memberInfo.MembershipFee - (int)memberInfo.TotalAmountPayed) 
+                    + "KM kako ne biste prekoračili iznos članarine. Član je već uplatio " + memberInfo.TotalAmountPayed + "KM");
+            }
+
+            var paymentToAdd = _mapper.Map<Payment>(payment);
+
+            paymentToAdd.SupervisorId = supervisorId;
+
             memberInfo.Payments.Add(paymentToAdd);
 
             await _context.SaveChangesAsync();
 
             response.Data = _mapper.Map<GetPaymentDto>(paymentToAdd);
-            response.Message = "Payment has been successfully added.";
+            response.Message = "Uspješno ste dodali uplatu u iznosu od " + payment.Amount +"KM";
 
             return response;
         }
@@ -88,8 +105,6 @@ namespace MembershipsManagement.Services.FinanceServices
                     + payment.MemberId + " for spreadsheet ID: "
                     + payment.SpreadsheetId + " was not found.");
             }
-
-            memberInfo.TotalAmountPayed -= paymentToDelete.Amount;
 
             _context.Payments.Remove(paymentToDelete);
 

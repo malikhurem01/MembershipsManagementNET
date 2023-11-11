@@ -12,7 +12,6 @@
         public string Email { get; set; } = string.Empty;
         public bool Active { get; set; }
         public Status Status { get; set; }
-        public int MembershipFee { get; set; }
         public List<Payment>? Payments { get; set; } = new List<Payment>();
         public List<FamilyMember>? FamilyMembers { get; set; } = new List<FamilyMember>();
         public List<Spreadsheet>? Spreadsheets { get; set; } = new List<Spreadsheet>();

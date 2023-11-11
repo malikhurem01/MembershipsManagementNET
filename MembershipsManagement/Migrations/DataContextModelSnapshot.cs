@@ -221,9 +221,6 @@ namespace MembershipsManagement.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("MembershipFee")
-                        .HasColumnType("int");
-
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -258,9 +255,6 @@ namespace MembershipsManagement.Migrations
 
                     b.Property<int>("SpreadsheetId")
                         .HasColumnType("int");
-
-                    b.Property<double>("TotalAmountPayed")
-                        .HasColumnType("float");
 
                     b.HasKey("Id");
 
@@ -362,12 +356,21 @@ namespace MembershipsManagement.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
+                    b.Property<int>("AgeLimitFee")
+                        .HasColumnType("int");
+
                     b.Property<bool>("Archived")
                         .HasColumnType("bit");
 
                     b.Property<string>("DzematId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("MarriageFee")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WidowerFee")
+                        .HasColumnType("int");
 
                     b.Property<int>("Year")
                         .HasColumnType("int");

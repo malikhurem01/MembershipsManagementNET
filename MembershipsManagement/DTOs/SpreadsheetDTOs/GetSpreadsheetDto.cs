@@ -12,10 +12,14 @@ namespace MembershipsManagement.DTOs.BazaDTOs
         public string DzematId { get; set; } = string.Empty;
         public bool Archived { get; set; }
         public int Year { get; set; }
+        public int MarriageFee { get; set; }
+        public int WidowerFee { get; set; }
+        public int AgeLimitFee { get; set; }
         public GetDzematDto Dzemat { get; set; }
         public List<GetPaymentDto> Payments { get; set; } = new List<GetPaymentDto>();
         public List<GetMemberDto> Members { get; set; } = new List<GetMemberDto>();
         public List<GetMemberInfoDTO> MemberInfo { get; set; } = new List<GetMemberInfoDTO>();
+        public List<Debt>? Debt { get; set; } = new List<Debt>();
         public List<Project> Projects { get; set; } = new List<Project>();
     }
 }

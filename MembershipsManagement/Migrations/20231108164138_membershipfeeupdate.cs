@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace MembershipsManagement.Migrations
 {
-    public partial class memberupdate : Migration
+    public partial class membershipfeeupdate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -264,7 +264,6 @@ namespace MembershipsManagement.Migrations
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Active = table.Column<bool>(type: "bit", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
-                    MembershipFee = table.Column<int>(type: "int", nullable: false),
                     DzematId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
@@ -285,7 +284,10 @@ namespace MembershipsManagement.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Archived = table.Column<bool>(type: "bit", nullable: false),
                     Year = table.Column<int>(type: "int", nullable: false),
-                    DzematId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    DzematId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    MarriageFee = table.Column<int>(type: "int", nullable: false),
+                    WidowerFee = table.Column<int>(type: "int", nullable: false),
+                    AgeLimitFee = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {

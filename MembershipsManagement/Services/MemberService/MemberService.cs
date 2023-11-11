@@ -40,8 +40,6 @@ namespace MembershipsManagement.Services.MemberServiceImpl
 
             var memberToAdd = _mapper.Map<Member>(member);
 
-            if (member.AddToSpreadsheet == true)
-            {
                 var activeDzematSpreadsheet = await _memberContext.Spreadsheets
                     .Where(s => s.DzematId.Equals(member.DzematId))
                     .Where(s => s.Archived == false)
@@ -49,10 +47,10 @@ namespace MembershipsManagement.Services.MemberServiceImpl
                 if(activeDzematSpreadsheet is not null)
                 {
                     memberToAdd.Spreadsheets.Add(activeDzematSpreadsheet);
+                    _memberContext.Members.Add(memberToAdd);
+                    await _memberContext.SaveChangesAsync();
                 }
-            }
-            _memberContext.Members.Add(memberToAdd);
-            await _memberContext.SaveChangesAsync();
+            
             response.Data = _mapper.Map<GetMemberDto>(memberToAdd);
             response.Message = "Član je uspješno dodan.";
             return response;

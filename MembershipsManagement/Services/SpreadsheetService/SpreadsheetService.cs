@@ -2,8 +2,8 @@
 using MembershipsManagement.Data;
 using MembershipsManagement.DTOs.BazaDTOs;
 using MembershipsManagement.DTOs.MemberDTOs;
-using MembershipsManagement.DTOs.MemberInfoDTOs;
 using MembershipsManagement.DTOs.SpreadsheetDTOs;
+using MembershipsManagement.DTOs.User;
 using MembershipsManagement.Entities;
 using MembershipsManagement.Exceptions;
 using Microsoft.EntityFrameworkCore;
@@ -36,18 +36,22 @@ namespace MembershipsManagement.Services.SpreadSheets
                 .SingleOrDefault();
 
             var fetchedBaza = await _context.Spreadsheets
-                .Where(b => b.DzematId.Equals(baza.DzematId))
+                .Where(b => b.DzematId
+                .Equals(baza.DzematId))
                 .Where(b => b.Year == baza.Year)
                 .FirstOrDefaultAsync();
 
             var activeBaza = await _context.Spreadsheets
-                .Where(b => b.DzematId.Equals(baza.DzematId))
+                .Where(b => b.DzematId
+                .Equals(baza.DzematId))
                 .Where(b => b.Archived == false)
                 .FirstOrDefaultAsync();
 
             var member = await _context.Supervisors
-                .Where(s => s.Id.Equals(userId))
-                .Where(s => s.DzematId.Equals(baza.DzematId))
+                .Where(s => s.Id
+                .Equals(userId))
+                .Where(s => s.DzematId
+                .Equals(baza.DzematId))
                 .FirstOrDefaultAsync();
 
             if (member is null)
@@ -72,7 +76,12 @@ namespace MembershipsManagement.Services.SpreadSheets
 
             var bazaToAdd = _mapper.Map<Spreadsheet>(baza);
 
-            bazaToAdd.Members = await _context.Members.Where(m => m.DzematId.Equals(bazaToAdd.DzematId)).Where(m => m.Active == true).ToListAsync();
+            bazaToAdd.Members = await _context.Members
+                .Where(m => m.DzematId
+                .Equals(bazaToAdd.DzematId))
+                .Where(m => m.Active == true)
+                .ToListAsync();
+
             _context.Spreadsheets.Add(bazaToAdd);
             await _context.SaveChangesAsync();
 
@@ -207,32 +216,34 @@ namespace MembershipsManagement.Services.SpreadSheets
                 throw new EntityNotFoundException("Aktivna baza ne postoji. Molimo Vas da je kreirate");
             }
 
+            _context.ChangeTracker.LazyLoadingEnabled = false;
+
             var rawMembersInfo = await _context.MembersInfo
                 .Where(mi => mi.SpreadsheetId == activeSpreadsheet.spreadsheet.id)
+                .Include(mi => mi.Spreadsheet)
+                .Include(mi => mi.Member)
+                .Include(mi => mi.Payments)
+                .ThenInclude(p => p.Supervisor)
                 .Select(mi => new
                 {
                     totalAmountPayed = mi.TotalAmountPayed,
                     debt = mi.Debt,
                     member = _mapper.Map<GetMemberDto>(mi.Member),
                     note = mi.Note,
+                    membershipFee = mi.MembershipFee,
+                    latestPayment = mi.Payments.OrderByDescending(p => p.DateOfPayment).FirstOrDefault(),
                     payments = mi.Payments.Select(y => new
                     {
+                        id = y.Id,
                         amount = y.Amount,
+                        supervisor = _mapper.Map<GetUserDto>(y.Supervisor),
                         dateOfPayment = y.DateOfPayment
                     }).ToArray()
                 }).ToListAsync();
-            /*
-            .Include(mi => mi.Member)
-            .Include(mi => mi.Spreadsheet)
-            .Include(mi => mi.Payments)
-            .ToListAsync();*/
 
-            //
-            //
-            //var membersInfo = rawMembersInfo.Select(mi => _mapper.Map<GetMemberInfoDTO>(mi)).ToList();
             var options = new JsonSerializerOptions()
             {
-                ReferenceHandler = ReferenceHandler.Preserve
+                ReferenceHandler = ReferenceHandler.IgnoreCycles
             };
             response.Data = JsonSerializer.Serialize(new { spreadsheet = activeSpreadsheet.spreadsheet, rawMembersInfo}, options);
             response.Message = "Aktivna baza uspješno učitana";
