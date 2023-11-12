@@ -1,10 +1,13 @@
 ﻿using AutoMapper;
 using MembershipsManagement.Data;
 using MembershipsManagement.DTOs.MemberDTOs;
+using MembershipsManagement.DTOs.User;
 using MembershipsManagement.Entities;
 using MembershipsManagement.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using System.IdentityModel.Tokens.Jwt;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace MembershipsManagement.Services.MemberServiceImpl
 {
@@ -47,13 +50,141 @@ namespace MembershipsManagement.Services.MemberServiceImpl
                 if(activeDzematSpreadsheet is not null)
                 {
                     memberToAdd.Spreadsheets.Add(activeDzematSpreadsheet);
-                    _memberContext.Members.Add(memberToAdd);
+
+                switch (memberToAdd.Status)
+                {
+                    case Status.Brak:
+                        memberToAdd.Debt = activeDzematSpreadsheet.MarriageFee;
+                        break;
+                    case Status.DobnaGranica:
+                        memberToAdd.Debt = activeDzematSpreadsheet.AgeLimitFee;
+                        break;
+                    case Status.Udovac:
+                        memberToAdd.Debt = activeDzematSpreadsheet.WidowerFee;
+                        break;
+                    default:
+                        memberToAdd.Debt = 0;
+                        break;
+                }
+
+
+                memberToAdd.Debt += member.Debt;
+                _memberContext.Members.Add(memberToAdd);
                     await _memberContext.SaveChangesAsync();
                 }
             
             response.Data = _mapper.Map<GetMemberDto>(memberToAdd);
             response.Message = "Član je uspješno dodan.";
             return response;
+        }
+
+        public async Task<ServiceResponse<object>> GetMemberByNameAndLastName(string token, string name, string lastName, int spreadsheetId)
+        {
+            var response = new ServiceResponse<object>();
+            var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
+            var userId = decodedToken.Claims
+                .Where(claim => claim.Type
+                .Equals("nameid"))
+                .Select(claim => claim.Value)
+                .SingleOrDefault();
+
+            var supervisor = await _memberContext.Supervisors
+                .Where(s => s.Id.Equals(userId))
+                .FirstOrDefaultAsync();
+
+            _memberContext.ChangeTracker.LazyLoadingEnabled = false;
+            var options = new JsonSerializerOptions()
+            {
+                ReferenceHandler = ReferenceHandler.IgnoreCycles
+            };
+            if (name.Length > 0 && lastName.Length > 0)
+            {
+                var membersList = await _memberContext.MembersInfo
+                 .Where(mi => mi.SpreadsheetId == spreadsheetId)
+                 .Where(mi => mi.Member.FirstName.Contains(name.Trim()))
+                 .Where(mi => mi.Member.LastName.Contains(lastName.Trim()))
+                 .Include(mi => mi.Spreadsheet)
+                 .Include(mi => mi.Member)
+                 .Include(mi => mi.Payments)
+                 .ThenInclude(p => p.Supervisor)
+                 .Select(mi => new
+                 {
+                     totalAmountPayed = mi.TotalAmountPayed,
+                     member = _mapper.Map<GetMemberDto>(mi.Member),
+                     note = mi.Note,
+                     membershipFee = mi.MembershipFee,
+                     latestPayment = mi.Payments.OrderByDescending(p => p.DateOfPayment).FirstOrDefault(),
+                     payments = mi.Payments.Select(y => new
+                     {
+                         id = y.Id,
+                         amount = y.Amount,
+                         supervisor = _mapper.Map<GetUserDto>(y.Supervisor),
+                         dateOfPayment = y.DateOfPayment
+                     }).ToArray()
+                 }).ToListAsync();
+
+                response.Data = JsonSerializer.Serialize(new { membersList }, options);
+                response.Message = "Članovi uspješno učitani";
+            }
+            else if (name.Length > 0)
+            {
+                var membersList = await _memberContext.MembersInfo
+                  .Where(mi => mi.SpreadsheetId == spreadsheetId)
+                  .Where(mi => mi.Member.FirstName.Contains(name.Trim()))
+                  .Include(mi => mi.Spreadsheet)
+                  .Include(mi => mi.Member)
+                  .Include(mi => mi.Payments)
+                  .ThenInclude(p => p.Supervisor)
+                  .Select(mi => new
+                  {
+                      totalAmountPayed = mi.TotalAmountPayed,
+                      member = _mapper.Map<GetMemberDto>(mi.Member),
+                      note = mi.Note,
+                      membershipFee = mi.MembershipFee,
+                      latestPayment = mi.Payments.OrderByDescending(p => p.DateOfPayment).FirstOrDefault(),
+                      payments = mi.Payments.Select(y => new
+                      {
+                          id = y.Id,
+                          amount = y.Amount,
+                          supervisor = _mapper.Map<GetUserDto>(y.Supervisor),
+                          dateOfPayment = y.DateOfPayment
+                      }).ToArray()
+                  }).ToListAsync();
+
+                response.Data = JsonSerializer.Serialize(new { membersList }, options);
+                response.Message = "Članovi uspješno učitani";
+            }
+            else if (lastName.Length > 0)
+            {
+                var membersList = await _memberContext.MembersInfo
+                  .Where(mi => mi.SpreadsheetId == spreadsheetId)
+                  .Where(mi => mi.Member.LastName.Contains(lastName.Trim()))
+                  .Include(mi => mi.Spreadsheet)
+                  .Include(mi => mi.Member)
+                  .Include(mi => mi.Payments)
+                  .ThenInclude(p => p.Supervisor)
+                  .Select(mi => new
+                  {
+                      totalAmountPayed = mi.TotalAmountPayed,
+                      member = _mapper.Map<GetMemberDto>(mi.Member),
+                      note = mi.Note,
+                      membershipFee = mi.MembershipFee,
+                      latestPayment = mi.Payments.OrderByDescending(p => p.DateOfPayment).FirstOrDefault(),
+                      payments = mi.Payments.Select(y => new
+                      {
+                          id = y.Id,
+                          amount = y.Amount,
+                          supervisor = _mapper.Map<GetUserDto>(y.Supervisor),
+                          dateOfPayment = y.DateOfPayment
+                      }).ToArray()
+                  }).ToListAsync();
+
+                response.Data = JsonSerializer.Serialize(new { membersList }, options);
+                response.Message = "Članovi uspješno učitani";
+            }
+
+            return response;
+
         }
 
         public async Task<ServiceResponse<GetMemberDto>> ModifyMember(ModifyMemberDto memberModified)
@@ -67,19 +198,22 @@ namespace MembershipsManagement.Services.MemberServiceImpl
 
             if (memberFetched == null)
             {
-                throw new EntityNotFoundException("Member not found in database.");
+                throw new EntityNotFoundException("Član nije pronađen u bazi podataka. Molimo kontaktirajte podršku.");
             }
 
-            memberFetched.FirstName = memberModified.FirstName.Length > 0 ? memberModified.FirstName : memberFetched.FirstName;
-            memberFetched.FathersName = memberModified.FathersName.Length > 0 ? memberModified.FathersName : memberFetched.FathersName;
-            memberFetched.LastName = memberModified.LastName.Length > 0 ? memberModified.LastName : memberFetched.LastName;
-            memberFetched.EvNumber = memberModified.EvNumber > 0 ? (int)memberModified.EvNumber : memberFetched.EvNumber;
-            memberFetched.Status = (Status)(memberModified.Status > 0 ? memberModified.Status : memberFetched.Status);
+            memberFetched.FirstName = memberModified.FirstName;
+            memberFetched.FathersName = memberModified.FathersName;
+            memberFetched.LastName = memberModified.LastName;
+            memberFetched.Address = memberModified.Address;
+            memberFetched.Email = memberModified.Email;
+            memberFetched.PhoneNumber = memberModified.PhoneNumber;
+            memberFetched.EvNumber = memberModified.EvNumber;
+            memberFetched.Status = memberModified.Status;
 
             await _memberContext.SaveChangesAsync();
 
             response.Data = _mapper.Map<GetMemberDto>(memberFetched);
-            response.Message = "Member has been successfully modified for dzemat " + memberFetched.Dzemat.Name + ".";
+            response.Message = "Informacije uspješno uređene";
             return response;
         }
 

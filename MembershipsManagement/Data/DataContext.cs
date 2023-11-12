@@ -40,7 +40,6 @@ namespace MembershipsManagement.Data
         public DbSet<Admin> Admins { get; set; }
         public DbSet<Dzemat> Dzemati { get; set; }
         public DbSet<Spreadsheet> Spreadsheets { get; set; }
-        public DbSet<Debt> Debt { get; set; }
         public DbSet<Member> Members { get; set; }
         public DbSet<MemberInfo> MembersInfo { get; set; }
         public DbSet<FamilyMember> FamilyMembers { get; set; }

@@ -76,11 +76,33 @@ namespace MembershipsManagement.Services.SpreadSheets
 
             var bazaToAdd = _mapper.Map<Spreadsheet>(baza);
 
-            bazaToAdd.Members = await _context.Members
+            var members = await _context.Members
                 .Where(m => m.DzematId
                 .Equals(bazaToAdd.DzematId))
                 .Where(m => m.Active == true)
                 .ToListAsync();
+
+            bazaToAdd.Members.AddRange(members);
+
+            members.ForEach(m => {
+                int debtToAdd;
+                switch (m.Status)
+                {
+                    case Status.Brak:
+                        debtToAdd = bazaToAdd.MarriageFee;
+                        break;
+                    case Status.DobnaGranica:
+                        debtToAdd = bazaToAdd.AgeLimitFee;
+                        break;
+                    case Status.Udovac:
+                        debtToAdd = bazaToAdd.WidowerFee;
+                        break;
+                    default:
+                        debtToAdd = 0;
+                        break;
+                }
+                m.Debt += debtToAdd;
+            });
 
             _context.Spreadsheets.Add(bazaToAdd);
             await _context.SaveChangesAsync();
@@ -227,7 +249,6 @@ namespace MembershipsManagement.Services.SpreadSheets
                 .Select(mi => new
                 {
                     totalAmountPayed = mi.TotalAmountPayed,
-                    debt = mi.Debt,
                     member = _mapper.Map<GetMemberDto>(mi.Member),
                     note = mi.Note,
                     membershipFee = mi.MembershipFee,

@@ -52,7 +52,6 @@ namespace MembershipsManagement.Entities
                 return value;
             }
         }
-        public double Debt { get; set; }
         public string Note { get; set; } = string.Empty;
     }
 }

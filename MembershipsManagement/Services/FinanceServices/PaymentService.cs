@@ -51,16 +51,12 @@ namespace MembershipsManagement.Services.FinanceServices
                 throw new BadRequestException("Iznos mora biti veći od 0KM");
             }
 
-            if (payment.Amount > memberInfo.MembershipFee)
+            if (payment.Amount > memberInfo.Member.Debt)
             {
-                throw new BadRequestException("Iznos ne može biti veći od iznosa članarine (" + memberInfo.MembershipFee + "KM)");
+                throw new BadRequestException("Iznos ne može biti veći od ukupnog iznosa duga (" + memberInfo.Member.Debt + "KM)");
             }
 
-            if ((memberInfo.TotalAmountPayed + payment.Amount) > memberInfo.MembershipFee)
-            {
-                throw new BadRequestException("Možete uplatiti najviše " + (memberInfo.MembershipFee - (int)memberInfo.TotalAmountPayed) 
-                    + "KM kako ne biste prekoračili iznos članarine. Član je već uplatio " + memberInfo.TotalAmountPayed + "KM");
-            }
+            memberInfo.Member.Debt -= payment.Amount;
 
             var paymentToAdd = _mapper.Map<Payment>(payment);
 

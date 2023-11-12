@@ -12,7 +12,6 @@
         public Dzemat Dzemat { get; set; }
         public List<Payment>? Payments { get; set; } = new List<Payment>();
         public List<Member>? Members { get; set; } = new List<Member>();
-        public List<Debt>? Debt { get; set; } = new List<Debt>();
         public List<MemberInfo>? MemberInfo { get; set; } = new List<MemberInfo>();
         public List<Project>? Projects { get; set; } = new List<Project>();
     }

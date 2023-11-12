@@ -11,6 +11,7 @@
         public string Address { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public bool Active { get; set; }
+        public double Debt { get; set; }
         public Status Status { get; set; }
         public List<Payment>? Payments { get; set; } = new List<Payment>();
         public List<FamilyMember>? FamilyMembers { get; set; } = new List<FamilyMember>();

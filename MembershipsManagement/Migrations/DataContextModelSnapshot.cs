@@ -198,6 +198,9 @@ namespace MembershipsManagement.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<double>("Debt")
+                        .HasColumnType("float");
+
                     b.Property<string>("DzematId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -242,9 +245,6 @@ namespace MembershipsManagement.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<double>("Debt")
-                        .HasColumnType("float");
 
                     b.Property<int>("MemberId")
                         .HasColumnType("int");
