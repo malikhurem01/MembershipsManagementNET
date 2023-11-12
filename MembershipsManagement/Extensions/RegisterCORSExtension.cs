@@ -13,7 +13,7 @@ namespace MembershipsManagement.Extensions
                 policy =>
                 {
                     policy
-                    .WithOrigins(config.GetSection("Cors:Origin").Value)
+                    .WithOrigins(config.GetSection("Cors:Origin").Value, "https://agreeable-field-0ce415110.4.azurestaticapps.net")
                     .AllowAnyHeader()
                     .AllowAnyMethod(); 
                 });
