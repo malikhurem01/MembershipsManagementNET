@@ -14,7 +14,9 @@ namespace MembershipsManagement.AutoMapperMaps
             CreateMap<MemberInfo, GetMemberDto>();
             CreateMap<MemberInfo, GetMemberInfoDTO>();
             CreateMap<AddMemberDto, Member>();
-            CreateMap<AddMemberFamilyDto, Member>();
+            CreateMap<AddMemberFamilyDto, FamilyMember>();
+            CreateMap<AddMemberFamilyListDto, Member>();
+            CreateMap<FamilyMember, GetFamilyMemberDto>();
         }
     }
 }

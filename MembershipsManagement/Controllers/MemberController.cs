@@ -29,6 +29,18 @@ namespace MembershipsManagement.Controllers
             return Ok(response);
         }
 
+        [HttpPost("family/add")]
+        public async Task<ActionResult<ServiceResponse<GetMemberDto>>> AddMemberFamily(AddMemberFamilyDto familyMember)
+        {
+            Request.Headers.TryGetValue("Authorization", out var token);
+            string tokenValue = token
+                .ToString()
+                .Split(" ")
+                .ElementAt(1);
+            var response = await _memberService.AddMemberFamily(tokenValue, familyMember);
+            return Ok(response);
+        }
+
         [HttpGet("get/single")]
         public async Task<ActionResult<ServiceResponse<GetMemberDto>>> GetSingleMember(int memberId)
         {
@@ -38,6 +50,18 @@ namespace MembershipsManagement.Controllers
                 .Split(" ")
                 .ElementAt(1);
             var response = await _memberService.GetSingleMember(tokenValue, memberId);
+            return Ok(response);
+        }
+
+        [HttpGet("get/family")]
+        public async Task<ActionResult<ServiceResponse<List<GetFamilyMemberDto>>>> GetFamily(int memberId)
+        {
+            Request.Headers.TryGetValue("Authorization", out var token);
+            string tokenValue = token
+                .ToString()
+                .Split(" ")
+                .ElementAt(1);
+            var response = await _memberService.GetFamily(tokenValue, memberId);
             return Ok(response);
         }
 

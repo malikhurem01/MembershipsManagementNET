@@ -194,6 +194,8 @@ namespace MembershipsManagement.Services.MemberServiceImpl
             var memberFetched = await _memberContext.Members
                 .Where(member => member.Id == memberModified.Id)
                 .Include(member => member.Dzemat)
+                .Include(member => member.Payments)
+                .Include(member => member.Spreadsheets)
                 .FirstOrDefaultAsync();
 
             if (memberFetched == null)
@@ -272,7 +274,7 @@ namespace MembershipsManagement.Services.MemberServiceImpl
             return response;
         }
 
-        public async Task<ServiceResponse<GetMemberDto>> AddMemberFamily(string token, AddMemberFamilyListDto familyMembers)
+        public async Task<ServiceResponse<GetMemberDto>> AddMemberFamily(string token, AddMemberFamilyDto familyMember)
         {
             var response = new ServiceResponse<GetMemberDto>();
             var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
@@ -283,15 +285,14 @@ namespace MembershipsManagement.Services.MemberServiceImpl
                 .SingleOrDefault();
 
             var memberFetched = await _memberContext.Members
-                .Where(member => member.Id == familyMembers.MemberId)
+                .Where(member => member.Id == familyMember.MemberId)
                 .Where(member => member.DzematId.Equals(dzematId))
                 .FirstOrDefaultAsync();
 
             if (memberFetched is null) 
-                throw new EntityNotFoundException("Member ID: " + familyMembers.MemberId + " in džemat ID: " + dzematId + " was not found.");
+                throw new EntityNotFoundException("Member ID: " + familyMember.MemberId + " in džemat ID: " + dzematId + " was not found.");
 
-            List<FamilyMember> familyList = familyMembers.FamilyList.Select(f => _mapper.Map<FamilyMember>(f)).ToList();
-            memberFetched.FamilyMembers.AddRange(familyList);
+            memberFetched.FamilyMembers.Add(_mapper.Map<FamilyMember>(familyMember));
 
             await _memberContext.SaveChangesAsync();
 
@@ -300,6 +301,17 @@ namespace MembershipsManagement.Services.MemberServiceImpl
 
             return response;
 
+        }
+
+        public async Task<ServiceResponse<List<GetFamilyMemberDto>>> GetFamily(string token, int memberId)
+        {
+            var response = new ServiceResponse<List<GetFamilyMemberDto>>();
+            var memberFamily = await _memberContext.FamilyMembers
+                .Where(fm => fm.MemberId == memberId)
+                .ToListAsync();
+            response.Data = memberFamily.Select(fm => _mapper.Map<GetFamilyMemberDto>(fm)).ToList();
+            response.Message = "Fetched family members";
+            return response;
         }
 
         public Task<ServiceResponse<GetMemberDto>> AddMemberFamily(AddMemberFamilyListDto familyMembers)

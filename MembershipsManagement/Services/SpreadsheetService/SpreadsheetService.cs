@@ -244,6 +244,7 @@ namespace MembershipsManagement.Services.SpreadSheets
                 .Where(mi => mi.SpreadsheetId == activeSpreadsheet.spreadsheet.id)
                 .Include(mi => mi.Spreadsheet)
                 .Include(mi => mi.Member)
+                .ThenInclude(m => m.FamilyMembers)
                 .Include(mi => mi.Payments)
                 .ThenInclude(p => p.Supervisor)
                 .Select(mi => new

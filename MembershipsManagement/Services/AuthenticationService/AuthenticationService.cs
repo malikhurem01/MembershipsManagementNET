@@ -108,6 +108,9 @@ namespace MembershipsManagement.Services.Authentication
         {
             ServiceResponse<GetDzematDto> response = new ServiceResponse<GetDzematDto>();
             var fetchedUser = await _userManager.FindByNameAsync(user.UserName);
+            var savedDzemat = _authContext.Dzemati
+                .Where(d => d.Id.Equals(fetchedUser.Id))
+                .Include(d => d.Medzlis).FirstOrDefaultAsync();
             if (fetchedUser == null)
             {
                 throw new BadRequestException("Wrong credentials");
@@ -119,7 +122,7 @@ namespace MembershipsManagement.Services.Authentication
                 {
                     throw new BadRequestException("Wrong credentials");
                 }
-                var getUserDto = _mapper.Map<GetDzematDto>(fetchedUser);
+                var getUserDto = _mapper.Map<GetDzematDto>(savedDzemat.Result);
                 response.Data = getUserDto;
                 response.Message = "Džemat " + user.UserName + " has successfully logged in.";
             }
