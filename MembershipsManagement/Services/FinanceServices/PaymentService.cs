@@ -92,6 +92,7 @@ namespace MembershipsManagement.Services.FinanceServices
             var memberInfo = await _context.MembersInfo
                 .Where(mi => mi.MemberId == payment.MemberId)
                 .Where(mi => mi.SpreadsheetId == payment.SpreadsheetId)
+                .Include(mi => mi.Member)
                 .FirstOrDefaultAsync();
 
             if (memberInfo is null)
@@ -102,15 +103,14 @@ namespace MembershipsManagement.Services.FinanceServices
                     + payment.SpreadsheetId + " was not found.");
             }
 
+            memberInfo.Member.Debt += paymentToDelete.Amount;
+
             _context.Payments.Remove(paymentToDelete);
 
             await _context.SaveChangesAsync();
 
             response.Data = "";
-            response.Message = "Payment with ID: "
-                    + payment.Id + " for member ID: "
-                    + payment.MemberId + " for spreadsheet ID: "
-                    + payment.SpreadsheetId + " was successfully deleted.";
+            response.Message = "Uplata uspješno izbrisana";
 
             return response;
         }
