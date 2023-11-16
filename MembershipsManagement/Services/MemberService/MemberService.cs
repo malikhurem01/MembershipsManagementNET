@@ -302,7 +302,39 @@ namespace MembershipsManagement.Services.MemberServiceImpl
             await _memberContext.SaveChangesAsync();
 
             response.Data = _mapper.Map<GetMemberDto>(memberFetched);
-            response.Message = "Family members have been added for member ID: " + memberFetched.Id + ".";
+            response.Message = "Uspješno ste dodali člana porodice";
+
+            return response;
+
+        }
+
+        public async Task<ServiceResponse<GetMemberDto>> DeleteMemberFamily(string token, DeleteFamilyMemberDto familyMember)
+        {
+            var response = new ServiceResponse<GetMemberDto>();
+            var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
+            var dzematId = decodedToken.Claims
+                .Where(claim => claim.Type
+                .Equals("http://schemas.microsoft.com/ws/2008/06/identity/claims/userdata"))
+                .Select(claim => claim.Value)
+                .SingleOrDefault();
+
+            var memberFetched = await _memberContext.Members
+                .Where(member => member.Id == familyMember.MemberId)
+                .Where(member => member.DzematId.Equals(dzematId))
+                .Include(member => member.FamilyMembers)
+                .FirstOrDefaultAsync();
+
+            if (memberFetched is null)
+                throw new EntityNotFoundException("Member ID: " + familyMember.MemberId + " in džemat ID: " + dzematId + " was not found.");
+
+            var familyMemberToRemove = memberFetched.FamilyMembers.First(fm => fm.Id == familyMember.Id);
+
+            memberFetched.FamilyMembers.Remove(familyMemberToRemove);
+
+            await _memberContext.SaveChangesAsync();
+
+            response.Data = _mapper.Map<GetMemberDto>(memberFetched);
+            response.Message = "Uspješno ste uklonili člana porodice";
 
             return response;
 

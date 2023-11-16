@@ -7,6 +7,7 @@ namespace MembershipsManagement.Services.MemberServiceImpl
     {
         Task<ServiceResponse<GetMemberDto>> AddMember(string token, AddMemberDto member);
         Task<ServiceResponse<GetMemberDto>> AddMemberFamily(string token, AddMemberFamilyDto familyMember);
+        Task<ServiceResponse<GetMemberDto>> DeleteMemberFamily(string token, DeleteFamilyMemberDto familyMember);
         Task<ServiceResponse<object>> GetMemberByNameAndLastName(string token, string name, string lastName, int spreadsheetId);
         Task<ServiceResponse<List<GetFamilyMemberDto>>> GetFamily(string token, int memberId);
         Task<ServiceResponse<List<GetMemberDto>>> GetMemberList(string token);

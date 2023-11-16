@@ -31,7 +31,7 @@ namespace MembershipsManagement.Controllers
             return Ok(response);
         }
 
-        [HttpDelete("delete")]
+        [HttpPost("delete")]
         public async Task<ActionResult<ServiceResponse<GetPaymentDto>>> DeletePayment(DeletePaymentDto payment)
         {
             var response = await _paymentService.DeletePayment(payment);

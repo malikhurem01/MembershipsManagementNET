@@ -41,6 +41,18 @@ namespace MembershipsManagement.Controllers
             return Ok(response);
         }
 
+        [HttpPost("family/delete")]
+        public async Task<ActionResult<ServiceResponse<GetMemberDto>>> DeleteMemberFamily(DeleteFamilyMemberDto familyMember)
+        {
+            Request.Headers.TryGetValue("Authorization", out var token);
+            string tokenValue = token
+                .ToString()
+                .Split(" ")
+                .ElementAt(1);
+            var response = await _memberService.DeleteMemberFamily(tokenValue, familyMember);
+            return Ok(response);
+        }
+
         [HttpGet("get/single")]
         public async Task<ActionResult<ServiceResponse<GetMemberDto>>> GetSingleMember(int memberId)
         {
