@@ -187,15 +187,16 @@ namespace MembershipsManagement.Services.MemberServiceImpl
 
         }
 
-        public async Task<ServiceResponse<GetMemberDto>> ModifyMember(ModifyMemberDto memberModified)
+        public async Task<ServiceResponse<object>> ModifyMember(ModifyMemberDto memberModified)
         {
-            var response = new ServiceResponse<GetMemberDto>();
+            var response = new ServiceResponse<object>();
 
             var memberFetched = await _memberContext.Members
                 .Where(member => member.Id == memberModified.Id)
                 .Include(member => member.Dzemat)
                 .Include(member => member.Payments)
                 .Include(member => member.Spreadsheets)
+                .Include(member => member.FamilyMembers)
                 .FirstOrDefaultAsync();
 
             if (memberFetched == null)
@@ -214,7 +215,11 @@ namespace MembershipsManagement.Services.MemberServiceImpl
 
             await _memberContext.SaveChangesAsync();
 
-            response.Data = _mapper.Map<GetMemberDto>(memberFetched);
+            var options = new JsonSerializerOptions()
+            {
+                ReferenceHandler = ReferenceHandler.IgnoreCycles
+            };
+            response.Data = JsonSerializer.Serialize(new {memberFetched}, options);
             response.Message = "Informacije uspješno uređene";
             return response;
         }

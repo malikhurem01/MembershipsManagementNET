@@ -90,7 +90,7 @@ namespace MembershipsManagement.Controllers
         }
 
         [HttpPatch("modify")]
-        public async Task<ActionResult<ServiceResponse<GetMemberDto>>> ModifyMember(ModifyMemberDto member)
+        public async Task<ActionResult<ServiceResponse<object>>> ModifyMember(ModifyMemberDto member)
         {
             var response = await _memberService.ModifyMember(member);
             return Ok(response);
