@@ -74,7 +74,7 @@ namespace MembershipsManagement.Services.MemberServiceImpl
                 }
             
             response.Data = _mapper.Map<GetMemberDto>(memberToAdd);
-            response.Message = "Član je uspješno dodan.";
+            response.Message = "Član je uspješno dodan";
             return response;
         }
 
