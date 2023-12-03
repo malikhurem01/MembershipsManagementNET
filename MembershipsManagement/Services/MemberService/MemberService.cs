@@ -357,7 +357,7 @@ namespace MembershipsManagement.Services.MemberServiceImpl
             throw new NotImplementedException();
         }
 
-        public async Task<ServiceResponse<object>> GetFilteredMembersForActiveSpredsheet(string token, int spreadsheetId, string? firstName, string? lastName, int pageNumber)
+        public async Task<ServiceResponse<object>> GetFilteredMembersForActiveSpredsheet(string token, int spreadsheetId, string? firstName, string? lastName, string? fathersName, int pageNumber)
         {
             var response = new ServiceResponse<object>();
             var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
@@ -379,7 +379,12 @@ namespace MembershipsManagement.Services.MemberServiceImpl
                 membersInfoQuery = membersInfoQuery.Where(mi =>
                 mi.Member.LastName.Contains(lastName));
             }
-            
+            if (!string.IsNullOrEmpty(fathersName))
+            {
+                membersInfoQuery = membersInfoQuery.Where(mi =>
+                mi.Member.FathersName.Contains(fathersName));
+            }
+
             int pageSize = 10;
 
             var membersInfo = await membersInfoQuery.Skip((pageNumber - 1) * pageSize).Take(pageSize)
