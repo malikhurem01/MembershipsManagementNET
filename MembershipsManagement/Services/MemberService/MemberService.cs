@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using EntityFrameworkPaginate;
 using MembershipsManagement.Data;
 using MembershipsManagement.DTOs.MemberDTOs;
 using MembershipsManagement.DTOs.User;
@@ -354,6 +355,65 @@ namespace MembershipsManagement.Services.MemberServiceImpl
         public Task<ServiceResponse<GetMemberDto>> AddMemberFamily(AddMemberFamilyListDto familyMembers)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<ServiceResponse<object>> GetFilteredMembersForActiveSpredsheet(string token, int spreadsheetId, string? firstName, string? lastName, int pageNumber)
+        {
+            var response = new ServiceResponse<object>();
+            var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
+            var dzematId = decodedToken.Claims
+                .Where(claim => claim.Type
+                .Equals("http://schemas.microsoft.com/ws/2008/06/identity/claims/userdata"))
+                .Select(claim => claim.Value)
+                .SingleOrDefault();
+
+            IQueryable<MemberInfo> membersInfoQuery = _memberContext.MembersInfo.Where(mi => mi.SpreadsheetId == spreadsheetId);
+
+            if (!string.IsNullOrEmpty(firstName))
+            {
+                membersInfoQuery = membersInfoQuery.Where(mi =>
+                mi.Member.FirstName.Contains(firstName));
+            }
+            if (!string.IsNullOrEmpty(lastName))
+            {
+                membersInfoQuery = membersInfoQuery.Where(mi =>
+                mi.Member.LastName.Contains(lastName));
+            }
+            
+            int pageSize = 10;
+
+            var membersInfo = await membersInfoQuery.Skip((pageNumber - 1) * pageSize).Take(pageSize)
+                .Include(mi => mi.Spreadsheet)
+                .Include(mi => mi.Member)
+                .ThenInclude(m => m.FamilyMembers)
+                .Include(mi => mi.Payments)
+                .ThenInclude(p => p.Supervisor)
+                .Select(mi => new
+                {
+                    totalAmountPayed = mi.TotalAmountPayed,
+                    member = _mapper.Map<GetMemberDto>(mi.Member),
+                    note = mi.Note,
+                    membershipFee = mi.MembershipFee,
+                    latestPayment = mi.Payments.OrderByDescending(p => p.DateOfPayment).FirstOrDefault(),
+                    payments = mi.Payments.Select(y => new
+                    {
+                        id = y.Id,
+                        amount = y.Amount,
+                        supervisor = _mapper.Map<GetUserDto>(y.Supervisor),
+                        dateOfPayment = y.DateOfPayment
+                    }).ToArray()
+                }).ToListAsync();
+
+            _memberContext.ChangeTracker.LazyLoadingEnabled = false;
+
+            var options = new JsonSerializerOptions()
+            {
+                ReferenceHandler = ReferenceHandler.IgnoreCycles
+            };
+
+            response.Data = JsonSerializer.Serialize(new { membersInfo }, options);
+            return response;
+
         }
     }
 }

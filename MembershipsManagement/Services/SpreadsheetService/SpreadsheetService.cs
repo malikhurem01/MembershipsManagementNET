@@ -210,7 +210,6 @@ namespace MembershipsManagement.Services.SpreadSheets
             response.Message = fetched != null ? "Baza with ID: " + bazaId + " was unarchived." : "No baza was found.";
             return response;
         }
-
         public async Task<ServiceResponse<object>> GetActiveSpreadsheet(string token)
         {
             var response = new ServiceResponse<object>();
@@ -222,52 +221,29 @@ namespace MembershipsManagement.Services.SpreadSheets
                .SingleOrDefault();
 
             var activeSpreadsheet = await _context.Supervisors
-                .Where(s => s.Id.Equals(userId)).Select(s => new { 
-                 spreadsheet = s.Dzemat.Spreadsheets
+                .Where(s => s.Id.Equals(userId)).Select(s => new {
+                    spreadsheet = s.Dzemat.Spreadsheets
                  .Where(s => s.Archived == false)
-                 .Select(s => new 
+                 .Select(s => new
                  {
-                     id = s.Id, 
+                     id = s.Id,
                      year = s.Year
                  })
                  .First()
                 }).FirstOrDefaultAsync();
 
-            if(activeSpreadsheet is null)
+            if (activeSpreadsheet is null)
             {
                 throw new EntityNotFoundException("Aktivna baza ne postoji. Molimo Vas da je kreirate");
             }
 
             _context.ChangeTracker.LazyLoadingEnabled = false;
 
-            var rawMembersInfo = await _context.MembersInfo
-                .Where(mi => mi.SpreadsheetId == activeSpreadsheet.spreadsheet.id)
-                .Include(mi => mi.Spreadsheet)
-                .Include(mi => mi.Member)
-                .ThenInclude(m => m.FamilyMembers)
-                .Include(mi => mi.Payments)
-                .ThenInclude(p => p.Supervisor)
-                .Select(mi => new
-                {
-                    totalAmountPayed = mi.TotalAmountPayed,
-                    member = _mapper.Map<GetMemberDto>(mi.Member),
-                    note = mi.Note,
-                    membershipFee = mi.MembershipFee,
-                    latestPayment = mi.Payments.OrderByDescending(p => p.DateOfPayment).FirstOrDefault(),
-                    payments = mi.Payments.Select(y => new
-                    {
-                        id = y.Id,
-                        amount = y.Amount,
-                        supervisor = _mapper.Map<GetUserDto>(y.Supervisor),
-                        dateOfPayment = y.DateOfPayment
-                    }).ToArray()
-                }).ToListAsync();
-
             var options = new JsonSerializerOptions()
             {
                 ReferenceHandler = ReferenceHandler.IgnoreCycles
             };
-            response.Data = JsonSerializer.Serialize(new { spreadsheet = activeSpreadsheet.spreadsheet, rawMembersInfo}, options);
+            response.Data = JsonSerializer.Serialize(new { spreadsheet = activeSpreadsheet.spreadsheet }, options);
             response.Message = "Aktivna baza uspješno učitana";
             return response;
         }

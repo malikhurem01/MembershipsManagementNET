@@ -14,5 +14,6 @@ namespace MembershipsManagement.Services.MemberServiceImpl
         Task<ServiceResponse<GetMemberDto>> GetSingleMember(string token, int memberId);
         Task<ServiceResponse<string>> DeleteMember(DeleteMemberDto member);
         Task<ServiceResponse<object>> ModifyMember(ModifyMemberDto memberModified);
+        Task<ServiceResponse<object>> GetFilteredMembersForActiveSpredsheet(string token, int spreadsheetId, string? firstName, string? lastName, int pageNumber);
     }
 }

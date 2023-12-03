@@ -40,7 +40,7 @@ namespace MembershipsManagement.Controllers
             return Ok(response);
         }
         [HttpGet("get/active")]
-        public async Task<ActionResult<ServiceResponse<GetSpreadsheetDto>>> GetActiveSpreadsheet()
+        public async Task<ActionResult<ServiceResponse<object>>> GetActiveSpreadsheet()
         {
             Request.Headers.TryGetValue("Authorization", out var token);
             string tokenValue = token

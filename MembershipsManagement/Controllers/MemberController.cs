@@ -65,6 +65,18 @@ namespace MembershipsManagement.Controllers
             return Ok(response);
         }
 
+        [HttpGet("get/active-spreadsheet")]
+        public async Task<ActionResult<ServiceResponse<object>>> GetFilteredMembersForActiveSpredsheet(int spreadsheetId, string? firstName, string? lastName, int pageNumber)
+        {
+            Request.Headers.TryGetValue("Authorization", out var token);
+            string tokenValue = token
+                .ToString()
+                .Split(" ")
+                .ElementAt(1);
+            var response = await _memberService.GetFilteredMembersForActiveSpredsheet(tokenValue, spreadsheetId, firstName, lastName, pageNumber);
+            return Ok(response);
+        }
+
         [HttpGet("get/family")]
         public async Task<ActionResult<ServiceResponse<List<GetFamilyMemberDto>>>> GetFamily(int memberId)
         {
