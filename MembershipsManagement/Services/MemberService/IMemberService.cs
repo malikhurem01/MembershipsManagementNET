@@ -1,4 +1,5 @@
 ﻿using MembershipsManagement.DTOs.MemberDTOs;
+using MembershipsManagement.DTOs.MemberInfoDTOs;
 using MembershipsManagement.Entities;
 
 namespace MembershipsManagement.Services.MemberServiceImpl
@@ -13,7 +14,7 @@ namespace MembershipsManagement.Services.MemberServiceImpl
         Task<ServiceResponse<List<GetMemberDto>>> GetMemberList(string token);
         Task<ServiceResponse<GetMemberDto>> GetSingleMember(string token, int memberId);
         Task<ServiceResponse<string>> DeleteMember(DeleteMemberDto member);
-        Task<ServiceResponse<object>> ModifyMember(ModifyMemberDto memberModified);
-        Task<ServiceResponse<object>> GetFilteredMembersForActiveSpredsheet(string token, int spreadsheetId, string? firstName, string? lastName, string? fathersName, int pageNumber);
+        Task<ServiceResponse<GetMemberDto>> ModifyMember(ModifyMemberDto memberModified);
+        Task<ServiceResponse<List<GetSpreadsheetMemberInfo>>> GetFilteredMembersForActiveSpredsheet(string token, int spreadsheetId, string? firstName, string? lastName, string? fathersName, int pageNumber);
     }
 }

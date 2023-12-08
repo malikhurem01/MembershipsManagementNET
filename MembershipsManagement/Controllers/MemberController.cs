@@ -1,4 +1,5 @@
 ﻿using MembershipsManagement.DTOs.MemberDTOs;
+using MembershipsManagement.DTOs.MemberInfoDTOs;
 using MembershipsManagement.Entities;
 using MembershipsManagement.Services.MemberServiceImpl;
 using Microsoft.AspNetCore.Authorization;
@@ -66,7 +67,7 @@ namespace MembershipsManagement.Controllers
         }
 
         [HttpGet("get/active-spreadsheet")]
-        public async Task<ActionResult<ServiceResponse<object>>> GetFilteredMembersForActiveSpredsheet(int spreadsheetId, string? firstName, string? lastName, string? fathersName, int pageNumber)
+        public async Task<ActionResult<ServiceResponse<List<GetSpreadsheetMemberInfo>>>> GetFilteredMembersForActiveSpredsheet(int spreadsheetId, string? firstName, string? lastName, string? fathersName, int pageNumber)
         {
             Request.Headers.TryGetValue("Authorization", out var token);
             string tokenValue = token
@@ -114,7 +115,7 @@ namespace MembershipsManagement.Controllers
         }
 
         [HttpPatch("modify")]
-        public async Task<ActionResult<ServiceResponse<object>>> ModifyMember(ModifyMemberDto member)
+        public async Task<ActionResult<ServiceResponse<GetMemberDto>>> ModifyMember(ModifyMemberDto member)
         {
             var response = await _memberService.ModifyMember(member);
             return Ok(response);

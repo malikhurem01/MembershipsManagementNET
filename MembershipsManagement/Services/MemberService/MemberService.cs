@@ -2,6 +2,8 @@
 using EntityFrameworkPaginate;
 using MembershipsManagement.Data;
 using MembershipsManagement.DTOs.MemberDTOs;
+using MembershipsManagement.DTOs.MemberInfoDTOs;
+using MembershipsManagement.DTOs.PaymentDTOs;
 using MembershipsManagement.DTOs.User;
 using MembershipsManagement.Entities;
 using MembershipsManagement.Exceptions;
@@ -188,9 +190,9 @@ namespace MembershipsManagement.Services.MemberServiceImpl
 
         }
 
-        public async Task<ServiceResponse<object>> ModifyMember(ModifyMemberDto memberModified)
+        public async Task<ServiceResponse<GetMemberDto>> ModifyMember(ModifyMemberDto memberModified)
         {
-            var response = new ServiceResponse<object>();
+            var response = new ServiceResponse<GetMemberDto>();
 
             var memberFetched = await _memberContext.Members
                 .Where(member => member.Id == memberModified.Id)
@@ -216,11 +218,7 @@ namespace MembershipsManagement.Services.MemberServiceImpl
 
             await _memberContext.SaveChangesAsync();
 
-            var options = new JsonSerializerOptions()
-            {
-                ReferenceHandler = ReferenceHandler.IgnoreCycles
-            };
-            response.Data = JsonSerializer.Serialize(new {memberFetched}, options);
+            response.Data = _mapper.Map<GetMemberDto>(memberFetched);
             response.Message = "Informacije uspješno uređene";
             return response;
         }
@@ -357,9 +355,9 @@ namespace MembershipsManagement.Services.MemberServiceImpl
             throw new NotImplementedException();
         }
 
-        public async Task<ServiceResponse<object>> GetFilteredMembersForActiveSpredsheet(string token, int spreadsheetId, string? firstName, string? lastName, string? fathersName, int pageNumber)
+        public async Task<ServiceResponse<List<GetSpreadsheetMemberInfo>>> GetFilteredMembersForActiveSpredsheet(string token, int spreadsheetId, string? firstName, string? lastName, string? fathersName, int pageNumber)
         {
-            var response = new ServiceResponse<object>();
+            var response = new ServiceResponse<List<GetSpreadsheetMemberInfo>>();
             var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
             var dzematId = decodedToken.Claims
                 .Where(claim => claim.Type
@@ -395,20 +393,19 @@ namespace MembershipsManagement.Services.MemberServiceImpl
                 .ThenInclude(m => m.FamilyMembers)
                 .Include(mi => mi.Payments)
                 .ThenInclude(p => p.Supervisor)
-                .Select(mi => new
+                .Select(mi => new GetSpreadsheetMemberInfo
                 {
-                    totalAmountPayed = mi.TotalAmountPayed,
-                    member = _mapper.Map<GetMemberDto>(mi.Member),
-                    note = mi.Note,
-                    membershipFee = mi.MembershipFee,
-                    payments = mi.Payments.OrderByDescending(p => p.DateOfPayment).Select(y => new
+                    TotalAmountPayed = mi.TotalAmountPayed,
+                    Member = _mapper.Map<GetMemberDto>(mi.Member),
+                    MembershipFee = mi.MembershipFee,
+                    Payments = mi.Payments.OrderByDescending(p => p.DateOfPayment).Select(y => new GetSpreadsheetPaymentDto
                     {
-                        id = y.Id,
-                        amount = y.Amount,
-                        dateOfPayment = y.DateOfPayment,
-                        supervisorFirstName = y.Supervisor.FirstName,
-                        supervisorLastName = y.Supervisor.LastName
-                    }).ToArray()
+                        Id = y.Id,
+                        Amount = y.Amount,
+                        DateOfPayment = y.DateOfPayment,
+                        SupervisorFirstName = y.Supervisor.FirstName,
+                        SupervisorLastName = y.Supervisor.LastName
+                    }).ToList()
                 }).AsNoTracking().ToListAsync();
 
             _memberContext.ChangeTracker.LazyLoadingEnabled = false;
@@ -418,7 +415,7 @@ namespace MembershipsManagement.Services.MemberServiceImpl
                 ReferenceHandler = ReferenceHandler.IgnoreCycles
             };
 
-            response.Data = JsonSerializer.Serialize(new { membersInfo }, options);
+            response.Data = membersInfo;
             return response;
 
         }
