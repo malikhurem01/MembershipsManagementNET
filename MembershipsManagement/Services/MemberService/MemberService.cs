@@ -409,7 +409,7 @@ namespace MembershipsManagement.Services.MemberServiceImpl
                         supervisorFirstName = y.Supervisor.FirstName,
                         supervisorLastName = y.Supervisor.LastName
                     }).ToArray()
-                }).ToListAsync();
+                }).AsNoTracking().ToListAsync();
 
             _memberContext.ChangeTracker.LazyLoadingEnabled = false;
 
