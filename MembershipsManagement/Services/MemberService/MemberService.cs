@@ -385,12 +385,11 @@ namespace MembershipsManagement.Services.MemberServiceImpl
                 mi.Member.FathersName.Contains(fathersName));
             }
 
-            int pageSize = 1;
+            int pageSize = 10;
 
             var membersInfo = await membersInfoQuery
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
-                .Include(mi => mi.Spreadsheet)
                 .Include(mi => mi.Member)
                 .ThenInclude(m => m.FamilyMembers)
                 .Include(mi => mi.Payments)
@@ -401,13 +400,13 @@ namespace MembershipsManagement.Services.MemberServiceImpl
                     member = _mapper.Map<GetMemberDto>(mi.Member),
                     note = mi.Note,
                     membershipFee = mi.MembershipFee,
-                    latestPayment = mi.Payments.OrderByDescending(p => p.DateOfPayment).Take(1).FirstOrDefault(),
-                    payments = mi.Payments.Select(y => new
+                    payments = mi.Payments.OrderByDescending(p => p.DateOfPayment).Select(y => new
                     {
                         id = y.Id,
                         amount = y.Amount,
-                        supervisor = _mapper.Map<GetUserDto>(y.Supervisor),
-                        dateOfPayment = y.DateOfPayment
+                        dateOfPayment = y.DateOfPayment,
+                        supervisorFirstName = y.Supervisor.FirstName,
+                        supervisorLastName = y.Supervisor.LastName
                     }).ToArray()
                 }).ToListAsync();
 
