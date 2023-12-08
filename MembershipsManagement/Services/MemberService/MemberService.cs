@@ -385,7 +385,7 @@ namespace MembershipsManagement.Services.MemberServiceImpl
                 mi.Member.FathersName.Contains(fathersName));
             }
 
-            int pageSize = 10;
+            int pageSize = 1;
 
             var membersInfo = await membersInfoQuery
                 .Skip((pageNumber - 1) * pageSize)
