@@ -390,6 +390,7 @@ namespace MembershipsManagement.Services.MemberServiceImpl
             var membersInfo = await membersInfoQuery
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
+                .Include(mi => mi.Spreadsheet)
                 .Include(mi => mi.Member)
                 .ThenInclude(m => m.FamilyMembers)
                 .Include(mi => mi.Payments)
