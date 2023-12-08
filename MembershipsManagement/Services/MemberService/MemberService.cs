@@ -387,7 +387,9 @@ namespace MembershipsManagement.Services.MemberServiceImpl
 
             int pageSize = 10;
 
-            var membersInfo = await membersInfoQuery.Skip((pageNumber - 1) * pageSize).Take(pageSize)
+            var membersInfo = await membersInfoQuery
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
                 .Include(mi => mi.Spreadsheet)
                 .Include(mi => mi.Member)
                 .ThenInclude(m => m.FamilyMembers)
@@ -399,7 +401,7 @@ namespace MembershipsManagement.Services.MemberServiceImpl
                     member = _mapper.Map<GetMemberDto>(mi.Member),
                     note = mi.Note,
                     membershipFee = mi.MembershipFee,
-                    latestPayment = mi.Payments.OrderByDescending(p => p.DateOfPayment).FirstOrDefault(),
+                    latestPayment = mi.Payments.OrderByDescending(p => p.DateOfPayment).Take(1).FirstOrDefault(),
                     payments = mi.Payments.Select(y => new
                     {
                         id = y.Id,
