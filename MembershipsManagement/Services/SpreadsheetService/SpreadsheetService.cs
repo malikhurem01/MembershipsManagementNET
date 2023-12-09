@@ -247,5 +247,71 @@ namespace MembershipsManagement.Services.SpreadSheets
             response.Message = "Aktivna baza uspješno učitana";
             return response;
         }
+
+        public async Task<ServiceResponse<SpreadsheetReportDto>> GetSpreadsheetReport(string token, int spreadsheetYear)
+        {
+            var response = new ServiceResponse<SpreadsheetReportDto>();
+            var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
+            var userId = decodedToken.Claims
+               .Where(claim => claim.Type
+               .Equals("nameid"))
+               .Select(claim => claim.Value)
+               .SingleOrDefault();
+
+            var baza = await _context.Supervisors
+                .Include(s => s.Dzemat)
+                .ThenInclude(d => d.Spreadsheets)
+                .Where(s => s.Id.Equals(userId))
+                .Select(s => s.Dzemat.Spreadsheets.Where(spreadsheet => spreadsheet.Year == spreadsheetYear)
+                .Select(spreadsheet => spreadsheet.Id).ToList()[0]).ToListAsync();
+
+            var bazaId = baza.ElementAt(0);
+
+            var spreadsheetReport = await _context.Supervisors
+                            .Where(s => s.Id.Equals(userId))
+                            .Select(sr => new SpreadsheetReportDto
+                            {
+                                MedzlisName = sr.Dzemat.Medzlis.Name,
+                                DzematName = sr.Dzemat.Name,
+                                MarriageStatusMembersCount = sr.Dzemat.Spreadsheets
+                                .Where(spreadsheet => spreadsheet.Id == bazaId)
+                                .Select(activeSpreadsheet => activeSpreadsheet.Members.Where(member => member.Status == Status.Brak).Count()).First(),
+                                AgeLimitStatusMembersCount = sr.Dzemat.Spreadsheets
+                                .Where(spreadsheet => spreadsheet.Id == bazaId)
+                                .Select(activeSpreadsheet => activeSpreadsheet.Members.Where(member => member.Status == Status.DobnaGranica).Count()).First(),
+                                WidowerStatusMembersCount = sr.Dzemat.Spreadsheets
+                                .Where(spreadsheet => spreadsheet.Id == bazaId)
+                                .Select(activeSpreadsheet => activeSpreadsheet.Members.Where(member => member.Status == Status.Udovac).Count()).First(),
+                                Budget = (double)sr.Dzemat.Budget,
+                                TotalPaymentsAmount = sr.Dzemat.Spreadsheets
+                                .Where(spreadsheet => spreadsheet.Id == bazaId)
+                                .Select(spreadsheet => spreadsheet.Payments.GroupBy(payments => payments.SpreadsheetId).Select(p => p.Sum(p => p.Amount)).ToList()[0]).ToList()[0],
+                                MembersPayed = sr.Dzemat.Spreadsheets
+                                .Where(spreadsheet => spreadsheet.Id == bazaId)
+                                .SelectMany(spreadsheet => spreadsheet.Members
+                                .Where(member => member.Debt == 0)
+                                .Select(member => new MemberThatHasPayedDto
+                                {
+                                    FullName = member.FirstName + " " + member.LastName,
+                                    Supervisor = "DORADITI",
+                                    TotalAmount = member.Payments.Where(payment => payment.SpreadsheetId == bazaId).Sum(p => p.Amount)
+                                })).ToList(),
+                                MembersNotPayed = sr.Dzemat.Spreadsheets
+                                .Where(spreadsheet => spreadsheet.Id == bazaId)
+                                .SelectMany(spreadsheet => spreadsheet.Members
+                                .Where(member => member.Debt > 0)
+                                .Select(member => new MemberThatHasNotPayedDto
+                                {
+                                    FullName = member.FirstName + " " + member.LastName,
+                                    Debt = member.Debt,
+                                    TotalAmount = member.Payments.Where(payment => payment.SpreadsheetId == bazaId).Sum(p => p.Amount)
+                                })).ToList(),
+
+                            }).FirstOrDefaultAsync();
+
+            response.Data = spreadsheetReport;
+            response.Message = "Izvještaj je uspješno izrađen";
+            return response;
+        }
     }
 }

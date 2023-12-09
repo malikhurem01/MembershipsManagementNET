@@ -14,6 +14,7 @@ namespace MembershipsManagement.Services.SpreadSheets
         Task<ServiceResponse<object>> GetActiveSpreadsheet(string token);
         Task<ServiceResponse<GetSpreadsheetDto>> ArchiveBaza(string token, ArchiveSpreadsheetDto spreadsheet);
         Task<ServiceResponse<GetSpreadsheetDto>> UnarchiveBaza(int bazaId);
+        Task<ServiceResponse<SpreadsheetReportDto>> GetSpreadsheetReport(string token, int spreadsheetYear);
 
     }
 }

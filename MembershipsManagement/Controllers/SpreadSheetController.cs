@@ -50,6 +50,19 @@ namespace MembershipsManagement.Controllers
             var response = await _bazaService.GetActiveSpreadsheet(tokenValue);
             return Ok(response);
         }
+
+        [HttpGet("get/report")]
+        public async Task<ActionResult<ServiceResponse<SpreadsheetReportDto>>> GetSpreadsheetReport(int spreadsheetYear)
+        {
+            Request.Headers.TryGetValue("Authorization", out var token);
+            string tokenValue = token
+                .ToString()
+                .Split(" ")
+                .ElementAt(1);
+            var response = await _bazaService.GetSpreadsheetReport(tokenValue, spreadsheetYear);
+            return Ok(response);
+        }
+
         [HttpPatch("archive")]
         public async Task<ActionResult<ServiceResponse<GetSpreadsheetDto>>> ArchiveBaza(ArchiveSpreadsheetDto spreadsheet) {
             Request.Headers.TryGetValue("Authorization", out var token);
