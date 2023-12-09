@@ -3,7 +3,7 @@
     public class MemberThatHasNotPayedDto
     {
         public string FullName { get; set; } = string.Empty;
-        public double TotalAmount { get; set; }
-        public double Debt { get; set; }
+        public double? TotalAmount { get; set; }
+        public double? Debt { get; set; }
     }
 }

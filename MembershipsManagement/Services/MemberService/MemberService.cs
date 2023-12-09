@@ -280,6 +280,8 @@ namespace MembershipsManagement.Services.MemberServiceImpl
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .Include(mi => mi.Spreadsheet)
+
+
                 .Include(mi => mi.Member)
                 .ThenInclude(m => m.FamilyMembers)
                 .Include(mi => mi.Payments)

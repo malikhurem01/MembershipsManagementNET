@@ -13,5 +13,3 @@ namespace MembershipsManagement.Services.FinanceServices
         Task<ServiceResponse<string>> DeletePayment(DeletePaymentDto payment);
     }
 }
-
-// ZA URADITI NAPRAVITI GET PAYMENTS BY LIST AND BY ID

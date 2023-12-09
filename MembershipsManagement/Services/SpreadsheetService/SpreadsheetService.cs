@@ -290,9 +290,9 @@ namespace MembershipsManagement.Services.SpreadSheets
                                 .Where(spreadsheet => spreadsheet.Id == bazaId)
                                 .Select(activeSpreadsheet => activeSpreadsheet.Members.Where(member => member.Status == Status.Udovac).Count()).First(),
                                 Budget = (double)sr.Dzemat.Budget,
-                                TotalPaymentsAmount = sr.Dzemat.Spreadsheets
+                                TotalPaymentsAmountListed = sr.Dzemat.Spreadsheets
                                 .Where(spreadsheet => spreadsheet.Id == bazaId)
-                                .Select(spreadsheet => spreadsheet.Payments.GroupBy(payments => payments.SpreadsheetId).Select(p => p.Sum(p => p.Amount)).ToList()[0]).ToList()[0],
+                                .Select(spreadsheet => spreadsheet.Payments.GroupBy(payments => payments.SpreadsheetId).Select(p => p.Sum(p => p.Amount)).ToList()).ToList(),
                                 MembersPayed = sr.Dzemat.Spreadsheets
                                 .Where(spreadsheet => spreadsheet.Id == bazaId)
                                 .SelectMany(spreadsheet => spreadsheet.Members
