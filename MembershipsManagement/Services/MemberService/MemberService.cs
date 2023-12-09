@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using EntityFrameworkPaginate;
 using MembershipsManagement.Data;
 using MembershipsManagement.DTOs.MemberDTOs;
 using MembershipsManagement.DTOs.MemberInfoDTOs;
@@ -81,115 +80,6 @@ namespace MembershipsManagement.Services.MemberServiceImpl
             return response;
         }
 
-        public async Task<ServiceResponse<object>> GetMemberByNameAndLastName(string token, string name, string lastName, int spreadsheetId)
-        {
-            var response = new ServiceResponse<object>();
-            var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
-            var userId = decodedToken.Claims
-                .Where(claim => claim.Type
-                .Equals("nameid"))
-                .Select(claim => claim.Value)
-                .SingleOrDefault();
-
-            var supervisor = await _memberContext.Supervisors
-                .Where(s => s.Id.Equals(userId))
-                .FirstOrDefaultAsync();
-
-            _memberContext.ChangeTracker.LazyLoadingEnabled = false;
-            var options = new JsonSerializerOptions()
-            {
-                ReferenceHandler = ReferenceHandler.IgnoreCycles
-            };
-            if (name.Length > 0 && lastName.Length > 0)
-            {
-                var membersList = await _memberContext.MembersInfo
-                 .Where(mi => mi.SpreadsheetId == spreadsheetId)
-                 .Where(mi => mi.Member.FirstName.Contains(name.Trim()))
-                 .Where(mi => mi.Member.LastName.Contains(lastName.Trim()))
-                 .Include(mi => mi.Spreadsheet)
-                 .Include(mi => mi.Member)
-                 .Include(mi => mi.Payments)
-                 .ThenInclude(p => p.Supervisor)
-                 .Select(mi => new
-                 {
-                     totalAmountPayed = mi.TotalAmountPayed,
-                     member = _mapper.Map<GetMemberDto>(mi.Member),
-                     note = mi.Note,
-                     membershipFee = mi.MembershipFee,
-                     latestPayment = mi.Payments.OrderByDescending(p => p.DateOfPayment).FirstOrDefault(),
-                     payments = mi.Payments.Select(y => new
-                     {
-                         id = y.Id,
-                         amount = y.Amount,
-                         supervisor = _mapper.Map<GetUserDto>(y.Supervisor),
-                         dateOfPayment = y.DateOfPayment
-                     }).ToArray()
-                 }).ToListAsync();
-
-                response.Data = JsonSerializer.Serialize(new { membersList }, options);
-                response.Message = "Članovi uspješno učitani";
-            }
-            else if (name.Length > 0)
-            {
-                var membersList = await _memberContext.MembersInfo
-                  .Where(mi => mi.SpreadsheetId == spreadsheetId)
-                  .Where(mi => mi.Member.FirstName.Contains(name.Trim()))
-                  .Include(mi => mi.Spreadsheet)
-                  .Include(mi => mi.Member)
-                  .Include(mi => mi.Payments)
-                  .ThenInclude(p => p.Supervisor)
-                  .Select(mi => new
-                  {
-                      totalAmountPayed = mi.TotalAmountPayed,
-                      member = _mapper.Map<GetMemberDto>(mi.Member),
-                      note = mi.Note,
-                      membershipFee = mi.MembershipFee,
-                      latestPayment = mi.Payments.OrderByDescending(p => p.DateOfPayment).FirstOrDefault(),
-                      payments = mi.Payments.Select(y => new
-                      {
-                          id = y.Id,
-                          amount = y.Amount,
-                          supervisor = _mapper.Map<GetUserDto>(y.Supervisor),
-                          dateOfPayment = y.DateOfPayment
-                      }).ToArray()
-                  }).ToListAsync();
-
-                response.Data = JsonSerializer.Serialize(new { membersList }, options);
-                response.Message = "Članovi uspješno učitani";
-            }
-            else if (lastName.Length > 0)
-            {
-                var membersList = await _memberContext.MembersInfo
-                  .Where(mi => mi.SpreadsheetId == spreadsheetId)
-                  .Where(mi => mi.Member.LastName.Contains(lastName.Trim()))
-                  .Include(mi => mi.Spreadsheet)
-                  .Include(mi => mi.Member)
-                  .Include(mi => mi.Payments)
-                  .ThenInclude(p => p.Supervisor)
-                  .Select(mi => new
-                  {
-                      totalAmountPayed = mi.TotalAmountPayed,
-                      member = _mapper.Map<GetMemberDto>(mi.Member),
-                      note = mi.Note,
-                      membershipFee = mi.MembershipFee,
-                      latestPayment = mi.Payments.OrderByDescending(p => p.DateOfPayment).FirstOrDefault(),
-                      payments = mi.Payments.Select(y => new
-                      {
-                          id = y.Id,
-                          amount = y.Amount,
-                          supervisor = _mapper.Map<GetUserDto>(y.Supervisor),
-                          dateOfPayment = y.DateOfPayment
-                      }).ToArray()
-                  }).ToListAsync();
-
-                response.Data = JsonSerializer.Serialize(new { membersList }, options);
-                response.Message = "Članovi uspješno učitani";
-            }
-
-            return response;
-
-        }
-
         public async Task<ServiceResponse<GetMemberDto>> ModifyMember(ModifyMemberDto memberModified)
         {
             var response = new ServiceResponse<GetMemberDto>();
@@ -210,6 +100,7 @@ namespace MembershipsManagement.Services.MemberServiceImpl
             memberFetched.FirstName = memberModified.FirstName;
             memberFetched.FathersName = memberModified.FathersName;
             memberFetched.LastName = memberModified.LastName;
+            memberFetched.DateOfBirth = memberModified.DateOfBirth;
             memberFetched.Address = memberModified.Address;
             memberFetched.Email = memberModified.Email;
             memberFetched.PhoneNumber = memberModified.PhoneNumber;

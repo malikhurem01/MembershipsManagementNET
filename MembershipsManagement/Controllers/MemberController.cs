@@ -30,6 +30,24 @@ namespace MembershipsManagement.Controllers
             return Ok(response);
         }
 
+        [HttpGet("get/all")]
+        public async Task<ActionResult<ServiceResponse<List<GetMemberDto>>>> GetMemberList()
+        {
+            Request.Headers.TryGetValue("Authorization", out var token);
+            string tokenValue = token
+                .ToString()
+                .Split(" ")
+                .ElementAt(1);
+            var response = await _memberService.GetMemberList(tokenValue);
+            return Ok(response);
+        }
+
+        [HttpPatch("modify")]
+        public async Task<ActionResult<ServiceResponse<GetMemberDto>>> ModifyMember(ModifyMemberDto member)
+        {
+            var response = await _memberService.ModifyMember(member);
+            return Ok(response);
+        }
         [HttpPost("family/add")]
         public async Task<ActionResult<ServiceResponse<GetMemberDto>>> AddMemberFamily(AddMemberFamilyDto familyMember)
         {
@@ -87,37 +105,6 @@ namespace MembershipsManagement.Controllers
                 .Split(" ")
                 .ElementAt(1);
             var response = await _memberService.GetFamily(tokenValue, memberId);
-            return Ok(response);
-        }
-
-        [HttpGet("get/all/filter")]
-        public async Task<ActionResult<ServiceResponse<object>>> GetMemberByNameAndLastName(int spreadsheetId, string name = " ", string lastName = " ")
-        {
-            Request.Headers.TryGetValue("Authorization", out var token);
-            string tokenValue = token
-                .ToString()
-                .Split(" ")
-                .ElementAt(1);
-            var response = await _memberService.GetMemberByNameAndLastName(tokenValue, name, lastName, spreadsheetId);
-            return Ok(response);
-        }
-
-        [HttpGet("get/all")]
-        public async Task<ActionResult<ServiceResponse<List<GetMemberDto>>>> GetMemberList()
-        {
-            Request.Headers.TryGetValue("Authorization", out var token);
-            string tokenValue = token
-                .ToString()
-                .Split(" ")
-                .ElementAt(1);
-            var response = await _memberService.GetMemberList(tokenValue);
-            return Ok(response);
-        }
-
-        [HttpPatch("modify")]
-        public async Task<ActionResult<ServiceResponse<GetMemberDto>>> ModifyMember(ModifyMemberDto member)
-        {
-            var response = await _memberService.ModifyMember(member);
             return Ok(response);
         }
 

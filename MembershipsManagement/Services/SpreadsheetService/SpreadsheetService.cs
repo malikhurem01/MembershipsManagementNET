@@ -263,9 +263,16 @@ namespace MembershipsManagement.Services.SpreadSheets
                 .ThenInclude(d => d.Spreadsheets)
                 .Where(s => s.Id.Equals(userId))
                 .Select(s => s.Dzemat.Spreadsheets.Where(spreadsheet => spreadsheet.Year == spreadsheetYear)
-                .Select(spreadsheet => spreadsheet.Id).ToList()[0]).ToListAsync();
+                .Select(spreadsheet => spreadsheet.Id).ToList()).ToListAsync();
 
-            var bazaId = baza.ElementAt(0);
+            if(baza.ElementAt(0).Count == 0)
+            {
+                throw new BadRequestException("Baza za godinu " + spreadsheetYear + " ne postoji");
+            }
+
+            var bazaId = baza.ElementAt(0).ElementAt(0);
+
+            
 
             var spreadsheetReport = await _context.Supervisors
                             .Where(s => s.Id.Equals(userId))

@@ -8,6 +8,7 @@ namespace MembershipsManagement.DTOs.MemberDTOs
         public int EvNumber { get; set; }
         public string FirstName { get; set; } = string.Empty;
         public string FathersName { get; set; } = string.Empty;
+        public DateTime DateOfBirth { get; set; }
         public string LastName { get; set; } = string.Empty;
         public string PhoneNumber { get; set; } = string.Empty;
         public string Address { get; set; } = string.Empty;
