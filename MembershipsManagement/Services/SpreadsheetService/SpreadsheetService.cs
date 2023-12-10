@@ -268,8 +268,6 @@ namespace MembershipsManagement.Services.SpreadSheets
 
             var bazaId = baza.ElementAt(0).ElementAt(0);
 
-            
-
             var spreadsheetReport = await _context.Supervisors
                             .Where(s => s.Id.Equals(userId))
                             .Select(sr => new SpreadsheetReportDto
@@ -314,6 +312,37 @@ namespace MembershipsManagement.Services.SpreadSheets
 
             response.Data = spreadsheetReport;
             response.Message = "Izvještaj je uspješno izrađen";
+            return response;
+        }
+
+        public async Task<ServiceResponse<List<DebtWarningReport>>> GetDebtWarningReports(string token)
+        {
+            var response = new ServiceResponse<List<DebtWarningReport>>();
+            var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
+            var userId = decodedToken.Claims
+               .Where(claim => claim.Type
+               .Equals("nameid"))
+               .Select(claim => claim.Value)
+               .SingleOrDefault();
+
+            var debtWarningReports = await _context.Supervisors
+                .Where(s => s.Id.Equals(userId))
+                .SelectMany(s => s.Dzemat.Members.Where(member => member.Debt > 0).Select(member => new DebtWarningReport
+                {
+                    DzematName = member.Dzemat.Name,
+                    Debt = member.Debt,
+                    FirstName = member.FirstName,
+                    FathersName = member.FathersName,
+                    LastName = member.LastName
+                })).ToListAsync();
+
+            if(debtWarningReports.Count == 0)
+            {
+                throw new BadRequestException("Nema članova sa dugom");
+            }
+
+            response.Data = debtWarningReports;
+            response.Message = "Opomene uspješno izrađene";
             return response;
         }
     }

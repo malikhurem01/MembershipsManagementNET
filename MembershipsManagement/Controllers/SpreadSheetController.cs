@@ -63,6 +63,18 @@ namespace MembershipsManagement.Controllers
             return Ok(response);
         }
 
+        [HttpGet("get/debt-warning")]
+        public async Task<ActionResult<ServiceResponse<SpreadsheetReportDto>>> GetDebtWarningReports()
+        {
+            Request.Headers.TryGetValue("Authorization", out var token);
+            string tokenValue = token
+                .ToString()
+                .Split(" ")
+                .ElementAt(1);
+            var response = await _bazaService.GetDebtWarningReports(tokenValue);
+            return Ok(response);
+        }
+
         [HttpPatch("archive")]
         public async Task<ActionResult<ServiceResponse<GetSpreadsheetDto>>> ArchiveBaza(ArchiveSpreadsheetDto spreadsheet) {
             Request.Headers.TryGetValue("Authorization", out var token);
