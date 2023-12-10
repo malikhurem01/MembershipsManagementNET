@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MembershipsManagement.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20231210193628_addednotesformember")]
-    partial class addednotesformember
+    [Migration("20231210194708_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
