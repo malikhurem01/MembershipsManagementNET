@@ -131,7 +131,7 @@ namespace MembershipsManagement.Services.FinanceServices
                 throw new EntityNotFoundException("FATAL ERROR: Supervisor with ID: " + supervisorId + " was not found in the database.");
             }
 
-            var member = await _context.Members.Where(m => m.Id == memberId).Where(m => m.DzematId.Equals(supervisor.DzematId)).Include(m => m.Payments).FirstOrDefaultAsync();
+            var member = await _context.Members.Where(m => m.Id == memberId).Where(m => m.DzematId == supervisor.DzematId).Include(m => m.Payments).FirstOrDefaultAsync();
 
             if(member is null)
             {
@@ -162,8 +162,7 @@ namespace MembershipsManagement.Services.FinanceServices
 
             var member = await _context.Members
                 .Where(m => m.Id == memberId)
-                .Where(m => m.DzematId
-                .Equals(supervisor.DzematId))
+                .Where(m => m.DzematId == supervisor.DzematId)
                 .Include(m => m.Payments
                 .Where(p => p.SpreadsheetId == spreadsheetId))
                 .FirstOrDefaultAsync();
@@ -201,8 +200,7 @@ namespace MembershipsManagement.Services.FinanceServices
             }
 
             var spreadsheet = await _context.Spreadsheets
-                .Where(s => s.DzematId
-                .Equals(supervisor.DzematId))
+                .Where(s => s.DzematId == supervisor.DzematId)
                 .Where(s => s.Id == spreadsheetId)
                 .Include(s => s.Payments)
                 .FirstOrDefaultAsync();

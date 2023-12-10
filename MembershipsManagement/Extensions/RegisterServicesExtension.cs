@@ -1,4 +1,5 @@
 ﻿using MembershipsManagement.Services.Authentication;
+using MembershipsManagement.Services.DzematServiceImpl;
 using MembershipsManagement.Services.FinanceServices;
 using MembershipsManagement.Services.MedzlisServiceImpl;
 using MembershipsManagement.Services.MemberServiceImpl;
@@ -15,6 +16,7 @@ namespace MembershipsManagement.Extensions
             service.AddScoped<ISpreadsheetService, SpreadsheetService>();
             service.AddScoped<IMedzlisService, MedzlisService>();
             service.AddScoped<IPaymentService, PaymentService>();
+            service.AddScoped<IDzematService, DzematService>();
         }
     }
 }

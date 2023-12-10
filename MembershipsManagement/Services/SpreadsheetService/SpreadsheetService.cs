@@ -36,22 +36,19 @@ namespace MembershipsManagement.Services.SpreadSheets
                 .SingleOrDefault();
 
             var fetchedBaza = await _context.Spreadsheets
-                .Where(b => b.DzematId
-                .Equals(baza.DzematId))
+                .Where(b => b.DzematId == baza.DzematId)
                 .Where(b => b.Year == baza.Year)
                 .FirstOrDefaultAsync();
 
             var activeBaza = await _context.Spreadsheets
-                .Where(b => b.DzematId
-                .Equals(baza.DzematId))
+                .Where(b => b.DzematId == baza.DzematId)
                 .Where(b => b.Archived == false)
                 .FirstOrDefaultAsync();
 
             var member = await _context.Supervisors
                 .Where(s => s.Id
                 .Equals(userId))
-                .Where(s => s.DzematId
-                .Equals(baza.DzematId))
+                .Where(s => s.DzematId == baza.DzematId)
                 .FirstOrDefaultAsync();
 
             if (member is null)
@@ -77,8 +74,7 @@ namespace MembershipsManagement.Services.SpreadSheets
             var bazaToAdd = _mapper.Map<Spreadsheet>(baza);
 
             var members = await _context.Members
-                .Where(m => m.DzematId
-                .Equals(bazaToAdd.DzematId))
+                .Where(m => m.DzematId == bazaToAdd.DzematId)
                 .Where(m => m.Active == true)
                 .ToListAsync();
 
@@ -121,14 +117,14 @@ namespace MembershipsManagement.Services.SpreadSheets
                .Equals("nameid"))
                .Select(claim => claim.Value)
                .SingleOrDefault();
-            var member = await _context.Supervisors.Where(s => s.Id.Equals(userId)).Where(s => s.DzematId.Equals(baza.DzematId)).FirstOrDefaultAsync();
+            var member = await _context.Supervisors.Where(s => s.Id.Equals(userId)).Where(s => s.DzematId == baza.DzematId).FirstOrDefaultAsync();
             if (member is null)
             {
                 throw new BadRequestException("FATAL ERROR. Supervisor which is not a part of Dzemat tried to delete a spreadsheet.");
 
             }
             var fetchedBaza = await _context.Spreadsheets
-                .Where(b => b.DzematId.Equals(baza.DzematId))
+                .Where(b => b.DzematId == baza.DzematId)
                 .Where(b => b.Id == baza.Id)
                 .FirstOrDefaultAsync();
 
@@ -145,10 +141,10 @@ namespace MembershipsManagement.Services.SpreadSheets
             return response;
         }
 
-        public async Task<ServiceResponse<List<GetSpreadsheetDto>>> GetBazaList(string dzematId)
+        public async Task<ServiceResponse<List<GetSpreadsheetDto>>> GetBazaList(int dzematId)
         {
             var response = new ServiceResponse<List<GetSpreadsheetDto>>();
-            var fetched = await _context.Spreadsheets.Where(b => b.DzematId.Equals(dzematId)).OrderByDescending(b => b.Year).ToListAsync();
+            var fetched = await _context.Spreadsheets.Where(b => b.DzematId == dzematId).OrderByDescending(b => b.Year).ToListAsync();
 
             if (fetched.Count == 0) {
                 response.Message = "No baza available.";
@@ -182,7 +178,7 @@ namespace MembershipsManagement.Services.SpreadSheets
 
             var fetchedSpreadsheet = await _context.Spreadsheets
                 .Where(b => b.Id == spreadsheet.SpreadsheetId)
-                .Where(s => s.DzematId.Equals(spreadsheet.DzematId))
+                .Where(s => s.DzematId == spreadsheet.DzematId)
                 .FirstOrDefaultAsync();
 
             if(fetchedSpreadsheet is null)

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MembershipsManagement.Data;
+using MembershipsManagement.DTOs;
 using MembershipsManagement.DTOs.MemberDTOs;
 using MembershipsManagement.DTOs.MemberInfoDTOs;
 using MembershipsManagement.DTOs.PaymentDTOs;
@@ -35,7 +36,7 @@ namespace MembershipsManagement.Services.MemberServiceImpl
 
             var supervisor = await _memberContext.Supervisors
                 .Where(s => s.Id.Equals(userId))
-                .Where(s => s.DzematId.Equals(member.DzematId))
+                .Where(s => s.DzematId == member.DzematId)
                 .FirstOrDefaultAsync();
 
             if (supervisor is null)
@@ -46,7 +47,7 @@ namespace MembershipsManagement.Services.MemberServiceImpl
             var memberToAdd = _mapper.Map<Member>(member);
 
                 var activeDzematSpreadsheet = await _memberContext.Spreadsheets
-                    .Where(s => s.DzematId.Equals(member.DzematId))
+                    .Where(s => s.DzematId == member.DzematId)
                     .Where(s => s.Archived == false)
                     .FirstOrDefaultAsync();
                 if(activeDzematSpreadsheet is not null)
@@ -118,13 +119,16 @@ namespace MembershipsManagement.Services.MemberServiceImpl
         {
             var response = new ServiceResponse<List<GetMemberDto>>();
             var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
-            var dzematId = decodedToken.Claims
+            var userId = decodedToken.Claims
                 .Where(claim => claim.Type
-                .Equals("http://schemas.microsoft.com/ws/2008/06/identity/claims/userdata"))
+                .Equals("nameid"))
                 .Select(claim => claim.Value)
                 .SingleOrDefault();
+
+            var supervisor = await _memberContext.Supervisors.Where(s => s.Id.Equals(userId)).Include(s => s.Dzemat).FirstOrDefaultAsync();
+
             var membersFetched = await _memberContext.Members
-                .Where(member => member.DzematId.Equals(dzematId))
+                .Where(member => member.DzematId == supervisor.DzematId)
                 .ToListAsync();
 
             response.Data = membersFetched
@@ -138,14 +142,16 @@ namespace MembershipsManagement.Services.MemberServiceImpl
         {
             var response = new ServiceResponse<GetMemberDto>();
             var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
-            var dzematId = decodedToken.Claims
+            var userId = decodedToken.Claims
                 .Where(claim => claim.Type
-                .Equals("http://schemas.microsoft.com/ws/2008/06/identity/claims/userdata"))
+                .Equals("nameid"))
                 .Select(claim => claim.Value)
                 .SingleOrDefault();
+
+            var supervisor = await _memberContext.Supervisors.Where(s => s.Id.Equals(userId)).Include(s => s.Dzemat).FirstOrDefaultAsync();
             var memberFetched = await _memberContext.Members
                 .Where(member => member.Id == memberId)
-                .Where(member => member.DzematId.Equals(dzematId))
+                .Where(member => member.DzematId == supervisor.DzematId)
                 .FirstOrDefaultAsync();
             response.Data = _mapper.Map<GetMemberDto>(memberFetched);
             response.Message = memberFetched != null? "Member has been fetched." : "No member has been found.";
@@ -173,19 +179,21 @@ namespace MembershipsManagement.Services.MemberServiceImpl
         {
             var response = new ServiceResponse<GetMemberDto>();
             var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
-            var dzematId = decodedToken.Claims
-                .Where(claim => claim.Type
-                .Equals("http://schemas.microsoft.com/ws/2008/06/identity/claims/userdata"))
-                .Select(claim => claim.Value)
-                .SingleOrDefault();
+            var userId = decodedToken.Claims
+                 .Where(claim => claim.Type
+                 .Equals("nameid"))
+                 .Select(claim => claim.Value)
+                 .SingleOrDefault();
+
+            var supervisor = await _memberContext.Supervisors.Where(s => s.Id.Equals(userId)).Include(s => s.Dzemat).FirstOrDefaultAsync();
 
             var memberFetched = await _memberContext.Members
                 .Where(member => member.Id == familyMember.MemberId)
-                .Where(member => member.DzematId.Equals(dzematId))
+                .Where(member => member.DzematId.Equals(supervisor.DzematId))
                 .FirstOrDefaultAsync();
 
             if (memberFetched is null) 
-                throw new EntityNotFoundException("Member ID: " + familyMember.MemberId + " in džemat ID: " + dzematId + " was not found.");
+                throw new EntityNotFoundException("Member ID: " + familyMember.MemberId + " in džemat ID: " + supervisor.DzematId + " was not found.");
 
             memberFetched.FamilyMembers.Add(_mapper.Map<FamilyMember>(familyMember));
 
@@ -202,20 +210,22 @@ namespace MembershipsManagement.Services.MemberServiceImpl
         {
             var response = new ServiceResponse<GetMemberDto>();
             var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
-            var dzematId = decodedToken.Claims
+            var userId = decodedToken.Claims
                 .Where(claim => claim.Type
-                .Equals("http://schemas.microsoft.com/ws/2008/06/identity/claims/userdata"))
+                .Equals("nameid"))
                 .Select(claim => claim.Value)
                 .SingleOrDefault();
 
+            var supervisor = await _memberContext.Supervisors.Where(s => s.Id.Equals(userId)).Include(s => s.Dzemat).FirstOrDefaultAsync();
+
             var memberFetched = await _memberContext.Members
                 .Where(member => member.Id == familyMember.MemberId)
-                .Where(member => member.DzematId.Equals(dzematId))
+                .Where(member => member.DzematId == supervisor.DzematId)
                 .Include(member => member.FamilyMembers)
                 .FirstOrDefaultAsync();
 
             if (memberFetched is null)
-                throw new EntityNotFoundException("Member ID: " + familyMember.MemberId + " in džemat ID: " + dzematId + " was not found.");
+                throw new EntityNotFoundException("Member ID: " + familyMember.MemberId + " in džemat ID: " + supervisor.DzematId + " was not found.");
 
             var familyMemberToRemove = memberFetched.FamilyMembers.First(fm => fm.Id == familyMember.Id);
 
@@ -246,9 +256,9 @@ namespace MembershipsManagement.Services.MemberServiceImpl
             throw new NotImplementedException();
         }
 
-        public async Task<ServiceResponse<List<GetSpreadsheetMemberInfo>>> GetFilteredMembersForActiveSpredsheet(string token, int spreadsheetId, string? firstName, string? lastName, string? fathersName, int pageNumber)
+        public async Task<ServiceResponse<PagedList<GetSpreadsheetMemberInfo>>> GetFilteredMembersForActiveSpredsheet(string token, int spreadsheetId, string? firstName, string? lastName, string? fathersName, int pageNumber, int pageSize)
         {
-            var response = new ServiceResponse<List<GetSpreadsheetMemberInfo>>();
+            var response = new ServiceResponse<PagedList<GetSpreadsheetMemberInfo>>();
             var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
             var dzematId = decodedToken.Claims
                 .Where(claim => claim.Type
@@ -256,7 +266,8 @@ namespace MembershipsManagement.Services.MemberServiceImpl
                 .Select(claim => claim.Value)
                 .SingleOrDefault();
 
-            IQueryable<MemberInfo> membersInfoQuery = _memberContext.MembersInfo.Where(mi => mi.SpreadsheetId == spreadsheetId);
+            IQueryable<MemberInfo> membersInfoQuery = _memberContext.MembersInfo
+                .Where(mi => mi.SpreadsheetId == spreadsheetId);
 
             if (!string.IsNullOrEmpty(firstName))
             {
@@ -274,14 +285,8 @@ namespace MembershipsManagement.Services.MemberServiceImpl
                 mi.Member.FathersName.Contains(fathersName));
             }
 
-            int pageSize = 10;
-
-            var membersInfo = await membersInfoQuery
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
+            var spreadsheetMemberInfoQuery = membersInfoQuery
                 .Include(mi => mi.Spreadsheet)
-
-
                 .Include(mi => mi.Member)
                 .ThenInclude(m => m.FamilyMembers)
                 .Include(mi => mi.Payments)
@@ -299,7 +304,13 @@ namespace MembershipsManagement.Services.MemberServiceImpl
                         SupervisorFirstName = y.Supervisor.FirstName,
                         SupervisorLastName = y.Supervisor.LastName
                     }).ToList()
-                }).AsNoTracking().ToListAsync();
+                }).AsNoTracking();
+
+            var spreadsheetMemberInfoResponse = await PagedList<GetSpreadsheetMemberInfo>
+                .CreateAsync
+                (spreadsheetMemberInfoQuery,
+                pageNumber,
+                pageSize);
 
             _memberContext.ChangeTracker.LazyLoadingEnabled = false;
 
@@ -308,7 +319,7 @@ namespace MembershipsManagement.Services.MemberServiceImpl
                 ReferenceHandler = ReferenceHandler.IgnoreCycles
             };
 
-            response.Data = membersInfo;
+            response.Data = spreadsheetMemberInfoResponse;
             return response;
 
         }

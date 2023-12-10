@@ -32,7 +32,6 @@ namespace MembershipsManagement.Data
             _modelBuilder.Entity<User>().ToTable("Users");
             _modelBuilder.Entity<Supervisor>().ToTable("Supervisors");
             _modelBuilder.Entity<Admin>().ToTable("Admins");
-            _modelBuilder.Entity<Dzemat>().ToTable("Dzemati");
         }
 
         public DbSet<User> Users { get; set; }

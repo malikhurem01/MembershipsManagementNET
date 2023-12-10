@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Identity;
 
 namespace MembershipsManagement.Entities
 {
-    public class Dzemat : IdentityUser
+    public class Dzemat
     {
+        public int Id { get; set; }
+        public string UserName { get; set; }
         public int MedzlisId { get; set; }
         public Medzlis Medzlis { get; set; }
         public string Name { get; set; } = string.Empty;

@@ -3,7 +3,7 @@
     public class Expense
     {
         public int Id { get; set; }
-        public string DzematId { get; set; } = string.Empty;
+        public int DzematId { get; set; }
         public Dzemat Dzemat { get; set; }
         public int ProjectId { get; set; }
         public Project Project { get; set; }

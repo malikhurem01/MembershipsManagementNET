@@ -12,6 +12,7 @@ namespace MembershipsManagement.AutoMapperMaps
     {
         public UserMap()
         {
+            CreateMap<IdentityUser, GetUserDto>();
             CreateMap<User, GetUserDto>();
             CreateMap<Admin, GetUserDto>();
             CreateMap<Supervisor, GetUserDto>();

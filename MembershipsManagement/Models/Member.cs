@@ -18,7 +18,7 @@
         public List<FamilyMember>? FamilyMembers { get; set; } = new List<FamilyMember>();
         public List<Spreadsheet>? Spreadsheets { get; set; } = new List<Spreadsheet>();
         public List<MemberInfo>? MemberInfo { get; set; } = new List<MemberInfo>();
-        public string DzematId { get; set; }
+        public int DzematId { get; set; }
         public Dzemat Dzemat { get; set; }
     }
 }

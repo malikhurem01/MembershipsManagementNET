@@ -78,7 +78,7 @@ namespace MembershipsManagement.Services.Authentication
             var fetchedUser = await _userManager.FindByEmailAsync(user.Email);
             var savedUser = await _authContext.Supervisors
                 .Where(u => u.Id.Equals(fetchedUser.Id))
-                .Where(u => u.DzematId.Equals(user.DzematId))
+                .Where(u => u.Dzemat.UserName.Equals(user.DzematUserName))
                 .Include(u => u.Dzemat).FirstOrDefaultAsync();
             
             if (fetchedUser is null)
@@ -100,31 +100,6 @@ namespace MembershipsManagement.Services.Authentication
                 getUserDto.Token = CreateSupervisorToken(savedUser);
                 response.Data = getUserDto;
                 response.Message = "Supervisor " + user.Email + " has successfully logged in.";
-            }
-            return response;
-        }
-
-        public async Task<ServiceResponse<GetDzematDto>> LoginDzemat(DzematLoginDto user)
-        {
-            ServiceResponse<GetDzematDto> response = new ServiceResponse<GetDzematDto>();
-            var fetchedUser = await _userManager.FindByNameAsync(user.UserName);
-            var savedDzemat = _authContext.Dzemati
-                .Where(d => d.Id.Equals(fetchedUser.Id))
-                .Include(d => d.Medzlis).FirstOrDefaultAsync();
-            if (fetchedUser == null)
-            {
-                throw new BadRequestException("Wrong credentials");
-            }
-            else
-            {
-                var result = await _signInManager.CheckPasswordSignInAsync(fetchedUser, user.Password, false);
-                if (!result.Succeeded)
-                {
-                    throw new BadRequestException("Wrong credentials");
-                }
-                var getUserDto = _mapper.Map<GetDzematDto>(savedDzemat.Result);
-                response.Data = getUserDto;
-                response.Message = "Džemat " + user.UserName + " has successfully logged in.";
             }
             return response;
         }
@@ -178,29 +153,7 @@ namespace MembershipsManagement.Services.Authentication
                 throw new BadRequestException(stringBuilder.ToString());
             }
 
-            response = await LoginSupervisor(_mapper.Map<UserLoginDto>(user));
-            return response;
-        }
-
-        public async Task<ServiceResponse<GetDzematDto>> RegisterDzemat(RegisterDzematDto user)
-        {
-            ServiceResponse<GetDzematDto> response = new ServiceResponse<GetDzematDto>();
-            var userMap = _mapper.Map<Dzemat>(user);
-            //Dodati da dva korisnika ne mogu imati isti username
-            userMap.UserName = user.UserName;
-            var result = await _userManager.CreateAsync(userMap, user.Password);
-            StringBuilder stringBuilder = new StringBuilder();
-            if (!result.Succeeded)
-            {
-                foreach (IdentityError error in result.Errors)
-                {
-                    stringBuilder.Append(error.Description);
-                }
-                throw new BadRequestException(stringBuilder.ToString());
-            }
-
-            response = await LoginDzemat(_mapper.Map<DzematLoginDto>(user));
-           
+            response.Data = _mapper.Map<GetUserDto>(userExists);
             return response;
         }
 
@@ -209,8 +162,7 @@ namespace MembershipsManagement.Services.Authentication
             List<Claim> claims = new List<Claim>
              {
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
-                new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(ClaimTypes.UserData, user.Dzemat.Id.ToString())
+                new Claim(ClaimTypes.Name, user.UserName)
             };
 
             return WriteToken(claims);

@@ -3,6 +3,6 @@
     public class ArchiveSpreadsheetDto
     {
         public int SpreadsheetId { get; set; }
-        public string DzematId { get; set; } = string.Empty;
+        public int DzematId { get; set; }
     }
 }

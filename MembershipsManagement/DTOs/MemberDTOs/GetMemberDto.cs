@@ -16,6 +16,6 @@ namespace MembershipsManagement.DTOs.MemberDTOs
         public double Debt { get; set; }
         public int EvNumber { get; set; }
         public List<GetFamilyMemberDto> FamilyMembers { get; set; } = new List<GetFamilyMemberDto>();
-        public string DzematId { get; set; } = string.Empty;
+        public int DzematId { get; set; } 
     }
 }

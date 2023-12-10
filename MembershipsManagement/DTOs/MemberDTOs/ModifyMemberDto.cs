@@ -13,9 +13,8 @@ namespace MembershipsManagement.DTOs.MemberDTOs
         public string PhoneNumber { get; set; } = string.Empty;
         public string Address { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
-        public List<FamilyMember> FamilyMembers { get; set; } = new List<FamilyMember>();
         public Status Status { get; set; }
-        public string DzematId { get; set; }
+        public int DzematId { get; set; }
         public bool Active { get; set; } 
     }
 }

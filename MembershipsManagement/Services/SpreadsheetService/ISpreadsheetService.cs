@@ -8,7 +8,7 @@ namespace MembershipsManagement.Services.SpreadSheets
     public interface ISpreadsheetService
     {
         Task<ServiceResponse<GetSpreadsheetDto>> CreateBaza(string token, AddSpreadsheetDto baza);
-        Task<ServiceResponse<List<GetSpreadsheetDto>>> GetBazaList(string dzematId);
+        Task<ServiceResponse<List<GetSpreadsheetDto>>> GetBazaList(int dzematId);
         Task<ServiceResponse<GetSpreadsheetDto>> GetSingleBaza(int id);
         Task<ServiceResponse<object>> GetActiveSpreadsheet(string token);
         Task<ServiceResponse<SpreadsheetReportDto>> GetSpreadsheetReport(string token, int spreadsheetYear);

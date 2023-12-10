@@ -1,4 +1,5 @@
-﻿using MembershipsManagement.DTOs.MemberDTOs;
+﻿using MembershipsManagement.DTOs;
+using MembershipsManagement.DTOs.MemberDTOs;
 using MembershipsManagement.DTOs.MemberInfoDTOs;
 using MembershipsManagement.Entities;
 using MembershipsManagement.Services.MemberServiceImpl;
@@ -85,14 +86,14 @@ namespace MembershipsManagement.Controllers
         }
 
         [HttpGet("get/active-spreadsheet")]
-        public async Task<ActionResult<ServiceResponse<List<GetSpreadsheetMemberInfo>>>> GetFilteredMembersForActiveSpredsheet(int spreadsheetId, string? firstName, string? lastName, string? fathersName, int pageNumber)
+        public async Task<ActionResult<ServiceResponse<PagedList<GetSpreadsheetMemberInfo>>>> GetFilteredMembersForActiveSpredsheet(int spreadsheetId, string? firstName, string? lastName, string? fathersName, int pageNumber, int pageSize)
         {
             Request.Headers.TryGetValue("Authorization", out var token);
             string tokenValue = token
                 .ToString()
                 .Split(" ")
                 .ElementAt(1);
-            var response = await _memberService.GetFilteredMembersForActiveSpredsheet(tokenValue, spreadsheetId, firstName, lastName, fathersName, pageNumber);
+            var response = await _memberService.GetFilteredMembersForActiveSpredsheet(tokenValue, spreadsheetId, firstName, lastName, fathersName, pageNumber, pageSize);
             return Ok(response);
         }
 

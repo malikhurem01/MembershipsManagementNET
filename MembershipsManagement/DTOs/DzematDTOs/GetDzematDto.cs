@@ -9,7 +9,8 @@ namespace MembershipsManagement.DTOs.DzematDTOs
 {
     public class GetDzematDto
     {
-        public string Id { get; set; } = string.Empty;
+        public int Id { get; set; }
+        public string UserName { get; set; } = string.Empty;
         public int MedzlisId { get; set; }
         public GetMedzlisDto Medzlis { get; set; }
         public string Name { get; set; } = string.Empty;

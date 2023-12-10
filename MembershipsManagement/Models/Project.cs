@@ -4,7 +4,7 @@
     {
         public int Id { get; set; }
         public bool Archive { get; set; }
-        public string DzematId { get; set; } = string.Empty;
+        public int DzematId { get; set; }
         public Dzemat Dzemat { get; set; }
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; } = string.Empty;

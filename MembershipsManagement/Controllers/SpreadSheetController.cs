@@ -30,7 +30,7 @@ namespace MembershipsManagement.Controllers
             return Ok(response);
         }
         [HttpGet("get/all")]
-        public async Task<ActionResult<ServiceResponse<List<GetSpreadsheetDto>>>> GetBazaList(string dzematId) {
+        public async Task<ActionResult<ServiceResponse<List<GetSpreadsheetDto>>>> GetBazaList(int dzematId) {
             var response = await _bazaService.GetBazaList(dzematId);
             return Ok(response);
         }

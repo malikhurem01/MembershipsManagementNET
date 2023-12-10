@@ -2,7 +2,7 @@
 {
     public class AddSpreadsheetDto
     {
-        public string DzematId { get; set; } = string.Empty;
+        public int DzematId { get; set; }
         public int Year { get; set; }
         public int MarriageFee { get; set; }
         public int WidowerFee { get; set; }

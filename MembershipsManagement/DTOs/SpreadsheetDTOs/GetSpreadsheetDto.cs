@@ -9,7 +9,7 @@ namespace MembershipsManagement.DTOs.BazaDTOs
     public class GetSpreadsheetDto
     {
         public int Id { get; set; }
-        public string DzematId { get; set; } = string.Empty;
+        public int DzematId { get; set; }
         public bool Archived { get; set; }
         public int Year { get; set; }
         public int MarriageFee { get; set; }
