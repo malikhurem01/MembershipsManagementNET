@@ -52,6 +52,5 @@ namespace MembershipsManagement.Entities
                 return value;
             }
         }
-        public string Note { get; set; } = string.Empty;
     }
 }

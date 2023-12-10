@@ -1,4 +1,6 @@
-﻿namespace MembershipsManagement.Entities
+﻿using System.Runtime.CompilerServices;
+
+namespace MembershipsManagement.Entities
 {
     public class Member
     {
@@ -13,6 +15,7 @@
         public string Email { get; set; } = string.Empty;
         public bool Active { get; set; }
         public double Debt { get; set; }
+        public string Note { get; set; } = string.Empty;
         public Status Status { get; set; }
         public List<Payment>? Payments { get; set; } = new List<Payment>();
         public List<FamilyMember>? FamilyMembers { get; set; } = new List<FamilyMember>();

@@ -106,6 +106,7 @@ namespace MembershipsManagement.Services.MemberServiceImpl
             memberFetched.Email = memberModified.Email;
             memberFetched.PhoneNumber = memberModified.PhoneNumber;
             memberFetched.EvNumber = memberModified.EvNumber;
+            memberFetched.Note = memberModified.Note;
             memberFetched.Status = memberModified.Status;
 
             await _memberContext.SaveChangesAsync();

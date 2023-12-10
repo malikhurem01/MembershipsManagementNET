@@ -2,8 +2,6 @@
 using MembershipsManagement.DTOs.MedzlisDTOs;
 using MembershipsManagement.DTOs.MemberDTOs;
 using MembershipsManagement.DTOs.User;
-using MembershipsManagement.Entities;
-using MembershipsManagement.Models;
 
 namespace MembershipsManagement.DTOs.DzematDTOs
 {

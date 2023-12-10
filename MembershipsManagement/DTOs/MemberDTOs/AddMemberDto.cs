@@ -13,6 +13,7 @@ namespace MembershipsManagement.DTOs.MemberDTOs
         public string Address { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public double Debt { get; set; }
+        public string Note { get; set; } = string.Empty;
         public Status Status { get; set; }        
         public List<AddMemberFamilyDto>? FamilyMembers { get; set; } = new List<AddMemberFamilyDto>();
         public int DzematId { get; set; }
