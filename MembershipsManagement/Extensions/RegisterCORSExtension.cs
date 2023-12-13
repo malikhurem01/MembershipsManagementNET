@@ -13,9 +13,9 @@ namespace MembershipsManagement.Extensions
                 policy =>
                 {
                     policy
-                    .AllowAnyOrigin()
-                    .AllowAnyHeader()
-                    .AllowAnyMethod(); 
+                    .WithOrigins(config.GetSection("Cors:Origin").Value)
+                    .AllowAnyMethod()
+                    .AllowAnyHeader();
                 });
             });
         }
