@@ -13,7 +13,7 @@ namespace MembershipsManagement.Extensions
                 policy =>
                 {
                     policy
-                    .WithOrigins(config.GetSection("Cors:Origin").Value)
+                    .AllowAnyOrigin()
                     .AllowAnyMethod()
                     .AllowAnyHeader();
                 });
