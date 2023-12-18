@@ -257,7 +257,7 @@ namespace MembershipsManagement.Services.MemberServiceImpl
             throw new NotImplementedException();
         }
 
-        public async Task<ServiceResponse<PagedList<GetSpreadsheetMemberInfo>>> GetFilteredMembersForActiveSpredsheet(string token, int spreadsheetId, string? firstName, string? lastName, string? fathersName, int pageNumber, int pageSize)
+        public async Task<ServiceResponse<PagedList<GetSpreadsheetMemberInfo>>> GetFilteredMembersForSpredsheet(string token, int spreadsheetId, string? firstName, string? lastName, string? fathersName, int pageNumber, int pageSize)
         {
             var response = new ServiceResponse<PagedList<GetSpreadsheetMemberInfo>>();
             var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
@@ -294,10 +294,11 @@ namespace MembershipsManagement.Services.MemberServiceImpl
                 .ThenInclude(p => p.Supervisor)
                 .Select(mi => new GetSpreadsheetMemberInfo
                 {
+                    Year = mi.Spreadsheet.Year,
                     TotalAmountPayed = mi.TotalAmountPayed,
                     Member = _mapper.Map<GetMemberDto>(mi.Member),
                     MembershipFee = mi.MembershipFee,
-                    Payments = mi.Payments.OrderByDescending(p => p.DateOfPayment).Select(y => new GetSpreadsheetPaymentDto
+                    Payments = mi.Payments.Where(p => p.SpreadsheetId == spreadsheetId).OrderByDescending(p => p.DateOfPayment).Select(y => new GetSpreadsheetPaymentDto
                     {
                         Id = y.Id,
                         Amount = y.Amount,
@@ -308,10 +309,7 @@ namespace MembershipsManagement.Services.MemberServiceImpl
                 }).AsNoTracking();
 
             var spreadsheetMemberInfoResponse = await PagedList<GetSpreadsheetMemberInfo>
-                .CreateAsync
-                (spreadsheetMemberInfoQuery,
-                pageNumber,
-                pageSize);
+                .CreateAsync(spreadsheetMemberInfoQuery, pageNumber, pageSize);
 
             _memberContext.ChangeTracker.LazyLoadingEnabled = false;
 

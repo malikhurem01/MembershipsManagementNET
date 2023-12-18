@@ -159,8 +159,6 @@ namespace MembershipsManagement.Services.SpreadSheets
         {
             var response = new ServiceResponse<GetSpreadsheetDto>();
             var fetched = await _context.Spreadsheets.Where(b => b.Id == bazaId).FirstOrDefaultAsync();
-
-
             response.Data = _mapper.Map<GetSpreadsheetDto>(fetched);
             response.Message = fetched != null? "Fetch successful." : "No baza was found.";
             return response;

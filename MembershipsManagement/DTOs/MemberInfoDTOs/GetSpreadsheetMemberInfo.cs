@@ -5,6 +5,7 @@ namespace MembershipsManagement.DTOs.MemberInfoDTOs
 {
     public class GetSpreadsheetMemberInfo
     {
+        public int Year { get; set; }
         public double TotalAmountPayed { get; set; }
         public GetMemberDto Member { get; set; }
         public int MembershipFee { get; set; }

@@ -35,8 +35,8 @@ namespace MembershipsManagement.Controllers
             return Ok(response);
         }
         [HttpGet("get/single")]
-        public async Task<ActionResult<ServiceResponse<GetSpreadsheetDto>>> GetSingleBaza(int bazaId) {
-            var response = await _bazaService.GetSingleBaza(bazaId);
+        public async Task<ActionResult<ServiceResponse<GetSpreadsheetDto>>> GetSingleBaza(int spreadsheetId) {
+            var response = await _bazaService.GetSingleBaza(spreadsheetId);
             return Ok(response);
         }
         [HttpGet("get/active")]
