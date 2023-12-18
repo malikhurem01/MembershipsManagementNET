@@ -194,6 +194,9 @@ namespace MembershipsManagement.Migrations
                     FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FathersName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ZipCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PlaceOfResidence = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Position = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -515,6 +518,16 @@ namespace MembershipsManagement.Migrations
                         principalTable: "Supervisors",
                         principalColumn: "Id");
                 });
+
+            migrationBuilder.InsertData(
+                table: "Medzlisi",
+                columns: new[] { "Id", "Address", "Location", "Name", "ZipCode" },
+                values: new object[] { 1, "Trg Slobode bb", "Tuzla", "Tuzla", 75000 });
+
+            migrationBuilder.InsertData(
+                table: "Dzemati",
+                columns: new[] { "Id", "Address", "Budget", "Location", "MedzlisId", "Name", "UserName", "ZipCode" },
+                values: new object[] { 1, "Lipnica bb", 0.0, "Gornja Lipnica", 1, "Lipnica", "dzematlipnica", 75213 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",

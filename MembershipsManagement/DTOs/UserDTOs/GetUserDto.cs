@@ -11,6 +11,10 @@ namespace MembershipsManagement.DTOs.User
         public string FathersName { get; set; } = string.Empty;
         public string UserName { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
+        public string? Address { get; set; } = string.Empty;
+        public string? ZipCode { get; set; } = string.Empty;
+        public string? PlaceOfResidence { get; set; } = string.Empty;
+        public string? PhoneNumber { get; set;} = string.Empty;
         public int? DzematId { get; set; }
         public GetDzematDto? Dzemat { get; set; }
         public Roles Position { get; set; }

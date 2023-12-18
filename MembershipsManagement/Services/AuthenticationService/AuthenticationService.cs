@@ -3,6 +3,7 @@ using MembershipsManagement.Data;
 using MembershipsManagement.DTOs.AuthDTOs;
 using MembershipsManagement.DTOs.DzematDTOs;
 using MembershipsManagement.DTOs.User;
+using MembershipsManagement.DTOs.UserDTOs;
 using MembershipsManagement.Entities;
 using MembershipsManagement.Exceptions;
 using MembershipsManagement.Models;
@@ -197,6 +198,151 @@ namespace MembershipsManagement.Services.Authentication
             SecurityToken token = tokenHandler.CreateToken(tokenDescriptor);
 
             return tokenHandler.WriteToken(token);
+        }
+
+        public async Task<ServiceResponse<GetUserDto>> ModifyUser(string token, ModifyUserDto modifiedUser)
+        {
+            var response = new ServiceResponse<GetUserDto>();
+            var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
+            var userId = decodedToken.Claims
+                .Where(claim => claim.Type
+                .Equals("nameid"))
+                .Select(claim => claim.Value)
+                .SingleOrDefault();
+
+            var fetchedUser = await _authContext.Users
+                .Where(user => user.Id.Equals(userId))
+                .FirstOrDefaultAsync();
+
+            if (fetchedUser is not null)
+            {
+                if (fetchedUser.Id.Equals(modifiedUser.Id))
+                {
+                    fetchedUser = await _authContext.Supervisors
+                    .Where(user => user.Id.Equals(userId))
+                    .Include(user => user.Dzemat)
+                    .ThenInclude(dzemat => dzemat.Medzlis)
+                    .FirstOrDefaultAsync();
+
+                    if(fetchedUser is not null)
+                    {
+                        if (!string.IsNullOrEmpty(modifiedUser.FirstName))
+                        {
+                            fetchedUser.FirstName = modifiedUser.FirstName;
+                        }
+
+                        if(!string.IsNullOrEmpty(modifiedUser.LastName))
+                        {
+                            fetchedUser.LastName = modifiedUser.LastName;
+                        }
+
+                        if(!string.IsNullOrEmpty(modifiedUser.FathersName))
+                        {
+                            fetchedUser.FathersName = modifiedUser.FathersName;
+                        }
+
+                        if(!string.IsNullOrEmpty(modifiedUser.Email))
+                        {
+                            fetchedUser.Email = modifiedUser.Email;
+                            fetchedUser.NormalizedEmail = modifiedUser.Email.ToUpper();
+                        }
+
+                        if (!string.IsNullOrEmpty(modifiedUser.UserName))
+                        {
+                            fetchedUser.UserName = modifiedUser.UserName;
+                            fetchedUser.NormalizedUserName = modifiedUser.UserName.ToUpper();
+                        }
+
+                        if(!string.IsNullOrEmpty(modifiedUser.PlaceOfResidence))
+                        {
+                            fetchedUser.PlaceOfResidence = modifiedUser.PlaceOfResidence;
+                        }
+
+                        if(!string.IsNullOrEmpty(modifiedUser.Address))
+                        {
+                            fetchedUser.Address = modifiedUser.Address;
+                        }
+
+                        if(!string.IsNullOrEmpty(modifiedUser.ZipCode))
+                        {
+                            fetchedUser.ZipCode = modifiedUser.ZipCode;
+                        }
+
+                        if(!string.IsNullOrEmpty(modifiedUser.PhoneNumber))
+                        {
+                            fetchedUser.PhoneNumber = modifiedUser.PhoneNumber;
+                        }
+
+                        await _authContext.SaveChangesAsync();
+
+                    }
+                    else
+                    {
+                        throw new EntityNotFoundException("Fatal Error. USER NOT FOUND.");
+                    }
+                }
+                else
+                {
+                    throw new BadRequestException("UNAUTHORIZED.");
+                }
+            }
+            else
+            {
+                throw new EntityNotFoundException("Fatal Error. USER NOT FOUND.");
+            }
+            response.Data = _mapper.Map<GetUserDto>(fetchedUser);
+            response.Message = "User data modified";
+            return response;
+        }
+
+        public async Task<ServiceResponse<GetUserDto>> ChangeUserPassword(string token, ChangePasswordDto changePassword)
+        {
+            var response = new ServiceResponse<GetUserDto>();
+            var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
+            var userId = decodedToken.Claims
+                .Where(claim => claim.Type
+                .Equals("nameid"))
+                .Select(claim => claim.Value)
+                .SingleOrDefault();
+
+            var fetchedUser = await _authContext.Users
+                .Where(user => user.Id.Equals(userId))
+                .FirstOrDefaultAsync();
+
+            var user = await _userManager.FindByIdAsync(changePassword.Id);
+
+            if (user.Id.Equals(fetchedUser.Id))
+            {
+                if (changePassword.NewPassword.Equals(changePassword.ConfirmPassword))
+                {
+                    if(await _userManager.CheckPasswordAsync(user, changePassword.OldPassword))
+                    {
+                        if(changePassword.OldPassword.Equals(changePassword.NewPassword))
+                        {
+                            throw new BadRequestException("Nova lozinka ne može biti ista kao trenutna lozinka");
+                        }
+                        var result = await _userManager.ChangePasswordAsync(user, changePassword.OldPassword, changePassword.NewPassword);
+                        if(result.Succeeded)
+                        {
+                            response.Message = "Lozinka uspješno promijenjena";
+                        }
+                        else
+                        {
+                            throw new BadRequestException("Lozinka ne ispunjava uvjete");
+                        }
+                    }
+                    else
+                    {
+                        throw new BadRequestException("Unijeli ste neispravu trenutnu lozinku");
+                    }
+                }
+                else
+                {
+                    throw new BadRequestException("Nova lozinke se ne poklapaju");
+                }
+            }
+            response.Data = _mapper.Map<GetUserDto>(fetchedUser);
+            return response;
         }
     }
 }

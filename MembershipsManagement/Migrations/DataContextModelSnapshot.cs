@@ -85,6 +85,19 @@ namespace MembershipsManagement.Migrations
                     b.HasIndex("MedzlisId");
 
                     b.ToTable("Dzemati");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Address = "Lipnica bb",
+                            Budget = 0.0,
+                            Location = "Gornja Lipnica",
+                            MedzlisId = 1,
+                            Name = "Lipnica",
+                            UserName = "dzematlipnica",
+                            ZipCode = 75213
+                        });
                 });
 
             modelBuilder.Entity("MembershipsManagement.Entities.Expense", b =>
@@ -221,6 +234,16 @@ namespace MembershipsManagement.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Medzlisi");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Address = "Trg Slobode bb",
+                            Location = "Tuzla",
+                            Name = "Tuzla",
+                            ZipCode = 75000
+                        });
                 });
 
             modelBuilder.Entity("MembershipsManagement.Entities.Member", b =>
@@ -624,6 +647,10 @@ namespace MembershipsManagement.Migrations
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
 
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("FathersName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -636,8 +663,16 @@ namespace MembershipsManagement.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("PlaceOfResidence")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("Position")
                         .HasColumnType("int");
+
+                    b.Property<string>("ZipCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.ToTable("Users", (string)null);
                 });
