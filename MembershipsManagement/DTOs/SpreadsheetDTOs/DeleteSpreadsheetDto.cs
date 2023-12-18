@@ -1,4 +1,4 @@
-﻿namespace MembershipsManagement.DTOs.BazaDTOs
+﻿namespace MembershipsManagement.DTOs.SpreadsheetDTOs
 {
     public class DeleteSpreadsheetDto
     {

@@ -141,7 +141,7 @@ namespace MembershipsManagement.Services.Authentication
 
             var userMap = _mapper.Map<Supervisor>(user);
             //Dodati da dva korisnika ne mogu imati isti username
-            userMap.UserName = user.FirstName.ToLower() + user.LastName.ToLower();
+            userMap.UserName = user.FirstName.ToLower() + user.LastName.ToLower() + new Random().Next(9999);
             var result = await _userManager.CreateAsync(userMap, user.Password);
             StringBuilder stringBuilder = new StringBuilder();
             if (!result.Succeeded)

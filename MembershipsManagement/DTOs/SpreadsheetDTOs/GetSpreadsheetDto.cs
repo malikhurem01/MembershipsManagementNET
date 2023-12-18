@@ -4,7 +4,7 @@ using MembershipsManagement.DTOs.MemberInfoDTOs;
 using MembershipsManagement.DTOs.PaymentDTOs;
 using MembershipsManagement.Entities;
 
-namespace MembershipsManagement.DTOs.BazaDTOs
+namespace MembershipsManagement.DTOs.SpreadsheetDTOs
 {
     public class GetSpreadsheetDto
     {

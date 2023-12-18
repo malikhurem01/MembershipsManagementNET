@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using MembershipsManagement.DTOs.BazaDTOs;
+using MembershipsManagement.DTOs.SpreadsheetDTOs;
 using MembershipsManagement.Entities;
 
 namespace MembershipsManagement.AutoMapperMaps

@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using MembershipsManagement.Data;
-using MembershipsManagement.DTOs.BazaDTOs;
+using MembershipsManagement.DTOs.SpreadsheetDTOs;
 using MembershipsManagement.DTOs.MemberDTOs;
 using MembershipsManagement.DTOs.SpreadsheetDTOs;
 using MembershipsManagement.DTOs.User;
@@ -25,7 +25,7 @@ namespace MembershipsManagement.Services.SpreadSheets
             _mapper = mapper;
         }
 
-        public async Task<ServiceResponse<GetSpreadsheetDto>> CreateBaza(string token, AddSpreadsheetDto baza)
+        public async Task<ServiceResponse<GetSpreadsheetDto>> CreateSpreadsheet(string token, AddSpreadsheetDto spreadsheet)
         {
             var response = new ServiceResponse<GetSpreadsheetDto>();
             var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
@@ -35,20 +35,20 @@ namespace MembershipsManagement.Services.SpreadSheets
                 .Select(claim => claim.Value)
                 .SingleOrDefault();
 
-            var fetchedBaza = await _context.Spreadsheets
-                .Where(b => b.DzematId == baza.DzematId)
-                .Where(b => b.Year == baza.Year)
+            var fetchedSpreadsheet = await _context.Spreadsheets
+                .Where(b => b.DzematId == spreadsheet.DzematId)
+                .Where(b => b.Year == spreadsheet.Year)
                 .FirstOrDefaultAsync();
 
-            var activeBaza = await _context.Spreadsheets
-                .Where(b => b.DzematId == baza.DzematId)
+            var activeSpreadsheet = await _context.Spreadsheets
+                .Where(b => b.DzematId == spreadsheet.DzematId)
                 .Where(b => b.Archived == false)
                 .FirstOrDefaultAsync();
 
             var member = await _context.Supervisors
                 .Where(s => s.Id
                 .Equals(userId))
-                .Where(s => s.DzematId == baza.DzematId)
+                .Where(s => s.DzematId == spreadsheet.DzematId)
                 .FirstOrDefaultAsync();
 
             if (member is null)
@@ -56,42 +56,42 @@ namespace MembershipsManagement.Services.SpreadSheets
                 throw new BadRequestException("FATAL ERROR. Supervisor which is not a part of Dzemat tried to create a new spreadsheet.");
             }
 
-            if(activeBaza is not null)
+            if(activeSpreadsheet is not null)
             {
                 throw new BadRequestException("Arhivirajte sve prethodne baze");
             }
 
-            if(fetchedBaza is not null)
+            if(fetchedSpreadsheet is not null)
             {
-                throw new BadRequestException("Baza za godinu " + baza.Year + " već postoji");
+                throw new BadRequestException("Spreadsheet za godinu " + spreadsheet.Year + " već postoji");
             }
 
-            if (baza.Year > DateTime.Now.Year)
+            if (spreadsheet.Year > DateTime.Now.Year)
             {
                 throw new BadRequestException("Godina mora biti manja od " + (DateTime.Now.Year + 1) + ".");
             }
 
-            var bazaToAdd = _mapper.Map<Spreadsheet>(baza);
+            var spreadsheetToAdd = _mapper.Map<Spreadsheet>(spreadsheet);
 
             var members = await _context.Members
-                .Where(m => m.DzematId == bazaToAdd.DzematId)
+                .Where(m => m.DzematId == spreadsheetToAdd.DzematId)
                 .Where(m => m.Active == true)
                 .ToListAsync();
 
-            bazaToAdd.Members.AddRange(members);
+            spreadsheetToAdd.Members.AddRange(members);
 
             members.ForEach(m => {
                 int debtToAdd;
                 switch (m.Status)
                 {
                     case Status.Brak:
-                        debtToAdd = bazaToAdd.MarriageFee;
+                        debtToAdd = spreadsheetToAdd.MarriageFee;
                         break;
                     case Status.DobnaGranica:
-                        debtToAdd = bazaToAdd.AgeLimitFee;
+                        debtToAdd = spreadsheetToAdd.AgeLimitFee;
                         break;
                     case Status.Udovac:
-                        debtToAdd = bazaToAdd.WidowerFee;
+                        debtToAdd = spreadsheetToAdd.WidowerFee;
                         break;
                     default:
                         debtToAdd = 0;
@@ -100,15 +100,15 @@ namespace MembershipsManagement.Services.SpreadSheets
                 m.Debt += debtToAdd;
             });
 
-            _context.Spreadsheets.Add(bazaToAdd);
+            _context.Spreadsheets.Add(spreadsheetToAdd);
             await _context.SaveChangesAsync();
 
-            response.Data = _mapper.Map<GetSpreadsheetDto>(bazaToAdd);
-            response.Message = "Baza uspješno kreirana";
+            response.Data = _mapper.Map<GetSpreadsheetDto>(spreadsheetToAdd);
+            response.Message = "Spreadsheet uspješno kreirana";
             return response;
         }
 
-        public async Task<ServiceResponse<string>> DeleteBaza(string token, DeleteSpreadsheetDto baza)
+        public async Task<ServiceResponse<string>> DeleteSpreadsheet(string token, DeleteSpreadsheetDto spreadsheet)
         {
             var response = new ServiceResponse<string>();
             var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
@@ -117,37 +117,37 @@ namespace MembershipsManagement.Services.SpreadSheets
                .Equals("nameid"))
                .Select(claim => claim.Value)
                .SingleOrDefault();
-            var member = await _context.Supervisors.Where(s => s.Id.Equals(userId)).Where(s => s.DzematId == baza.DzematId).FirstOrDefaultAsync();
+            var member = await _context.Supervisors.Where(s => s.Id.Equals(userId)).Where(s => s.DzematId == spreadsheet.DzematId).FirstOrDefaultAsync();
             if (member is null)
             {
                 throw new BadRequestException("FATAL ERROR. Supervisor which is not a part of Dzemat tried to delete a spreadsheet.");
 
             }
-            var fetchedBaza = await _context.Spreadsheets
-                .Where(b => b.DzematId == baza.DzematId)
-                .Where(b => b.Id == baza.Id)
+            var fetchedSpreadsheet = await _context.Spreadsheets
+                .Where(b => b.DzematId == spreadsheet.DzematId)
+                .Where(b => b.Id == spreadsheet.Id)
                 .FirstOrDefaultAsync();
 
-            if (fetchedBaza is null)
+            if (fetchedSpreadsheet is null)
             {
-                throw new BadRequestException("Baza with ID: " + baza.Id + " for džemat ID: " + baza.DzematId + " does not exist.");
+                throw new BadRequestException("Spreadsheet with ID: " + spreadsheet.Id + " for džemat ID: " + spreadsheet.DzematId + " does not exist.");
             }
 
-            _context.Spreadsheets.Remove(fetchedBaza);
+            _context.Spreadsheets.Remove(fetchedSpreadsheet);
             await _context.SaveChangesAsync();
 
-            response.Data = "Baza with ID: " + baza.Id + " for džemat ID: " + baza.DzematId + " was deleted.";
-            response.Message = "Baza has been successfully deleted";
+            response.Data = "Spreadsheet with ID: " + spreadsheet.Id + " for džemat ID: " + spreadsheet.DzematId + " was deleted.";
+            response.Message = "Spreadsheet has been successfully deleted";
             return response;
         }
 
-        public async Task<ServiceResponse<List<GetSpreadsheetDto>>> GetBazaList(int dzematId)
+        public async Task<ServiceResponse<List<GetSpreadsheetDto>>> GetSpreadsheetList(int dzematId)
         {
             var response = new ServiceResponse<List<GetSpreadsheetDto>>();
             var fetched = await _context.Spreadsheets.Where(b => b.DzematId == dzematId).OrderByDescending(b => b.Year).ToListAsync();
 
             if (fetched.Count == 0) {
-                response.Message = "No baza available.";
+                response.Message = "No spreadsheet available.";
             }
 
             response.Data = fetched.Select(b => _mapper.Map<GetSpreadsheetDto>(b)).ToList();
@@ -155,16 +155,16 @@ namespace MembershipsManagement.Services.SpreadSheets
             return response;
         }
 
-        public async Task<ServiceResponse<GetSpreadsheetDto>> GetSingleBaza(int bazaId)
+        public async Task<ServiceResponse<GetSpreadsheetDto>> GetSingleSpreadsheet(int spreadsheetId)
         {
             var response = new ServiceResponse<GetSpreadsheetDto>();
-            var fetched = await _context.Spreadsheets.Where(b => b.Id == bazaId).FirstOrDefaultAsync();
+            var fetched = await _context.Spreadsheets.Where(b => b.Id == spreadsheetId).FirstOrDefaultAsync();
             response.Data = _mapper.Map<GetSpreadsheetDto>(fetched);
-            response.Message = fetched != null? "Fetch successful." : "No baza was found.";
+            response.Message = fetched != null? "Fetch successful." : "No spreadsheet was found.";
             return response;
         }
 
-        public async Task<ServiceResponse<GetSpreadsheetDto>> ArchiveBaza(string token, ArchiveSpreadsheetDto spreadsheet)
+        public async Task<ServiceResponse<GetSpreadsheetDto>> ArchiveSpreadsheet(string token, ArchiveSpreadsheetDto spreadsheet)
         {
             var response = new ServiceResponse<GetSpreadsheetDto>();
             var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
@@ -181,27 +181,27 @@ namespace MembershipsManagement.Services.SpreadSheets
 
             if(fetchedSpreadsheet is null)
             {
-                throw new EntityNotFoundException("Baza with ID: " + spreadsheet.SpreadsheetId + " was not found.");
+                throw new EntityNotFoundException("Spreadsheet with ID: " + spreadsheet.SpreadsheetId + " was not found.");
             }
             fetchedSpreadsheet.Archived = true;
             await _context.SaveChangesAsync();
             response.Data = _mapper.Map<GetSpreadsheetDto>(fetchedSpreadsheet);
-            response.Message = fetchedSpreadsheet != null ? "Baza za godinu " + fetchedSpreadsheet.Year + " je uspješno arhivirana" : "No spreadsheet was found.";
+            response.Message = fetchedSpreadsheet != null ? "Spreadsheet za godinu " + fetchedSpreadsheet.Year + " je uspješno arhivirana" : "No spreadsheet was found.";
             return response;
         }
 
-        public async Task<ServiceResponse<GetSpreadsheetDto>> UnarchiveBaza(int bazaId)
+        public async Task<ServiceResponse<GetSpreadsheetDto>> UnarchiveSpreadsheet(int spreadsheetId)
         {
             var response = new ServiceResponse<GetSpreadsheetDto>();
-            var fetched = await _context.Spreadsheets.Where(b => b.Id == bazaId).FirstOrDefaultAsync();
+            var fetched = await _context.Spreadsheets.Where(b => b.Id == spreadsheetId).FirstOrDefaultAsync();
             if (fetched is null)
             {
-                throw new EntityNotFoundException("Baza with ID: " + bazaId + " was not found.");
+                throw new EntityNotFoundException("Spreadsheet with ID: " + spreadsheetId + " was not found.");
             }
             fetched.Archived = false;
             await _context.SaveChangesAsync();
             response.Data = _mapper.Map<GetSpreadsheetDto>(fetched);
-            response.Message = fetched != null ? "Baza with ID: " + bazaId + " was unarchived." : "No baza was found.";
+            response.Message = fetched != null ? "Spreadsheet with ID: " + spreadsheetId + " was unarchived." : "No spreadsheet was found.";
             return response;
         }
         public async Task<ServiceResponse<object>> GetActiveSpreadsheet(string token)
@@ -228,7 +228,7 @@ namespace MembershipsManagement.Services.SpreadSheets
 
             if (activeSpreadsheet is null)
             {
-                throw new EntityNotFoundException("Aktivna baza ne postoji. Molimo Vas da je kreirate");
+                throw new EntityNotFoundException("Aktivna spreadsheet ne postoji. Molimo Vas da je kreirate");
             }
 
             _context.ChangeTracker.LazyLoadingEnabled = false;
@@ -238,7 +238,7 @@ namespace MembershipsManagement.Services.SpreadSheets
                 ReferenceHandler = ReferenceHandler.IgnoreCycles
             };
             response.Data = JsonSerializer.Serialize(new { spreadsheet = activeSpreadsheet.spreadsheet }, options);
-            response.Message = "Aktivna baza uspješno učitana";
+            response.Message = "Aktivna spreadsheet uspješno učitana";
             return response;
         }
 
@@ -252,19 +252,19 @@ namespace MembershipsManagement.Services.SpreadSheets
                .Select(claim => claim.Value)
                .SingleOrDefault();
 
-            var baza = await _context.Supervisors
+            var spreadsheet = await _context.Supervisors
                 .Include(s => s.Dzemat)
                 .ThenInclude(d => d.Spreadsheets)
                 .Where(s => s.Id.Equals(userId))
                 .Select(s => s.Dzemat.Spreadsheets.Where(spreadsheet => spreadsheet.Year == spreadsheetYear)
                 .Select(spreadsheet => spreadsheet.Id).ToList()).ToListAsync();
 
-            if(baza.ElementAt(0).Count == 0)
+            if(spreadsheet.ElementAt(0).Count == 0)
             {
-                throw new BadRequestException("Baza za godinu " + spreadsheetYear + " ne postoji");
+                throw new BadRequestException("Spreadsheet za godinu " + spreadsheetYear + " ne postoji");
             }
 
-            var bazaId = baza.ElementAt(0).ElementAt(0);
+            var spreadsheetId = spreadsheet.ElementAt(0).ElementAt(0);
 
             var spreadsheetReport = await _context.Supervisors
                             .Where(s => s.Id.Equals(userId))
@@ -273,37 +273,37 @@ namespace MembershipsManagement.Services.SpreadSheets
                                 MedzlisName = sr.Dzemat.Medzlis.Name,
                                 DzematName = sr.Dzemat.Name,
                                 MarriageStatusMembersCount = sr.Dzemat.Spreadsheets
-                                .Where(spreadsheet => spreadsheet.Id == bazaId)
+                                .Where(spreadsheet => spreadsheet.Id == spreadsheetId)
                                 .Select(activeSpreadsheet => activeSpreadsheet.Members.Where(member => member.Status == Status.Brak).Count()).First(),
                                 AgeLimitStatusMembersCount = sr.Dzemat.Spreadsheets
-                                .Where(spreadsheet => spreadsheet.Id == bazaId)
+                                .Where(spreadsheet => spreadsheet.Id == spreadsheetId)
                                 .Select(activeSpreadsheet => activeSpreadsheet.Members.Where(member => member.Status == Status.DobnaGranica).Count()).First(),
                                 WidowerStatusMembersCount = sr.Dzemat.Spreadsheets
-                                .Where(spreadsheet => spreadsheet.Id == bazaId)
+                                .Where(spreadsheet => spreadsheet.Id == spreadsheetId)
                                 .Select(activeSpreadsheet => activeSpreadsheet.Members.Where(member => member.Status == Status.Udovac).Count()).First(),
                                 Budget = (double)sr.Dzemat.Budget,
                                 TotalPaymentsAmountListed = sr.Dzemat.Spreadsheets
-                                .Where(spreadsheet => spreadsheet.Id == bazaId)
+                                .Where(spreadsheet => spreadsheet.Id == spreadsheetId)
                                 .Select(spreadsheet => spreadsheet.Payments.GroupBy(payments => payments.SpreadsheetId).Select(p => p.Sum(p => p.Amount)).ToList()).ToList(),
                                 MembersPayed = sr.Dzemat.Spreadsheets
-                                .Where(spreadsheet => spreadsheet.Id == bazaId)
+                                .Where(spreadsheet => spreadsheet.Id == spreadsheetId)
                                 .SelectMany(spreadsheet => spreadsheet.Members
                                 .Where(member => member.Debt == 0)
                                 .Select(member => new MemberThatHasPayedDto
                                 {
                                     FullName = member.FirstName + " " + member.LastName,
                                     Supervisor = "DORADITI",
-                                    TotalAmount = member.Payments.Where(payment => payment.SpreadsheetId == bazaId).Sum(p => p.Amount)
+                                    TotalAmount = member.Payments.Where(payment => payment.SpreadsheetId == spreadsheetId).Sum(p => p.Amount)
                                 })).ToList(),
                                 MembersNotPayed = sr.Dzemat.Spreadsheets
-                                .Where(spreadsheet => spreadsheet.Id == bazaId)
+                                .Where(spreadsheet => spreadsheet.Id == spreadsheetId)
                                 .SelectMany(spreadsheet => spreadsheet.Members
                                 .Where(member => member.Debt > 0)
                                 .Select(member => new MemberThatHasNotPayedDto
                                 {
                                     FullName = member.FirstName + " " + member.LastName,
                                     Debt = member.Debt,
-                                    TotalAmount = member.Payments.Where(payment => payment.SpreadsheetId == bazaId).Sum(p => p.Amount)
+                                    TotalAmount = member.Payments.Where(payment => payment.SpreadsheetId == spreadsheetId).Sum(p => p.Amount)
                                 })).ToList(),
 
                             }).FirstOrDefaultAsync();

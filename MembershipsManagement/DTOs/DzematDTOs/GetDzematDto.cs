@@ -1,4 +1,4 @@
-﻿using MembershipsManagement.DTOs.BazaDTOs;
+﻿using MembershipsManagement.DTOs.SpreadsheetDTOs;
 using MembershipsManagement.DTOs.MedzlisDTOs;
 using MembershipsManagement.DTOs.MemberDTOs;
 using MembershipsManagement.DTOs.User;

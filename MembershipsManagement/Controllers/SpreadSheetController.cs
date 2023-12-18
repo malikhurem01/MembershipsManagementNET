@@ -1,4 +1,4 @@
-﻿using MembershipsManagement.DTOs.BazaDTOs;
+﻿using MembershipsManagement.DTOs.SpreadsheetDTOs;
 using MembershipsManagement.DTOs.SpreadsheetDTOs;
 using MembershipsManagement.Entities;
 using MembershipsManagement.Services.SpreadSheets;
@@ -12,31 +12,31 @@ namespace MembershipsManagement.Controllers
     [Route("api/[controller]")]
     public class SpreadsheetController : Controller
     {
-        private readonly ISpreadsheetService _bazaService;
+        private readonly ISpreadsheetService _spreadsheetService;
 
-        public SpreadsheetController(ISpreadsheetService bazaService)
+        public SpreadsheetController(ISpreadsheetService spreadsheetService)
         {
-            _bazaService = bazaService;
+            _spreadsheetService = spreadsheetService;
         }
 
         [HttpPost("create")]
-        public async Task<ActionResult<ServiceResponse<GetSpreadsheetDto>>> CreateBaza(AddSpreadsheetDto baza) {
+        public async Task<ActionResult<ServiceResponse<GetSpreadsheetDto>>> CreateSpreadsheet(AddSpreadsheetDto spreadsheet) {
             Request.Headers.TryGetValue("Authorization", out var token);
             string tokenValue = token
                 .ToString()
                 .Split(" ")
                 .ElementAt(1);
-            var response = await _bazaService.CreateBaza(tokenValue, baza);
+            var response = await _spreadsheetService.CreateSpreadsheet(tokenValue, spreadsheet);
             return Ok(response);
         }
         [HttpGet("get/all")]
-        public async Task<ActionResult<ServiceResponse<List<GetSpreadsheetDto>>>> GetBazaList(int dzematId) {
-            var response = await _bazaService.GetBazaList(dzematId);
+        public async Task<ActionResult<ServiceResponse<List<GetSpreadsheetDto>>>> GetSpreadsheetList(int dzematId) {
+            var response = await _spreadsheetService.GetSpreadsheetList(dzematId);
             return Ok(response);
         }
         [HttpGet("get/single")]
-        public async Task<ActionResult<ServiceResponse<GetSpreadsheetDto>>> GetSingleBaza(int spreadsheetId) {
-            var response = await _bazaService.GetSingleBaza(spreadsheetId);
+        public async Task<ActionResult<ServiceResponse<GetSpreadsheetDto>>> GetSingleSpreadsheet(int spreadsheetId) {
+            var response = await _spreadsheetService.GetSingleSpreadsheet(spreadsheetId);
             return Ok(response);
         }
         [HttpGet("get/active")]
@@ -47,7 +47,7 @@ namespace MembershipsManagement.Controllers
                 .ToString()
                 .Split(" ")
                 .ElementAt(1);
-            var response = await _bazaService.GetActiveSpreadsheet(tokenValue);
+            var response = await _spreadsheetService.GetActiveSpreadsheet(tokenValue);
             return Ok(response);
         }
 
@@ -59,7 +59,7 @@ namespace MembershipsManagement.Controllers
                 .ToString()
                 .Split(" ")
                 .ElementAt(1);
-            var response = await _bazaService.GetSpreadsheetReport(tokenValue, spreadsheetYear);
+            var response = await _spreadsheetService.GetSpreadsheetReport(tokenValue, spreadsheetYear);
             return Ok(response);
         }
 
@@ -71,33 +71,33 @@ namespace MembershipsManagement.Controllers
                 .ToString()
                 .Split(" ")
                 .ElementAt(1);
-            var response = await _bazaService.GetDebtWarningReports(tokenValue);
+            var response = await _spreadsheetService.GetDebtWarningReports(tokenValue);
             return Ok(response);
         }
 
         [HttpPatch("archive")]
-        public async Task<ActionResult<ServiceResponse<GetSpreadsheetDto>>> ArchiveBaza(ArchiveSpreadsheetDto spreadsheet) {
+        public async Task<ActionResult<ServiceResponse<GetSpreadsheetDto>>> ArchiveSpreadsheet(ArchiveSpreadsheetDto spreadsheet) {
             Request.Headers.TryGetValue("Authorization", out var token);
             string tokenValue = token
                 .ToString()
                 .Split(" ")
                 .ElementAt(1);
-            var response = await _bazaService.ArchiveBaza(tokenValue, spreadsheet);
+            var response = await _spreadsheetService.ArchiveSpreadsheet(tokenValue, spreadsheet);
             return Ok(response);
         }
         [HttpPatch("unarchive")]
-        public async Task<ActionResult<ServiceResponse<GetSpreadsheetDto>>> UnarchiveBaza(int bazaId) {
-            var response = await _bazaService.UnarchiveBaza(bazaId);
+        public async Task<ActionResult<ServiceResponse<GetSpreadsheetDto>>> UnarchiveSpreadsheet(int spreadsheetId) {
+            var response = await _spreadsheetService.UnarchiveSpreadsheet(spreadsheetId);
             return Ok(response);
         }
         [HttpDelete("delete")]
-        public async Task<ActionResult<ServiceResponse<string>>> DeleteBaza(DeleteSpreadsheetDto baza) {
+        public async Task<ActionResult<ServiceResponse<string>>> DeleteSpreadsheet(DeleteSpreadsheetDto spreadsheet) {
             Request.Headers.TryGetValue("Authorization", out var token);
             string tokenValue = token
                 .ToString()
                 .Split(" ")
                 .ElementAt(1);
-            var response = await _bazaService.DeleteBaza(tokenValue, baza);
+            var response = await _spreadsheetService.DeleteSpreadsheet(tokenValue, spreadsheet);
             return Ok(response);
         }
     }
