@@ -3,7 +3,10 @@
     public enum Roles
     {
         Admin,
-        Supervisor,
-        HeadSupervisor
+        Imam,
+        Blagajnik,
+        Mutevelija,
+        PredsjednikDzematskogOdbora,
+        GlavniImam
     }
 }

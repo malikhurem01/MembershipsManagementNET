@@ -295,6 +295,16 @@ namespace MembershipsManagement.Services.Authentication
             return response;
         }
 
+        public async Task<bool> CheckUserPassword(string id, string password)
+        {
+            var user = await _userManager.FindByIdAsync(id);
+            if (await _userManager.CheckPasswordAsync(user, password))
+            {
+                return true;
+            }
+            return false;
+        }
+
         public async Task<ServiceResponse<GetUserDto>> ChangeUserPassword(string token, ChangePasswordDto changePassword)
         {
             var response = new ServiceResponse<GetUserDto>();

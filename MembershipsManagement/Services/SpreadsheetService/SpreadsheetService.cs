@@ -2,14 +2,13 @@
 using MembershipsManagement.Data;
 using MembershipsManagement.DTOs.SpreadsheetDTOs;
 using MembershipsManagement.DTOs.MemberDTOs;
-using MembershipsManagement.DTOs.SpreadsheetDTOs;
-using MembershipsManagement.DTOs.User;
 using MembershipsManagement.Entities;
 using MembershipsManagement.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using MembershipsManagement.Services.Authentication;
 
 namespace MembershipsManagement.Services.SpreadSheets
 {
@@ -18,11 +17,12 @@ namespace MembershipsManagement.Services.SpreadSheets
 
         private readonly DataContext _context;
         private readonly IMapper _mapper;
-
-        public SpreadsheetService(DataContext context, IMapper mapper)
+        private readonly IAuthenticationService _authService;
+        public SpreadsheetService(DataContext context, IMapper mapper, IAuthenticationService authService)
         {
             _context = context;
             _mapper = mapper;
+            _authService = authService;
         }
 
         public async Task<ServiceResponse<GetSpreadsheetDto>> CreateSpreadsheet(string token, AddSpreadsheetDto spreadsheet)
@@ -69,6 +69,18 @@ namespace MembershipsManagement.Services.SpreadSheets
             if (spreadsheet.Year > DateTime.Now.Year)
             {
                 throw new BadRequestException("Godina mora biti manja od " + (DateTime.Now.Year + 1) + ".");
+            }
+
+            var nearestSpreadsheetYear = await _context.Spreadsheets.Where(s => s.DzematId == spreadsheet.DzematId).OrderByDescending(s => s.Year).FirstOrDefaultAsync();
+            
+            if(nearestSpreadsheetYear is not null)
+            {
+                if (spreadsheet.Year < nearestSpreadsheetYear.Year)
+                {
+                    throw new BadRequestException("Godina nove baze ne može biti manja od godine već postojeće, novije, baze (" + nearestSpreadsheetYear.Year + ")");
+
+                }
+
             }
 
             var spreadsheetToAdd = _mapper.Map<Spreadsheet>(spreadsheet);
@@ -179,10 +191,21 @@ namespace MembershipsManagement.Services.SpreadSheets
                 .Where(s => s.DzematId == spreadsheet.DzematId)
                 .FirstOrDefaultAsync();
 
-            if(fetchedSpreadsheet is null)
+            if (fetchedSpreadsheet is null)
             {
                 throw new EntityNotFoundException("Spreadsheet with ID: " + spreadsheet.SpreadsheetId + " was not found.");
             }
+
+            if (await _authService.CheckUserPassword(userId, spreadsheet.Password) == false)
+            {
+                throw new BadRequestException("Podaci koje ste unijeli nisu ispravni");
+            }
+
+            if(spreadsheet.SpreadsheetYear != fetchedSpreadsheet.Year)
+            {
+                throw new BadRequestException("Podaci koje ste unijeli nisu ispravni");
+            }
+
             fetchedSpreadsheet.Archived = true;
             await _context.SaveChangesAsync();
             response.Data = _mapper.Map<GetSpreadsheetDto>(fetchedSpreadsheet);
@@ -292,7 +315,7 @@ namespace MembershipsManagement.Services.SpreadSheets
                                 .Select(member => new MemberThatHasPayedDto
                                 {
                                     FullName = member.FirstName + " " + member.LastName,
-                                    Supervisor = "DORADITI",
+                                    Supervisors = member.Payments.Select(payment => payment.Supervisor.FirstName + " " + payment.Supervisor.LastName).ToList(),
                                     TotalAmount = member.Payments.Where(payment => payment.SpreadsheetId == spreadsheetId).Sum(p => p.Amount)
                                 })).ToList(),
                                 MembersNotPayed = sr.Dzemat.Spreadsheets
