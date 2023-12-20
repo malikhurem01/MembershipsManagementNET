@@ -36,6 +36,9 @@ namespace MembershipsManagement.Data
             // SEED DEFAULT ACCOUNT
             _modelBuilder.Entity<Medzlis>().HasData(new Medzlis { Id = 1, Name = "Tuzla", Address = "Trg Slobode bb", Location = "Tuzla", ZipCode = 75000 });
             _modelBuilder.Entity<Dzemat>().HasData(new Dzemat { Id = 1, MedzlisId = 1, Name = "Lipnica", UserName = "dzematlipnica", Address = "Lipnica bb", Location = "Gornja Lipnica", Budget = 0, ZipCode = 75213 });
+            _modelBuilder.Entity<Medzlis>().HasData(new Medzlis { Id = 2, Name = "Gračanica", Address = "Gračanica bb", Location = "Gračanica", ZipCode = 75326 });
+            _modelBuilder.Entity<Dzemat>().HasData(new Dzemat { Id = 2, MedzlisId = 2, Name = "Golaći", UserName = "dzematgolaci", Address = "Golaći bb", Location = "Golaći", Budget = 0, ZipCode = 75326 });
+            _modelBuilder.Entity<Dzemat>().HasData(new Dzemat { Id = 3, MedzlisId = 2, Name = "Test", UserName = "testtest", Address = "Golaći bb", Location = "Golaći", Budget = 0, ZipCode = 75326 });
 
         }
 
