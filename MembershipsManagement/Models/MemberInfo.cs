@@ -1,7 +1,4 @@
-﻿using MembershipsManagement.Models;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
-
-namespace MembershipsManagement.Entities
+﻿namespace MembershipsManagement.Entities
 {
     public class MemberInfo
     {

@@ -857,6 +857,7 @@ namespace MembershipsManagement.Migrations
                     b.HasOne("MembershipsManagement.Entities.Dzemat", "Dzemat")
                         .WithMany("Spreadsheets")
                         .HasForeignKey("DzematId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Dzemat");
