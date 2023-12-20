@@ -525,9 +525,24 @@ namespace MembershipsManagement.Migrations
                 values: new object[] { 1, "Trg Slobode bb", "Tuzla", "Tuzla", 75000 });
 
             migrationBuilder.InsertData(
+                table: "Medzlisi",
+                columns: new[] { "Id", "Address", "Location", "Name", "ZipCode" },
+                values: new object[] { 2, "Gračanica bb", "Gračanica", "Gračanica", 75326 });
+
+            migrationBuilder.InsertData(
                 table: "Dzemati",
                 columns: new[] { "Id", "Address", "Budget", "Location", "MedzlisId", "Name", "UserName", "ZipCode" },
                 values: new object[] { 1, "Lipnica bb", 0.0, "Gornja Lipnica", 1, "Lipnica", "dzematlipnica", 75213 });
+
+            migrationBuilder.InsertData(
+                table: "Dzemati",
+                columns: new[] { "Id", "Address", "Budget", "Location", "MedzlisId", "Name", "UserName", "ZipCode" },
+                values: new object[] { 2, "Golaći bb", 0.0, "Golaći", 2, "Golaći", "dzematgolaci", 75326 });
+
+            migrationBuilder.InsertData(
+                table: "Dzemati",
+                columns: new[] { "Id", "Address", "Budget", "Location", "MedzlisId", "Name", "UserName", "ZipCode" },
+                values: new object[] { 3, "Golaći bb", 0.0, "Golaći", 2, "Test", "testtest", 75326 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",

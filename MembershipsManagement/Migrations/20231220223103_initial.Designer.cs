@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MembershipsManagement.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20231220161734_initial")]
+    [Migration("20231220223103_initial")]
     partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -99,6 +99,28 @@ namespace MembershipsManagement.Migrations
                             Name = "Lipnica",
                             UserName = "dzematlipnica",
                             ZipCode = 75213
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Address = "Golaći bb",
+                            Budget = 0.0,
+                            Location = "Golaći",
+                            MedzlisId = 2,
+                            Name = "Golaći",
+                            UserName = "dzematgolaci",
+                            ZipCode = 75326
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Address = "Golaći bb",
+                            Budget = 0.0,
+                            Location = "Golaći",
+                            MedzlisId = 2,
+                            Name = "Test",
+                            UserName = "testtest",
+                            ZipCode = 75326
                         });
                 });
 
@@ -245,6 +267,14 @@ namespace MembershipsManagement.Migrations
                             Location = "Tuzla",
                             Name = "Tuzla",
                             ZipCode = 75000
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Address = "Gračanica bb",
+                            Location = "Gračanica",
+                            Name = "Gračanica",
+                            ZipCode = 75326
                         });
                 });
 
