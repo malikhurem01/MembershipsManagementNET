@@ -13,6 +13,6 @@
         public List<Payment>? Payments { get; set; } = new List<Payment>();
         public List<Member>? Members { get; set; } = new List<Member>();
         public List<MemberInfo>? MemberInfo { get; set; } = new List<MemberInfo>();
-        public List<Project>? Projects { get; set; } = new List<Project>();
+        public List<ExpenseItem>? ExpenseItems { get; set; } = new List<ExpenseItem>();
     }
 }

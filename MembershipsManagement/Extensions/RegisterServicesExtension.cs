@@ -3,6 +3,7 @@ using MembershipsManagement.Services.DzematServiceImpl;
 using MembershipsManagement.Services.FinanceServices;
 using MembershipsManagement.Services.MedzlisServiceImpl;
 using MembershipsManagement.Services.MemberServiceImpl;
+using MembershipsManagement.Services.ProjectServiceImpl;
 using MembershipsManagement.Services.SpreadSheets;
 
 namespace MembershipsManagement.Extensions
@@ -17,6 +18,7 @@ namespace MembershipsManagement.Extensions
             service.AddScoped<IMedzlisService, MedzlisService>();
             service.AddScoped<IPaymentService, PaymentService>();
             service.AddScoped<IDzematService, DzematService>();
+            service.AddScoped<IExpenseItemService, ExpenseItemService>();
         }
     }
 }

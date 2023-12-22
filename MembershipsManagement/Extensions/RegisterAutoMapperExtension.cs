@@ -11,6 +11,7 @@ namespace MembershipsManagement.Extensions
             service.AddAutoMapper(typeof(SpreadsheetMap));
             service.AddAutoMapper(typeof(MedzlisMap));
             service.AddAutoMapper(typeof(PaymentMap));
+            service.AddAutoMapper(typeof(ExpenseItemMap));
         }
     }
 }

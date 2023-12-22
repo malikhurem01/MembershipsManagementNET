@@ -63,7 +63,7 @@ namespace MembershipsManagement.Services.SpreadSheets
 
             if(fetchedSpreadsheet is not null)
             {
-                throw new BadRequestException("Spreadsheet za godinu " + spreadsheet.Year + " već postoji");
+                throw new BadRequestException("Baza za godinu " + spreadsheet.Year + " već postoji");
             }
 
             if (spreadsheet.Year > DateTime.Now.Year)
@@ -90,7 +90,12 @@ namespace MembershipsManagement.Services.SpreadSheets
                 .Where(m => m.Active == true)
                 .ToListAsync();
 
+           var expenseItems = await _context.ExpenseItems
+               .Where(p => p.Spreadsheet.DzematId == spreadsheetToAdd.DzematId)
+               .ToListAsync();
+
             spreadsheetToAdd.Members.AddRange(members);
+            spreadsheetToAdd.ExpenseItems.AddRange(expenseItems);
 
             members.ForEach(m => {
                 int debtToAdd;
@@ -116,7 +121,7 @@ namespace MembershipsManagement.Services.SpreadSheets
             await _context.SaveChangesAsync();
 
             response.Data = _mapper.Map<GetSpreadsheetDto>(spreadsheetToAdd);
-            response.Message = "Spreadsheet uspješno kreirana";
+            response.Message = "Baza uspješno kreirana";
             return response;
         }
 
@@ -209,7 +214,7 @@ namespace MembershipsManagement.Services.SpreadSheets
             fetchedSpreadsheet.Archived = true;
             await _context.SaveChangesAsync();
             response.Data = _mapper.Map<GetSpreadsheetDto>(fetchedSpreadsheet);
-            response.Message = fetchedSpreadsheet != null ? "Spreadsheet za godinu " + fetchedSpreadsheet.Year + " je uspješno arhivirana" : "No spreadsheet was found.";
+            response.Message = fetchedSpreadsheet != null ? "Baza za godinu " + fetchedSpreadsheet.Year + " je uspješno arhivirana" : "No spreadsheet was found.";
             return response;
         }
 
@@ -261,7 +266,7 @@ namespace MembershipsManagement.Services.SpreadSheets
                 ReferenceHandler = ReferenceHandler.IgnoreCycles
             };
             response.Data = JsonSerializer.Serialize(new { spreadsheet = activeSpreadsheet.spreadsheet }, options);
-            response.Message = "Aktivna spreadsheet uspješno učitana";
+            response.Message = "Aktivna baza uspješno učitana";
             return response;
         }
 
@@ -284,7 +289,7 @@ namespace MembershipsManagement.Services.SpreadSheets
 
             if(spreadsheet.ElementAt(0).Count == 0)
             {
-                throw new BadRequestException("Spreadsheet za godinu " + spreadsheetYear + " ne postoji");
+                throw new BadRequestException("Baza za godinu " + spreadsheetYear + " ne postoji");
             }
 
             var spreadsheetId = spreadsheet.ElementAt(0).ElementAt(0);

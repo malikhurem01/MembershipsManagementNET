@@ -8,6 +8,5 @@ namespace MembershipsManagement.Models
         public Dzemat? Dzemat { get; set; }
         public int? MedzlisId { get; set; }
         public Medzlis? Medzlis { get; set; }
-        public List<Income>? RecordedIncomes { get; set; } = new List<Income>();
     }
 }

@@ -19,6 +19,6 @@ namespace MembershipsManagement.DTOs.SpreadsheetDTOs
         public List<GetPaymentDto> Payments { get; set; } = new List<GetPaymentDto>();
         public List<GetMemberDto> Members { get; set; } = new List<GetMemberDto>();
         public List<GetMemberInfoDTO> MemberInfo { get; set; } = new List<GetMemberInfoDTO>();
-        public List<Project> Projects { get; set; } = new List<Project>();
+        public List<ExpenseItem> Projects { get; set; } = new List<ExpenseItem>();
     }
 }
