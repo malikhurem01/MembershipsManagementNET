@@ -57,6 +57,19 @@ namespace MembershipsManagement.Controllers
             return response;
         }
 
+        [HttpPost("delete")]
+        public async Task<ActionResult<ServiceResponse<GetExpenseItemDto>>> DeleteExpenseItem(DeleteExpenseItemDto expenseItem)
+        {
+            Request.Headers.TryGetValue("Authorization", out var token);
+            string tokenValue = token
+                .ToString()
+                .Split(" ")
+                .ElementAt(1);
+
+            var response = await _expenseItemService.DeleteExpenseItem(tokenValue, expenseItem);
+            return response;
+        }
+
         /* [HttpPost("add/income")]
         public async Task<ActionResult<ServiceResponse<GetIncomeDto>>> AddIncome(AddIncomeDto income)
         {

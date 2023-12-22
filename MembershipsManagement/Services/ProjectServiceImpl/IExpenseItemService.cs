@@ -5,7 +5,8 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
 {
     public interface IExpenseItemService
     {
-        Task<ServiceResponse<GetExpenseItemDto>> CreateExpenseItem(string token, CreateExpenseItem project);
+        Task<ServiceResponse<GetExpenseItemDto>> CreateExpenseItem(string token, CreateExpenseItem expenseItem);
+        Task<ServiceResponse<GetExpenseItemDto>> DeleteExpenseItem(string token, DeleteExpenseItemDto expenseItem);
         //Task<ServiceResponse<GetIncomeDto>> AddIncome(string token, AddIncomeDto income);
         //Task<ServiceResponse<GetIncomeDto>> DeleteIncome(string token, DeleteIncomeDto income);
         Task<ServiceResponse<GetExpenseDto>> AddExpense(string token, AddExpenseDto expense);

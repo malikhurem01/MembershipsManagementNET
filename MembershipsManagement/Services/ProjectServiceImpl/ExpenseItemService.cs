@@ -191,7 +191,7 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
                 throw new UnauthorizedAccessException("Not authorized.");
             }
 
-            var expenseItem = await _expenseItemContext.ExpenseItems.Include(p => p.Spreadsheet).FirstOrDefaultAsync();
+            var expenseItem = await _expenseItemContext.ExpenseItems.Where(e => e.Id == expense.ExpenseItemId).Include(p => p.Spreadsheet).FirstOrDefaultAsync();
 
             if (expense is null)
             {
@@ -282,6 +282,44 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
 
             response.Data = expenseItems.Select(project => _mapper.Map<GetExpenseItemDto>(project)).ToList();
             response.Message = "Arhivirani projekti uspješno učitani";
+
+            return response;
+        }
+
+        public async Task<ServiceResponse<GetExpenseItemDto>> DeleteExpenseItem(string token, DeleteExpenseItemDto expenseItemToDelete)
+        {
+            var response = new ServiceResponse<GetExpenseItemDto>();
+            var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
+            var userId = decodedToken.Claims
+                .Where(claim => claim.Type
+                .Equals("nameid"))
+                .Select(claim => claim.Value)
+                .SingleOrDefault();
+
+
+            var supervisor = await _expenseItemContext.Supervisors
+                .Where(s => s.Id.Equals(userId))
+                .Where(s => s.DzematId == expenseItemToDelete.DzematId)
+                .FirstOrDefaultAsync();
+
+            if (supervisor == null)
+            {
+                throw new UnauthorizedAccessException("Not authorized.");
+            }
+
+            var expenseItem = await _expenseItemContext.ExpenseItems.Where(e => e.Id == expenseItemToDelete.Id).FirstOrDefaultAsync();
+
+            if (expenseItem is null)
+            {
+                throw new BadRequestException("Stavka je nepostojeća");
+            }
+
+            _expenseItemContext.ExpenseItems.Remove(expenseItem);
+
+            await _expenseItemContext.SaveChangesAsync();
+
+            response.Data = _mapper.Map<GetExpenseItemDto>(expenseItem);
+            response.Message = "Stavka troška je uspješno uklonjena";
 
             return response;
         }
