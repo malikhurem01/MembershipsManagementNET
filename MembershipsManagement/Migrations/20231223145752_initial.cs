@@ -428,7 +428,7 @@ namespace MembershipsManagement.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ExpenseItemId = table.Column<int>(type: "int", nullable: false),
                     SupervisorId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Note = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Note = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Amount = table.Column<double>(type: "float", nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },

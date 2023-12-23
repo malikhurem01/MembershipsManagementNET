@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MembershipsManagement.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20231222205415_initial")]
+    [Migration("20231223145752_initial")]
     partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -142,7 +142,6 @@ namespace MembershipsManagement.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Note")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SupervisorId")
