@@ -19,13 +19,17 @@ namespace MembershipsManagement.Data
             _modelBuilder.Entity<Member>().HasOne(c => c.Dzemat).WithMany(d => d.Members).HasForeignKey(c => c.DzematId).OnDelete(DeleteBehavior.ClientSetNull);
             _modelBuilder.Entity<Dzemat>().HasOne(d => d.Medzlis).WithMany(m => m.Dzemati).HasForeignKey(d => d.MedzlisId).OnDelete(DeleteBehavior.ClientSetNull);
             _modelBuilder.Entity<Dzemat>().HasMany(d => d.Spreadsheets).WithOne(b => b.Dzemat).HasForeignKey(b => b.DzematId).OnDelete(DeleteBehavior.ClientSetNull);
+            _modelBuilder.Entity<Dzemat>().HasMany(d => d.Donators).WithOne(d => d.Dzemat).HasForeignKey(d => d.DzematId).OnDelete(DeleteBehavior.ClientSetNull);
             _modelBuilder.Entity<Payment>().HasOne(u => u.Member).WithMany(c => c.Payments).HasForeignKey(u => u.MemberId).OnDelete(DeleteBehavior.ClientSetNull);
             _modelBuilder.Entity<Spreadsheet>().HasMany(s => s.Members).WithMany(m => m.Spreadsheets).UsingEntity<MemberInfo>();
             _modelBuilder.Entity<Spreadsheet>().HasMany(b => b.MemberInfo).WithOne(c => c.Spreadsheet).HasForeignKey(b => b.SpreadsheetId).OnDelete(DeleteBehavior.ClientSetNull);
             _modelBuilder.Entity<Member>().HasMany(m => m.MemberInfo).WithOne(m => m.Member).HasForeignKey(m => m.MemberId).OnDelete(DeleteBehavior.ClientSetNull);
             ///
             _modelBuilder.Entity<Spreadsheet>().HasMany(m => m.ExpenseItems).WithOne(p => p.Spreadsheet).HasForeignKey(p => p.SpreadsheetId).OnDelete(DeleteBehavior.Cascade);
+            _modelBuilder.Entity<Spreadsheet>().HasMany(s => s.IncomeItems).WithOne(i => i.Spreadsheet).HasForeignKey(i => i.SpreadsheetId).OnDelete(DeleteBehavior.Cascade);
             _modelBuilder.Entity<ExpenseItem>().HasMany(p => p.Expenses).WithOne(e => e.ExpenseItem).HasForeignKey(e => e.ExpenseItemId).OnDelete(DeleteBehavior.Cascade);
+            _modelBuilder.Entity<IncomeItem>().HasMany(i => i.Income).WithOne(i => i.IncomeItem).HasForeignKey(i => i.IncomeItemId).OnDelete(DeleteBehavior.Cascade);
+            _modelBuilder.Entity<Income>().HasOne(i => i.Donator).WithMany(d => d.Donations).HasForeignKey(i => i.DonatorId).OnDelete(DeleteBehavior.ClientSetNull);
             ///
             _modelBuilder.Entity<MemberInfo>().Ignore(mi => mi.MembershipFee);
             _modelBuilder.Entity<MemberInfo>().Ignore(mi => mi.TotalAmountPayed);
@@ -52,6 +56,7 @@ namespace MembershipsManagement.Data
         public DbSet<Donator> Donators { get; set; }
         public DbSet<Medzlis> Medzlisi { get; set; }
         public DbSet<Income> Incomes { get; set; }
+        public DbSet<IncomeItem> IncomeItems { get; set; }
         public DbSet<ExpenseItem> ExpenseItems { get; set; }
         public DbSet<Expense> Expenses { get; set; }
         public DbSet<Payment> Payments { get; set; }

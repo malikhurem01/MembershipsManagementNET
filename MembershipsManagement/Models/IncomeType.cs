@@ -3,6 +3,8 @@
     public enum IncomeType
     {
         Donacija,
-        Sergija
+        Sergija,
+        Uplata,
+        Priliv
     }
 }

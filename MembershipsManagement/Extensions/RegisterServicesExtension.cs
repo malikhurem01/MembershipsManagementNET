@@ -19,6 +19,7 @@ namespace MembershipsManagement.Extensions
             service.AddScoped<IPaymentService, PaymentService>();
             service.AddScoped<IDzematService, DzematService>();
             service.AddScoped<IExpenseItemService, ExpenseItemService>();
+            service.AddScoped<IIncomeItemService, IncomeItemService>();
         }
     }
 }

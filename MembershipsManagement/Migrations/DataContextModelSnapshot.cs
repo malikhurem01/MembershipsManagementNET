@@ -33,6 +33,9 @@ namespace MembershipsManagement.Migrations
                     b.Property<string>("Address")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("DzematId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
 
@@ -44,7 +47,13 @@ namespace MembershipsManagement.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("DzematId");
 
                     b.ToTable("Donators");
                 });
@@ -223,11 +232,16 @@ namespace MembershipsManagement.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("DonatorId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("IncomeItemId")
+                        .HasColumnType("int");
+
                     b.Property<int>("IncomeType")
                         .HasColumnType("int");
 
                     b.Property<string>("Note")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SupervisorId")
@@ -235,6 +249,10 @@ namespace MembershipsManagement.Migrations
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DonatorId");
+
+                    b.HasIndex("IncomeItemId");
 
                     b.HasIndex("SupervisorId");
 
@@ -442,6 +460,28 @@ namespace MembershipsManagement.Migrations
                     b.HasIndex("DzematId");
 
                     b.ToTable("Spreadsheets");
+                });
+
+            modelBuilder.Entity("MembershipsManagement.Models.IncomeItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("SpreadsheetId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SpreadsheetId");
+
+                    b.ToTable("IncomeItems");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -700,6 +740,16 @@ namespace MembershipsManagement.Migrations
                     b.ToTable("Supervisors", (string)null);
                 });
 
+            modelBuilder.Entity("MembershipsManagement.Entities.Donator", b =>
+                {
+                    b.HasOne("MembershipsManagement.Entities.Dzemat", "Dzemat")
+                        .WithMany("Donators")
+                        .HasForeignKey("DzematId")
+                        .IsRequired();
+
+                    b.Navigation("Dzemat");
+                });
+
             modelBuilder.Entity("MembershipsManagement.Entities.Dzemat", b =>
                 {
                     b.HasOne("MembershipsManagement.Entities.Medzlis", "Medzlis")
@@ -753,11 +803,25 @@ namespace MembershipsManagement.Migrations
 
             modelBuilder.Entity("MembershipsManagement.Entities.Income", b =>
                 {
+                    b.HasOne("MembershipsManagement.Entities.Donator", "Donator")
+                        .WithMany("Donations")
+                        .HasForeignKey("DonatorId");
+
+                    b.HasOne("MembershipsManagement.Models.IncomeItem", "IncomeItem")
+                        .WithMany("Income")
+                        .HasForeignKey("IncomeItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("MembershipsManagement.Models.Supervisor", "Supervisor")
                         .WithMany()
                         .HasForeignKey("SupervisorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Donator");
+
+                    b.Navigation("IncomeItem");
 
                     b.Navigation("Supervisor");
                 });
@@ -831,6 +895,17 @@ namespace MembershipsManagement.Migrations
                         .IsRequired();
 
                     b.Navigation("Dzemat");
+                });
+
+            modelBuilder.Entity("MembershipsManagement.Models.IncomeItem", b =>
+                {
+                    b.HasOne("MembershipsManagement.Entities.Spreadsheet", "Spreadsheet")
+                        .WithMany("IncomeItems")
+                        .HasForeignKey("SpreadsheetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Spreadsheet");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -923,8 +998,15 @@ namespace MembershipsManagement.Migrations
                     b.Navigation("Medzlis");
                 });
 
+            modelBuilder.Entity("MembershipsManagement.Entities.Donator", b =>
+                {
+                    b.Navigation("Donations");
+                });
+
             modelBuilder.Entity("MembershipsManagement.Entities.Dzemat", b =>
                 {
+                    b.Navigation("Donators");
+
                     b.Navigation("Members");
 
                     b.Navigation("Spreadsheets");
@@ -962,9 +1044,16 @@ namespace MembershipsManagement.Migrations
                 {
                     b.Navigation("ExpenseItems");
 
+                    b.Navigation("IncomeItems");
+
                     b.Navigation("MemberInfo");
 
                     b.Navigation("Payments");
+                });
+
+            modelBuilder.Entity("MembershipsManagement.Models.IncomeItem", b =>
+                {
+                    b.Navigation("Income");
                 });
 #pragma warning restore 612, 618
         }

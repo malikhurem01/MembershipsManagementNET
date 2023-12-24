@@ -16,6 +16,7 @@ namespace MembershipsManagement.Entities
         public List<Member>? Members { get; set; } = new List<Member>();
         public List<Supervisor>? Supervisors { get; set; } = new List<Supervisor>();
         public List<Spreadsheet>? Spreadsheets { get; set; } = new List<Spreadsheet>();
+        public List<Donator>? Donators { get; set; } = new List<Donator>();
         public double? Budget { get; set; }
         
     }

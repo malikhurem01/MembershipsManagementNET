@@ -1,4 +1,6 @@
-﻿namespace MembershipsManagement.Entities
+﻿using MembershipsManagement.Models;
+
+namespace MembershipsManagement.Entities
 {
     public class Spreadsheet
     {
@@ -13,6 +15,7 @@
         public List<Payment>? Payments { get; set; } = new List<Payment>();
         public List<Member>? Members { get; set; } = new List<Member>();
         public List<MemberInfo>? MemberInfo { get; set; } = new List<MemberInfo>();
+        public List<IncomeItem>? IncomeItems { get; set; } = new List<IncomeItem>();
         public List<ExpenseItem>? ExpenseItems { get; set; } = new List<ExpenseItem>();
     }
 }

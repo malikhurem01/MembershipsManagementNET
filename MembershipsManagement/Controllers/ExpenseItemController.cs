@@ -70,19 +70,6 @@ namespace MembershipsManagement.Controllers
             return response;
         }
 
-        /* [HttpPost("add/income")]
-        public async Task<ActionResult<ServiceResponse<GetIncomeDto>>> AddIncome(AddIncomeDto income)
-        {
-            Request.Headers.TryGetValue("Authorization", out var token);
-            string tokenValue = token
-                .ToString()
-                .Split(" ")
-                .ElementAt(1);
-
-            var response = await _expenseItemService.AddIncome(tokenValue, income);
-            return response;
-        }*/
-
         [HttpPost("add/expense")]
         public async Task<ActionResult<ServiceResponse<GetExpenseDto>>> AddExpense(AddExpenseDto expense)
         {
@@ -95,19 +82,6 @@ namespace MembershipsManagement.Controllers
             var response = await _expenseItemService.AddExpense(tokenValue, expense);
             return response;
         }
-
-        /*[HttpPost("delete/income")]
-        public async Task<ActionResult<ServiceResponse<GetIncomeDto>>> DeleteIncome (DeleteIncomeDto income)
-        {
-            Request.Headers.TryGetValue("Authorization", out var token);
-            string tokenValue = token
-                .ToString()
-                .Split(" ")
-                .ElementAt(1);
-
-            var response = await _expenseItemService.DeleteIncome(tokenValue, income);
-            return response;
-        }*/
 
         [HttpPost("delete/expense")]
         public async Task<ActionResult<ServiceResponse<GetExpenseDto>>> DeleteExpense(DeleteExpenseDto expense)
