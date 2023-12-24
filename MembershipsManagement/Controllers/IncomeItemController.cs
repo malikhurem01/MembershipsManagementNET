@@ -44,6 +44,32 @@ namespace MembershipsManagement.Controllers
             return response;
         }
 
+        [HttpGet("active/donation")]
+        public async Task<ActionResult<ServiceResponse<GetActiveIncomeItems>>> GetActiveDonationIncomeItems()
+        {
+            Request.Headers.TryGetValue("Authorization", out var token);
+            string tokenValue = token
+                .ToString()
+                .Split(" ")
+                .ElementAt(1);
+
+            var response = await _incomeItemService.GetActiveDonationIncomeItems(tokenValue);
+            return response;
+        }
+
+        [HttpGet("archived/donation")]
+        public async Task<ActionResult<ServiceResponse<List<GetIncomeItemDto>>>> GetArchivedDonationIncomeItems()
+        {
+            Request.Headers.TryGetValue("Authorization", out var token);
+            string tokenValue = token
+                .ToString()
+                .Split(" ")
+                .ElementAt(1);
+
+            var response = await _incomeItemService.GetArchivedDonationIncomeItems(tokenValue);
+            return response;
+        }
+
         [HttpGet("donators")]
         public async Task<ActionResult<ServiceResponse<List<GetDonatorDto>>>> GetDonators()
         {

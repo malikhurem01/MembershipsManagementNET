@@ -8,6 +8,7 @@ namespace MembershipsManagement.Models
         public string Name { get; set; } = string.Empty;
         public int SpreadsheetId { get; set; }
         public Spreadsheet Spreadsheet { get; set; }
+        public IncomeType IncomeType { get; set; }
         public List<Income>? Income { get; set; } = new List<Income>();
         public double TotalIncome
         {

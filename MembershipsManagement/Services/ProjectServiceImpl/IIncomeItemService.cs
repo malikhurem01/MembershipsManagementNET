@@ -9,6 +9,8 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
         Task<ServiceResponse<GetIncomeItemDto>> DeleteIncomeItem(string token, DeleteIncomeItemDto incomeItem);
         Task<ServiceResponse<GetIncomeDto>> AddIncome(string token, AddIncomeDto income);
         Task<ServiceResponse<GetIncomeDto>> DeleteIncome(string token, DeleteIncomeDto income);
+        Task<ServiceResponse<GetActiveIncomeItems>> GetActiveDonationIncomeItems(string token);
+        Task<ServiceResponse<List<GetIncomeItemDto>>> GetArchivedDonationIncomeItems(string token);
         Task<ServiceResponse<GetActiveIncomeItems>> GetActiveIncomeItems(string token);
         Task<ServiceResponse<List<GetIncomeItemDto>>> GetArchivedIncomeItems(string token);
         Task<ServiceResponse<GetDonatorDto>> AddDonator(string token, AddDonatorDto donator);
