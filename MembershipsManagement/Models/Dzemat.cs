@@ -18,6 +18,6 @@ namespace MembershipsManagement.Entities
         public List<Spreadsheet>? Spreadsheets { get; set; } = new List<Spreadsheet>();
         public List<Donator>? Donators { get; set; } = new List<Donator>();
         public double? Budget { get; set; }
-        
+        public DateTime DateRegistered { get; set; }        
     }
 }

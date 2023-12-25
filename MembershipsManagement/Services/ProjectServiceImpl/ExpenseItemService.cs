@@ -215,9 +215,9 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
             return response;
         }
 
-        public async Task<ServiceResponse<GetActiveExpenseItems>> GetActiveExpenseItems(string token)
+        public async Task<ServiceResponse<GetExpenseItemsView>> GetActiveExpenseItems(string token)
         {
-            var response = new ServiceResponse<GetActiveExpenseItems>();
+            var response = new ServiceResponse<GetExpenseItemsView>();
             var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
             var userId = decodedToken.Claims
                 .Where(claim => claim.Type
@@ -240,7 +240,7 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
                 .Where(p => p.Archived == false)
                 .Include(s => s.ExpenseItems)
                 .ThenInclude(e => e.Expenses)
-                .Select(p => new GetActiveExpenseItems
+                .Select(p => new GetExpenseItemsView
                 {
                     ExpenseItems = p.ExpenseItems.Select(e => _mapper.Map<GetExpenseItemDto>(e)).ToList(),
                     SpreadsheetYear = p.Year,
@@ -254,9 +254,9 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
             return response;
             
         }
-        public async Task<ServiceResponse<List<GetExpenseItemDto>>> GetArchivedExpenseItems(string token)
+        public async Task<ServiceResponse<GetExpenseItemsView>> GetArchivedExpenseItems(string token, int spreadsheetId)
         {
-            var response = new ServiceResponse<List<GetExpenseItemDto>>();
+            var response = new ServiceResponse<GetExpenseItemsView>();
             var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
             var userId = decodedToken.Claims
                 .Where(claim => claim.Type
@@ -274,14 +274,22 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
                 throw new BadRequestException("Supervisor not found");
             }
 
-            var expenseItems = await _expenseItemContext.ExpenseItems
-                .Where(p => p.Spreadsheet.DzematId == supervisor.DzematId)
-                .Where(p => p.Spreadsheet.Archived == true)
-                .Include(p => p.Expenses)
-                .ToListAsync();
+            var expenseItems = await _expenseItemContext.Spreadsheets
+                 .Where(p => p.DzematId == supervisor.DzematId)
+                 .Where(p => p.Id == spreadsheetId)
+                 .Where(p => p.Archived == true)
+                 .Include(s => s.ExpenseItems)
+                 .ThenInclude(e => e.Expenses)
+                 .Select(p => new GetExpenseItemsView
+                 {
+                     ExpenseItems = p.ExpenseItems.Select(e => _mapper.Map<GetExpenseItemDto>(e)).ToList(),
+                     SpreadsheetYear = p.Year,
+                     SpreadsheetId = p.Id,
+                     TotalExpensesAmountListed = p.ExpenseItems.Select(e => e.Expenses.GroupBy(e => e.ExpenseItemId).Select(e => e.Sum(exp => exp.Amount)).ToList()).ToList()
+                 }).FirstOrDefaultAsync();
 
-            response.Data = expenseItems.Select(project => _mapper.Map<GetExpenseItemDto>(project)).ToList();
-            response.Message = "Arhivirani projekti uspješno učitani";
+            response.Data = expenseItems;
+            response.Message = "Arhivirani troškovi uspješno učitani";
 
             return response;
         }

@@ -141,6 +141,7 @@ namespace MembershipsManagement.Services.Authentication
                 throw new BadRequestException("User already exists");
 
             var userMap = _mapper.Map<Supervisor>(user);
+            userMap.DateRegistered = DateTime.UtcNow;
             //Dodati da dva korisnika ne mogu imati isti username
             userMap.UserName = user.FirstName.ToLower() + user.LastName.ToLower() + new Random().Next(9999);
             var result = await _userManager.CreateAsync(userMap, user.Password);
@@ -153,7 +154,6 @@ namespace MembershipsManagement.Services.Authentication
                 }
                 throw new BadRequestException(stringBuilder.ToString());
             }
-
             response.Data = _mapper.Map<GetUserDto>(userExists);
             return response;
         }
@@ -272,6 +272,8 @@ namespace MembershipsManagement.Services.Authentication
                         {
                             fetchedUser.PhoneNumber = modifiedUser.PhoneNumber;
                         }
+
+                        fetchedUser.DateModified = DateTime.UtcNow;
 
                         await _authContext.SaveChangesAsync();
 

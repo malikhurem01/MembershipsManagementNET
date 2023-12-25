@@ -19,7 +19,7 @@ namespace MembershipsManagement.Controllers
         }
 
         [HttpGet("active")]
-        public async Task<ActionResult<ServiceResponse<GetActiveIncomeItems>>> GetActiveIncomeItems()
+        public async Task<ActionResult<ServiceResponse<GetIncomeItemsView>>> GetActiveIncomeItems()
         {
             Request.Headers.TryGetValue("Authorization", out var token);
             string tokenValue = token
@@ -32,7 +32,7 @@ namespace MembershipsManagement.Controllers
         }
 
         [HttpGet("archived")]
-        public async Task<ActionResult<ServiceResponse<List<GetIncomeItemDto>>>> GetArchivedIncomeItems()
+        public async Task<ActionResult<ServiceResponse<GetIncomeItemsView>>> GetArchivedIncomeItems(int spreadsheetId)
         {
             Request.Headers.TryGetValue("Authorization", out var token);
             string tokenValue = token
@@ -40,12 +40,12 @@ namespace MembershipsManagement.Controllers
                 .Split(" ")
                 .ElementAt(1);
 
-            var response = await _incomeItemService.GetArchivedIncomeItems(tokenValue);
+            var response = await _incomeItemService.GetArchivedIncomeItems(tokenValue, spreadsheetId);
             return response;
         }
 
         [HttpGet("active/donation")]
-        public async Task<ActionResult<ServiceResponse<GetActiveIncomeItems>>> GetActiveDonationIncomeItems()
+        public async Task<ActionResult<ServiceResponse<GetIncomeItemsView>>> GetActiveDonationIncomeItems()
         {
             Request.Headers.TryGetValue("Authorization", out var token);
             string tokenValue = token
@@ -58,7 +58,7 @@ namespace MembershipsManagement.Controllers
         }
 
         [HttpGet("archived/donation")]
-        public async Task<ActionResult<ServiceResponse<List<GetIncomeItemDto>>>> GetArchivedDonationIncomeItems()
+        public async Task<ActionResult<ServiceResponse<GetIncomeItemsView>>> GetArchivedDonationIncomeItems(int spreadsheetId)
         {
             Request.Headers.TryGetValue("Authorization", out var token);
             string tokenValue = token
@@ -66,7 +66,7 @@ namespace MembershipsManagement.Controllers
                 .Split(" ")
                 .ElementAt(1);
 
-            var response = await _incomeItemService.GetArchivedDonationIncomeItems(tokenValue);
+            var response = await _incomeItemService.GetArchivedDonationIncomeItems(tokenValue, spreadsheetId);
             return response;
         }
 

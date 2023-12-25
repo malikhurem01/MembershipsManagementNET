@@ -10,6 +10,8 @@ namespace MembershipsManagement.Entities
         public string Address { get; set; } = string.Empty;
         public string ZipCode { get; set;} = string.Empty;
         public string PlaceOfResidence { get; set; } = string.Empty;
+        public DateTime DateRegistered { get; set; }
+        public DateTime DateModified { get; set; }
         public Roles Position { get; set; }
     }
 }

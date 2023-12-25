@@ -1,6 +1,6 @@
 ﻿namespace MembershipsManagement.DTOs.ProjectDTOs
 {
-    public class GetActiveIncomeItems
+    public class GetIncomeItemsView
     {
         public List<GetIncomeItemDto> IncomeItems { get; set; } = new List<GetIncomeItemDto>();
         public int SpreadsheetYear { get; set; }

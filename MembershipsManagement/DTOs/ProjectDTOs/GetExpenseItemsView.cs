@@ -1,6 +1,6 @@
 ﻿namespace MembershipsManagement.DTOs.ProjectDTOs
 {
-    public class GetActiveExpenseItems
+    public class GetExpenseItemsView
     {
         public List<GetExpenseItemDto> ExpenseItems { get; set; } = new List<GetExpenseItemDto>();
         public int SpreadsheetYear { get; set; }

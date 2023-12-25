@@ -76,6 +76,9 @@ namespace MembershipsManagement.Migrations
                     b.Property<double?>("Budget")
                         .HasColumnType("float");
 
+                    b.Property<DateTime>("DateRegistered")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Location")
                         .HasColumnType("nvarchar(max)");
 
@@ -105,6 +108,7 @@ namespace MembershipsManagement.Migrations
                             Id = 1,
                             Address = "Lipnica bb",
                             Budget = 0.0,
+                            DateRegistered = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Location = "Gornja Lipnica",
                             MedzlisId = 1,
                             Name = "Lipnica",
@@ -116,6 +120,7 @@ namespace MembershipsManagement.Migrations
                             Id = 2,
                             Address = "Golaći bb",
                             Budget = 0.0,
+                            DateRegistered = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Location = "Golaći",
                             MedzlisId = 2,
                             Name = "Golaći",
@@ -127,6 +132,7 @@ namespace MembershipsManagement.Migrations
                             Id = 3,
                             Address = "Golaći bb",
                             Budget = 0.0,
+                            DateRegistered = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Location = "Golaći",
                             MedzlisId = 2,
                             Name = "Test",
@@ -696,6 +702,12 @@ namespace MembershipsManagement.Migrations
                     b.Property<string>("Address")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("DateModified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DateRegistered")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("FathersName")
                         .IsRequired()

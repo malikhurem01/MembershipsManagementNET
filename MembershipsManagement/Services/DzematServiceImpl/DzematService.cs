@@ -30,6 +30,8 @@ namespace MembershipsManagement.Services.DzematServiceImpl
 
             Dzemat newDzemat = _mapper.Map<Dzemat>(registerDzemat);
 
+            newDzemat.DateRegistered = DateTime.UtcNow;
+
             _context.Dzemati.Add(newDzemat);
 
             await _context.SaveChangesAsync();
