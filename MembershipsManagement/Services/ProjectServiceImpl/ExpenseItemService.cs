@@ -1,11 +1,9 @@
 ﻿using AutoMapper;
-using AutoMapper.Execution;
 using MembershipsManagement.Data;
 using MembershipsManagement.DTOs.ProjectDTOs;
 using MembershipsManagement.Entities;
 using MembershipsManagement.Exceptions;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics.Metrics;
 using System.IdentityModel.Tokens.Jwt;
 
 namespace MembershipsManagement.Services.ProjectServiceImpl
@@ -54,41 +52,6 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
             return response;
         }
 
-        /*public async Task<ServiceResponse<GetIncomeDto>> AddIncome(string token, AddIncomeDto income)
-        {
-            var response = new ServiceResponse<GetIncomeDto>();
-            var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
-            var userId = decodedToken.Claims
-                .Where(claim => claim.Type
-                .Equals("nameid"))
-                .Select(claim => claim.Value)
-                .SingleOrDefault();
-
-
-            var supervisor = await _expenseItemContext.Supervisors
-                .Where(s => s.Id.Equals(userId))
-                .Where(s => s.DzematId == income.DzematId)
-                .FirstOrDefaultAsync();
-
-            if (supervisor == null)
-            {
-                throw new UnauthorizedAccessException("Not authorized.");
-            }
-
-            var project = await _expenseItemContext.Projects.Where(p => p.Id == income.ProjectId).Include(p => p.Spreadsheet).FirstOrDefaultAsync();
-            
-            var incomeToAdd = _mapper.Map<Income>(income);
-            incomeToAdd.Supervisor = supervisor;
-            project.Incomes.Add(incomeToAdd);
-
-            await _expenseItemContext.SaveChangesAsync();
-
-            response.Data = _mapper.Map<GetIncomeDto>(incomeToAdd);
-            response.Message = "Priliv novca je upsješno zaveden";
-
-            return response;
-        } */
-
         public async Task<ServiceResponse<GetExpenseDto>> AddExpense(string token, AddExpenseDto expense)
         {
             var response = new ServiceResponse<GetExpenseDto>();
@@ -123,52 +86,6 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
 
             return response;
         }
-
-        /*public async Task<ServiceResponse<GetIncomeDto>> DeleteIncome(string token, DeleteIncomeDto income)
-        {
-            var response = new ServiceResponse<GetIncomeDto>();
-            var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
-            var userId = decodedToken.Claims
-                .Where(claim => claim.Type
-                .Equals("nameid"))
-                .Select(claim => claim.Value)
-                .SingleOrDefault();
-
-
-            var supervisor = await _expenseItemContext.Supervisors
-                .Where(s => s.Id.Equals(userId))
-                .Where(s => s.DzematId == income.DzematId)
-                .FirstOrDefaultAsync();
-
-            if (supervisor == null)
-            {
-                throw new UnauthorizedAccessException("Not authorized.");
-            }
-
-            var project = await _expenseItemContext.Projects.Include(p => p.Spreadsheet).FirstOrDefaultAsync();
-
-            if(project is null)
-            {
-                throw new BadRequestException("Projekat je nepostojeći");
-            }
-
-            var incomeToDelete = await _expenseItemContext.Incomes.Where(i => i.Id == income.Id).FirstOrDefaultAsync();
-
-            if(incomeToDelete is null)
-            {
-                throw new BadRequestException("Priliv je nepostojeći");
-            }
-
-            project.Incomes.Remove(incomeToDelete);
-
-            await _expenseItemContext.SaveChangesAsync();
-
-            response.Data = _mapper.Map<GetIncomeDto>(incomeToDelete);
-            response.Message = "Priliv novca uspješno uklonjen iz baze";
-
-            return response;
-
-        } */
 
         public async Task<ServiceResponse<GetExpenseDto>> DeleteExpense(string token, DeleteExpenseDto expense)
         {
@@ -285,7 +202,8 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
                      ExpenseItems = p.ExpenseItems.Select(e => _mapper.Map<GetExpenseItemDto>(e)).ToList(),
                      SpreadsheetYear = p.Year,
                      SpreadsheetId = p.Id,
-                     TotalExpensesAmountListed = p.ExpenseItems.Select(e => e.Expenses.GroupBy(e => e.ExpenseItemId).Select(e => e.Sum(exp => exp.Amount)).ToList()).ToList()
+                     TotalExpensesAmountListed = p.ExpenseItems.Select(e => e.Expenses.GroupBy(e => e.ExpenseItemId).Select(e => e.Sum(exp => exp.Amount)).ToList()).ToList(),
+                     TotalIncomeAmountListed = p.IncomeItems.Select(e => e.Income.GroupBy(e => e.IncomeItemId).Select(e => e.Sum(inc => inc.Amount)).ToList()).ToList()
                  }).FirstOrDefaultAsync();
 
             response.Data = expenseItems;

@@ -283,6 +283,7 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
                     IncomeItems = p.IncomeItems.Where(i => i.IncomeType != IncomeType.Donacija).Select(i => _mapper.Map<GetIncomeItemDto>(i)).ToList(),
                     SpreadsheetYear = p.Year,
                     SpreadsheetId = p.Id,
+                    TotalExpensesAmountListed = p.ExpenseItems.Select(e => e.Expenses.GroupBy(e => e.ExpenseItemId).Select(e => e.Sum(exp => exp.Amount)).ToList()).ToList(),
                     TotalIncomeAmountListed = p.IncomeItems.Select(e => e.Income.GroupBy(e => e.IncomeItemId).Select(e => e.Sum(inc => inc.Amount)).ToList()).ToList()
                 }).FirstOrDefaultAsync();
 
