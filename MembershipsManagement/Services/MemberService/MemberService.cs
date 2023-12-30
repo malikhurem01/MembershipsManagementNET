@@ -322,5 +322,34 @@ namespace MembershipsManagement.Services.MemberServiceImpl
             return response;
 
         }
+
+        public async Task<object> Populate(int dzematId)
+        {
+            List<Member> members = new List<Member>();
+            for (int i = 0; i < 500; i++)
+            {
+                Member newMember = new Member()
+                {
+                    EvNumber = i + 1,
+                    FirstName = "@@ČlanIme" + i + 1,
+                    FathersName = "@@ČlanOtac" + i + 1,
+                    LastName = "@@ČlanPrezime" + i + 1,
+                    DateOfBirth = DateTime.Now,
+                    PhoneNumber = "@@123456789101112",
+                    Address = "@@Malešići bb " + i,
+                    Email = "@@ČlanEmail@gmail.com",
+                    Debt = 0,
+                    Note = "@@Napomena",
+                    Status = Status.Brak,
+                    DzematId = dzematId,
+                    Active = true
+                };
+                members.Add(newMember);
+            }
+            _memberContext.Members.AddRange(members);
+            await _memberContext.SaveChangesAsync();
+
+            return "Dodano 500 članova";
+        }
     }
 }

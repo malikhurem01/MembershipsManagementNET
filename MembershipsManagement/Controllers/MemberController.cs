@@ -31,6 +31,14 @@ namespace MembershipsManagement.Controllers
             return Ok(response);
         }
 
+        [AllowAnonymous]
+        [HttpPost("populate")]
+        public async Task<ActionResult<object>> Populate(int dzematId)
+        {
+            var response = await _memberService.Populate(dzematId);
+            return response;
+        }
+
         [HttpGet("get/all")]
         public async Task<ActionResult<ServiceResponse<List<GetMemberDto>>>> GetMemberList()
         {
