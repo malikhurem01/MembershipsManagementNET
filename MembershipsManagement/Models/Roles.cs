@@ -6,7 +6,7 @@
         Imam,
         Blagajnik,
         Mutevelija,
-        PredsjednikDzematskogOdbora,
+        DzematskiOdbor,
         GlavniImam
     }
 }

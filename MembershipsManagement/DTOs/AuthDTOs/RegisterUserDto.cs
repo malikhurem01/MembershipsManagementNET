@@ -10,6 +10,7 @@ namespace MembershipsManagement.DTOs.AuthDTOs
         public string Password { get; set; } = string.Empty;
         public string FathersName { get; set; } = string.Empty;
         public int? DzematId { get; set; } 
+        public int? MedzlisId { get; set; }
         public Roles Position { get; set; }
     }
 }

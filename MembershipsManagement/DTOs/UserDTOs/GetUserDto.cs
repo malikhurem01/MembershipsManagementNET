@@ -1,4 +1,5 @@
 ﻿using MembershipsManagement.DTOs.DzematDTOs;
+using MembershipsManagement.DTOs.MedzlisDTOs;
 using MembershipsManagement.Entities;
 
 namespace MembershipsManagement.DTOs.User
@@ -17,6 +18,8 @@ namespace MembershipsManagement.DTOs.User
         public string? PhoneNumber { get; set;} = string.Empty;
         public int? DzematId { get; set; }
         public GetDzematDto? Dzemat { get; set; }
+        public int? MedzlisId { get; set; }
+        public GetMedzlisDto? Medzlis { get; set; }
         public Roles Position { get; set; }
         public string Token { get; set; } = string.Empty;
     }

@@ -55,11 +55,20 @@ namespace MembershipsManagement.Services.Authentication
             {
                 if (fetchedUser.Position != Roles.Admin)
                 {
-                    fetchedUser = await _authContext.Supervisors
-                    .Where(user => user.Id.Equals(userId))
-                    .Include(user => user.Dzemat)
-                    .ThenInclude(dzemat => dzemat.Medzlis)
-                    .FirstOrDefaultAsync();
+                    if(fetchedUser.Position != Roles.GlavniImam) {
+                        fetchedUser = await _authContext.Supervisors
+                          .Where(user => user.Id.Equals(userId))
+                          .Include(user => user.Dzemat)
+                          .ThenInclude(dzemat => dzemat.Medzlis)
+                          .FirstOrDefaultAsync();
+                    }
+                    if (fetchedUser.Position == Roles.GlavniImam)
+                    {
+                        fetchedUser = await _authContext.Supervisors
+                          .Where(user => user.Id.Equals(userId))
+                          .Include(user => user.Medzlis)
+                          .FirstOrDefaultAsync();
+                    }
                 }
             }
             else
@@ -77,10 +86,24 @@ namespace MembershipsManagement.Services.Authentication
         {
             ServiceResponse<GetUserDto> response = new ServiceResponse<GetUserDto>();
             var fetchedUser = await _userManager.FindByEmailAsync(user.Email);
-            var savedUser = await _authContext.Supervisors
-                .Where(u => u.Id.Equals(fetchedUser.Id))
-                .Where(u => u.Dzemat.UserName.Equals(user.DzematUserName))
-                .Include(u => u.Dzemat).FirstOrDefaultAsync();
+
+                var savedUser = await _authContext.Supervisors
+                    .Where(u => u.Id.Equals(fetchedUser.Id)).FirstOrDefaultAsync();
+
+            if(savedUser.Position == Roles.GlavniImam)
+            {
+                savedUser = await _authContext.Supervisors
+                    .Where(u => u.Id.Equals(fetchedUser.Id))
+                    .Where(u => u.Medzlis.UserName.Equals(user.InstitutionUserName))
+                    .Include(u => u.Medzlis).FirstOrDefaultAsync();
+            }
+            else
+            {
+                savedUser = await _authContext.Supervisors
+                    .Where(u => u.Id.Equals(fetchedUser.Id))
+                    .Where(u => u.Dzemat.UserName.Equals(user.InstitutionUserName))
+                    .Include(u => u.Dzemat).FirstOrDefaultAsync();
+            }
             
             if (fetchedUser is null)
             {

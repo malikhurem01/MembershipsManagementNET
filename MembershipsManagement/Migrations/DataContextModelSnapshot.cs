@@ -289,6 +289,9 @@ namespace MembershipsManagement.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("UserName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("ZipCode")
                         .HasColumnType("int");
 
@@ -303,6 +306,7 @@ namespace MembershipsManagement.Migrations
                             Address = "Trg Slobode bb",
                             Location = "Tuzla",
                             Name = "Tuzla",
+                            UserName = "medzlistuzla",
                             ZipCode = 75000
                         },
                         new
@@ -311,6 +315,7 @@ namespace MembershipsManagement.Migrations
                             Address = "Gračanica bb",
                             Location = "Gračanica",
                             Name = "Gračanica",
+                            UserName = "medzlisgracanica",
                             ZipCode = 75326
                         });
                 });
