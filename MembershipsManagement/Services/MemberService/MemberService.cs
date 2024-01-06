@@ -257,18 +257,36 @@ namespace MembershipsManagement.Services.MemberServiceImpl
             throw new NotImplementedException();
         }
 
-        public async Task<ServiceResponse<PagedList<GetSpreadsheetMemberInfo>>> GetFilteredMembersForSpredsheet(string token, int spreadsheetId, string? firstName, string? lastName, string? fathersName, int pageNumber, int pageSize)
+        public async Task<ServiceResponse<PagedList<GetSpreadsheetMemberInfo>>> GetFilteredMembersForSpredsheet(string token,
+            int spreadsheetId, 
+            string? firstName,
+            string? lastName,
+            string? fathersName,
+            int pageNumber,
+            int pageSize)
         {
             var response = new ServiceResponse<PagedList<GetSpreadsheetMemberInfo>>();
             var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
-            var dzematId = decodedToken.Claims
+            var userId = decodedToken.Claims
                 .Where(claim => claim.Type
-                .Equals("http://schemas.microsoft.com/ws/2008/06/identity/claims/userdata"))
+                .Equals("nameid"))
                 .Select(claim => claim.Value)
                 .SingleOrDefault();
 
-            IQueryable<MemberInfo> membersInfoQuery = _memberContext.MembersInfo
-                .Where(mi => mi.SpreadsheetId == spreadsheetId);
+            var supervisor = await _memberContext.Supervisors.Where(s => s.Id.Equals(userId)).FirstOrDefaultAsync();
+
+            IQueryable<MemberInfo> membersInfoQuery;
+
+            if (supervisor.Position.Equals(Roles.GlavniImam))
+            {
+                membersInfoQuery = _memberContext.MembersInfo.Where(mi => mi.Spreadsheet.Dzemat.MedzlisId == supervisor.MedzlisId);
+            }
+            else
+            {
+                membersInfoQuery = _memberContext.MembersInfo.Where(mi => mi.Spreadsheet.Dzemat.Id == supervisor.DzematId);
+            }
+
+            membersInfoQuery = membersInfoQuery.Where(mi => mi.SpreadsheetId == spreadsheetId);
 
             if (!string.IsNullOrEmpty(firstName))
             {

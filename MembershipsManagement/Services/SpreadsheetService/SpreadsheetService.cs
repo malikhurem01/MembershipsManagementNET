@@ -9,6 +9,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using MembershipsManagement.Services.Authentication;
+using Newtonsoft.Json.Linq;
+using MembershipsManagement.Models;
 
 namespace MembershipsManagement.Services.SpreadSheets
 {
@@ -158,26 +160,59 @@ namespace MembershipsManagement.Services.SpreadSheets
             return response;
         }
 
-        public async Task<ServiceResponse<List<GetSpreadsheetDto>>> GetSpreadsheetList(int dzematId)
+        public async Task<ServiceResponse<List<GetSpreadsheetDto>>> GetSpreadsheetList(string token, int dzematId)
         {
             var response = new ServiceResponse<List<GetSpreadsheetDto>>();
-            var fetched = await _context.Spreadsheets.Where(b => b.DzematId == dzematId).OrderByDescending(b => b.Year).ToListAsync();
+            var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
+            var userId = decodedToken.Claims
+               .Where(claim => claim.Type
+               .Equals("nameid"))
+               .Select(claim => claim.Value)
+               .SingleOrDefault();
 
-            if (fetched.Count == 0) {
-                response.Message = "No spreadsheet available.";
+            List<Spreadsheet> fetchedSpreadsheet;
+
+            var supervisor = await _context.Supervisors.Where(s => s.Id.Equals(userId)).FirstOrDefaultAsync();
+
+            if (supervisor.Position.Equals(Roles.GlavniImam))
+            {
+                fetchedSpreadsheet = await _context.Spreadsheets.Where(sp => sp.Dzemat.MedzlisId == supervisor.MedzlisId).Where(sp => sp.Dzemat.Id == dzematId).ToListAsync();
+            }
+            else
+            {
+                fetchedSpreadsheet = await _context.Spreadsheets.Where(b => b.DzematId == dzematId).OrderByDescending(b => b.Year).ToListAsync();
             }
 
-            response.Data = fetched.Select(b => _mapper.Map<GetSpreadsheetDto>(b)).ToList();
+            response.Data = fetchedSpreadsheet.Select(sp => _mapper.Map<GetSpreadsheetDto>(sp)).ToList();
             response.Message = "Fetch successful.";
             return response;
         }
 
-        public async Task<ServiceResponse<GetSpreadsheetDto>> GetSingleSpreadsheet(int spreadsheetId)
+        public async Task<ServiceResponse<GetSpreadsheetDto>> GetSingleSpreadsheet(string token, int spreadsheetId)
         {
             var response = new ServiceResponse<GetSpreadsheetDto>();
-            var fetched = await _context.Spreadsheets.Where(b => b.Id == spreadsheetId).FirstOrDefaultAsync();
-            response.Data = _mapper.Map<GetSpreadsheetDto>(fetched);
-            response.Message = fetched != null? "Fetch successful." : "No spreadsheet was found.";
+            var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
+            var userId = decodedToken.Claims
+               .Where(claim => claim.Type
+               .Equals("nameid"))
+               .Select(claim => claim.Value)
+               .SingleOrDefault();
+
+            Spreadsheet fetchedSpreadsheet;
+
+            var supervisor = await _context.Supervisors.Where(s => s.Id.Equals(userId)).FirstOrDefaultAsync();
+
+            if (supervisor.Position.Equals(Roles.GlavniImam))
+            {
+                fetchedSpreadsheet = await _context.Spreadsheets.Where(sp => sp.Dzemat.MedzlisId == supervisor.MedzlisId).Where(sp => sp.Id == spreadsheetId).FirstOrDefaultAsync();
+            }
+            else
+            {
+                fetchedSpreadsheet = await _context.Spreadsheets.Where(sp => sp.Dzemat.Id == supervisor.DzematId).Where(sp => sp.Id == spreadsheetId).FirstOrDefaultAsync();
+            }
+
+            response.Data = _mapper.Map<GetSpreadsheetDto>(fetchedSpreadsheet);
+            response.Message = fetchedSpreadsheet != null? "Fetch successful." : "No spreadsheet was found.";
             return response;
         }
 
@@ -232,7 +267,7 @@ namespace MembershipsManagement.Services.SpreadSheets
             response.Message = fetched != null ? "Spreadsheet with ID: " + spreadsheetId + " was unarchived." : "No spreadsheet was found.";
             return response;
         }
-        public async Task<ServiceResponse<object>> GetActiveSpreadsheet(string token)
+        public async Task<ServiceResponse<object>> GetActiveSpreadsheet(string token, int? dzematId)
         {
             var response = new ServiceResponse<object>();
             var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
@@ -242,17 +277,36 @@ namespace MembershipsManagement.Services.SpreadSheets
                .Select(claim => claim.Value)
                .SingleOrDefault();
 
-            var activeSpreadsheet = await _context.Supervisors
-                .Where(s => s.Id.Equals(userId)).Select(s => new {
-                    spreadsheet = s.Dzemat.Spreadsheets
-                 .Where(s => s.Archived == false)
-                 .Select(s => new
-                 {
-                     id = s.Id,
-                     year = s.Year
-                 })
-                 .First()
+            var supervisor = await _context.Supervisors.Where(s => s.Id.Equals(userId)).FirstOrDefaultAsync();
+
+            object activeSpreadsheet;
+
+            if (supervisor.Position.Equals(Roles.GlavniImam))
+            {
+                activeSpreadsheet = await _context.Supervisors.Where(sp => sp.Id.Equals(userId)).Select(sp => new
+                {
+                    spreadsheet = sp.Medzlis.Dzemati.Where(dz => dz.Id == dzematId).Select(dz => dz.Spreadsheets.Where(s => s.Archived == false).Select(s => new
+                    {
+                        id = s.Id,
+                        year = s.Year
+                    })).First()
                 }).FirstOrDefaultAsync();
+            }
+            else
+            {
+                activeSpreadsheet = await _context.Supervisors
+    .Where(s => s.Id.Equals(userId)).Select(s => new {
+        spreadsheet = s.Dzemat.Spreadsheets
+     .Where(s => s.Archived == false)
+     .Select(s => new
+     {
+         id = s.Id,
+         year = s.Year
+     })
+     .First()
+    }).FirstOrDefaultAsync();
+            }
+
 
             if (activeSpreadsheet is null)
             {
@@ -265,12 +319,12 @@ namespace MembershipsManagement.Services.SpreadSheets
             {
                 ReferenceHandler = ReferenceHandler.IgnoreCycles
             };
-            response.Data = JsonSerializer.Serialize(new { spreadsheet = activeSpreadsheet.spreadsheet }, options);
+            response.Data = JsonSerializer.Serialize(new { spreadsheet = activeSpreadsheet }, options);
             response.Message = "Aktivna baza uspješno učitana";
             return response;
         }
 
-        public async Task<ServiceResponse<SpreadsheetReportDto>> GetSpreadsheetReport(string token, int spreadsheetYear)
+        public async Task<ServiceResponse<SpreadsheetReportDto>> GetSpreadsheetReport(string token, int spreadsheetYear, int? dzematId)
         {
             var response = new ServiceResponse<SpreadsheetReportDto>();
             var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
@@ -280,12 +334,33 @@ namespace MembershipsManagement.Services.SpreadSheets
                .Select(claim => claim.Value)
                .SingleOrDefault();
 
-            var spreadsheet = await _context.Supervisors
+            Supervisor? supervisor = await _context.Supervisors.Where(s => s.Id.Equals(userId)).FirstOrDefaultAsync();
+            Dzemat? dzemat;
+
+            List<List<int>> spreadsheet;
+
+            if (supervisor.Position.Equals(Roles.GlavniImam))
+            {
+                dzemat = await _context.Dzemati.Where(dz => dz.Id == dzematId).Where(dz => dz.Medzlis.Id == supervisor.MedzlisId).Include(dz => dz.Members).ThenInclude(m => m).Include(dz => dz.Spreadsheets).ThenInclude(s => s.MemberInfo).ThenInclude(s => s.Payments).FirstOrDefaultAsync();
+                supervisor.Dzemat = dzemat;
+                spreadsheet = await _context.Supervisors
                 .Include(s => s.Dzemat)
                 .ThenInclude(d => d.Spreadsheets)
                 .Where(s => s.Id.Equals(userId))
-                .Select(s => s.Dzemat.Spreadsheets.Where(spreadsheet => spreadsheet.Year == spreadsheetYear)
+                .Select(s => s.Medzlis.Dzemati.Where(dz => dz.Id == dzematId).First()).Select(dz => dz.Spreadsheets.Where(spreadsheet => spreadsheet.Year == spreadsheetYear)
                 .Select(spreadsheet => spreadsheet.Id).ToList()).ToListAsync();
+            }
+            else
+            {
+                dzemat = null;
+                spreadsheet = await _context.Supervisors
+    .Include(s => s.Dzemat)
+    .ThenInclude(d => d.Spreadsheets)
+    .Where(s => s.Id.Equals(userId))
+    .Select(s => s.Dzemat.Spreadsheets.Where(spreadsheet => spreadsheet.Year == spreadsheetYear)
+    .Select(spreadsheet => spreadsheet.Id).ToList()).ToListAsync();
+            }
+
 
             if(spreadsheet.ElementAt(0).Count == 0)
             {
@@ -294,48 +369,96 @@ namespace MembershipsManagement.Services.SpreadSheets
 
             var spreadsheetId = spreadsheet.ElementAt(0).ElementAt(0);
 
-            var spreadsheetReport = await _context.Supervisors
-                            .Where(s => s.Id.Equals(userId))
-                            .Select(sr => new SpreadsheetReportDto
-                            {
-                                MedzlisName = sr.Dzemat.Medzlis.Name,
-                                DzematName = sr.Dzemat.Name,
-                                MarriageStatusMembersCount = sr.Dzemat.Spreadsheets
-                                .Where(spreadsheet => spreadsheet.Id == spreadsheetId)
-                                .Select(activeSpreadsheet => activeSpreadsheet.Members.Where(member => member.Status == Status.Brak).Count()).First(),
-                                AgeLimitStatusMembersCount = sr.Dzemat.Spreadsheets
-                                .Where(spreadsheet => spreadsheet.Id == spreadsheetId)
-                                .Select(activeSpreadsheet => activeSpreadsheet.Members.Where(member => member.Status == Status.DobnaGranica).Count()).First(),
-                                WidowerStatusMembersCount = sr.Dzemat.Spreadsheets
-                                .Where(spreadsheet => spreadsheet.Id == spreadsheetId)
-                                .Select(activeSpreadsheet => activeSpreadsheet.Members.Where(member => member.Status == Status.Udovac).Count()).First(),
-                                Budget = (double)sr.Dzemat.Budget,
-                                TotalPaymentsAmountListed = sr.Dzemat.Spreadsheets
-                                .Where(spreadsheet => spreadsheet.Id == spreadsheetId)
-                                .Select(spreadsheet => spreadsheet.Payments.GroupBy(payments => payments.SpreadsheetId).Select(p => p.Sum(p => p.Amount)).ToList()).ToList(),
-                                MembersPayed = sr.Dzemat.Spreadsheets
-                                .Where(spreadsheet => spreadsheet.Id == spreadsheetId)
-                                .SelectMany(spreadsheet => spreadsheet.Members
-                                .Where(member => member.Debt == 0)
-                                .Select(member => new MemberThatHasPayedDto
-                                {
-                                    FullName = member.FirstName + " " + member.LastName,
-                                    Supervisors = member.Payments.Select(payment => payment.Supervisor.FirstName + " " + payment.Supervisor.LastName).ToList(),
-                                    TotalAmount = member.Payments.Where(payment => payment.SpreadsheetId == spreadsheetId).Sum(p => p.Amount)
-                                })).ToList(),
-                                MembersNotPayed = sr.Dzemat.Spreadsheets
-                                .Where(spreadsheet => spreadsheet.Id == spreadsheetId)
-                                .SelectMany(spreadsheet => spreadsheet.Members
-                                .Where(member => member.Debt > 0)
-                                .Select(member => new MemberThatHasNotPayedDto
-                                {
-                                    FullName = member.FirstName + " " + member.LastName,
-                                    Debt = member.Debt,
-                                    TotalAmount = member.Payments.Where(payment => payment.SpreadsheetId == spreadsheetId).Sum(p => p.Amount)
-                                })).ToList(),
+            SpreadsheetReportDto? spreadsheetReport;
 
-                            }).FirstOrDefaultAsync();
+            if (supervisor.Position.Equals(Roles.GlavniImam))
+            {
+                spreadsheetReport = await _context.Supervisors
+                               .Where(s => s.Id.Equals(userId))
+                               .Select(sr => new SpreadsheetReportDto
+                               {
+                                   MedzlisName = sr.Medzlis.Name,
+                                   DzematName = dzemat.Name,
+                                   MarriageStatusMembersCount = sr.Dzemat.Spreadsheets
+                                   .Where(spreadsheet => spreadsheet.Id == spreadsheetId)
+                                   .Select(activeSpreadsheet => activeSpreadsheet.Members.Where(member => member.Status == Status.Brak).Count()).First(),
+                                   AgeLimitStatusMembersCount = sr.Dzemat.Spreadsheets
+                                   .Where(spreadsheet => spreadsheet.Id == spreadsheetId)
+                                   .Select(activeSpreadsheet => activeSpreadsheet.Members.Where(member => member.Status == Status.DobnaGranica).Count()).First(),
+                                   WidowerStatusMembersCount = sr.Dzemat.Spreadsheets
+                                   .Where(spreadsheet => spreadsheet.Id == spreadsheetId)
+                                   .Select(activeSpreadsheet => activeSpreadsheet.Members.Where(member => member.Status == Status.Udovac).Count()).First(),
+                                   Budget = (double)sr.Dzemat.Budget,
+                                   TotalPaymentsAmountListed = sr.Dzemat.Spreadsheets
+                                   .Where(spreadsheet => spreadsheet.Id == spreadsheetId)
+                                   .Select(spreadsheet => spreadsheet.Payments.GroupBy(payments => payments.SpreadsheetId).Select(p => p.Sum(p => p.Amount)).ToList()).ToList(),
+                                   MembersPayed = sr.Dzemat.Spreadsheets
+                                   .Where(spreadsheet => spreadsheet.Id == spreadsheetId)
+                                   .SelectMany(spreadsheet => spreadsheet.Members
+                                   .Where(member => member.Debt == 0)
+                                   .Select(member => new MemberThatHasPayedDto
+                                   {
+                                       FullName = member.FirstName + " " + member.LastName,
+                                       Supervisors = member.Payments.Select(payment => payment.Supervisor.FirstName + " " + payment.Supervisor.LastName).ToList(),
+                                       TotalAmount = member.Payments.Where(payment => payment.SpreadsheetId == spreadsheetId).Sum(p => p.Amount)
+                                   })).ToList(),
+                                   MembersNotPayed = sr.Dzemat.Spreadsheets
+                                   .Where(spreadsheet => spreadsheet.Id == spreadsheetId)
+                                   .SelectMany(spreadsheet => spreadsheet.Members
+                                   .Where(member => member.Debt > 0)
+                                   .Select(member => new MemberThatHasNotPayedDto
+                                   {
+                                       FullName = member.FirstName + " " + member.LastName,
+                                       Debt = member.Debt,
+                                       TotalAmount = member.Payments.Where(payment => payment.SpreadsheetId == spreadsheetId).Sum(p => p.Amount)
+                                   })).ToList(),
 
+                               }).FirstOrDefaultAsync();
+            }
+            else
+            {
+                spreadsheetReport = await _context.Supervisors
+                                .Where(s => s.Id.Equals(userId))
+                                .Select(sr => new SpreadsheetReportDto
+                                {
+                                    MedzlisName = sr.Dzemat.Medzlis.Name,
+                                    DzematName = sr.Dzemat.Name,
+                                    MarriageStatusMembersCount = sr.Dzemat.Spreadsheets
+                                    .Where(spreadsheet => spreadsheet.Id == spreadsheetId)
+                                    .Select(activeSpreadsheet => activeSpreadsheet.Members.Where(member => member.Status == Status.Brak).Count()).First(),
+                                    AgeLimitStatusMembersCount = sr.Dzemat.Spreadsheets
+                                    .Where(spreadsheet => spreadsheet.Id == spreadsheetId)
+                                    .Select(activeSpreadsheet => activeSpreadsheet.Members.Where(member => member.Status == Status.DobnaGranica).Count()).First(),
+                                    WidowerStatusMembersCount = sr.Dzemat.Spreadsheets
+                                    .Where(spreadsheet => spreadsheet.Id == spreadsheetId)
+                                    .Select(activeSpreadsheet => activeSpreadsheet.Members.Where(member => member.Status == Status.Udovac).Count()).First(),
+                                    Budget = (double)sr.Dzemat.Budget,
+                                    TotalPaymentsAmountListed = sr.Dzemat.Spreadsheets
+                                    .Where(spreadsheet => spreadsheet.Id == spreadsheetId)
+                                    .Select(spreadsheet => spreadsheet.Payments.GroupBy(payments => payments.SpreadsheetId).Select(p => p.Sum(p => p.Amount)).ToList()).ToList(),
+                                    MembersPayed = sr.Dzemat.Spreadsheets
+                                    .Where(spreadsheet => spreadsheet.Id == spreadsheetId)
+                                    .SelectMany(spreadsheet => spreadsheet.Members
+                                    .Where(member => member.Debt == 0)
+                                    .Select(member => new MemberThatHasPayedDto
+                                    {
+                                        FullName = member.FirstName + " " + member.LastName,
+                                        Supervisors = member.Payments.Select(payment => payment.Supervisor.FirstName + " " + payment.Supervisor.LastName).ToList(),
+                                        TotalAmount = member.Payments.Where(payment => payment.SpreadsheetId == spreadsheetId).Sum(p => p.Amount)
+                                    })).ToList(),
+                                    MembersNotPayed = sr.Dzemat.Spreadsheets
+                                    .Where(spreadsheet => spreadsheet.Id == spreadsheetId)
+                                    .SelectMany(spreadsheet => spreadsheet.Members
+                                    .Where(member => member.Debt > 0)
+                                    .Select(member => new MemberThatHasNotPayedDto
+                                    {
+                                        FullName = member.FirstName + " " + member.LastName,
+                                        Debt = member.Debt,
+                                        TotalAmount = member.Payments.Where(payment => payment.SpreadsheetId == spreadsheetId).Sum(p => p.Amount)
+                                    })).ToList(),
+
+                                }).FirstOrDefaultAsync();
+            }
             response.Data = spreadsheetReport;
             response.Message = "Izvještaj je uspješno izrađen";
             return response;

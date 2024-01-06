@@ -30,35 +30,45 @@ namespace MembershipsManagement.Controllers
         }
         [HttpGet("get/all")]
         public async Task<ActionResult<ServiceResponse<List<GetSpreadsheetDto>>>> GetSpreadsheetList(int dzematId) {
-            var response = await _spreadsheetService.GetSpreadsheetList(dzematId);
+            Request.Headers.TryGetValue("Authorization", out var token);
+            string tokenValue = token
+                .ToString()
+                .Split(" ")
+                .ElementAt(1);
+            var response = await _spreadsheetService.GetSpreadsheetList(tokenValue, dzematId);
             return Ok(response);
         }
         [HttpGet("get/single")]
         public async Task<ActionResult<ServiceResponse<GetSpreadsheetDto>>> GetSingleSpreadsheet(int spreadsheetId) {
-            var response = await _spreadsheetService.GetSingleSpreadsheet(spreadsheetId);
+            Request.Headers.TryGetValue("Authorization", out var token);
+            string tokenValue = token
+                .ToString()
+                .Split(" ")
+                .ElementAt(1);
+            var response = await _spreadsheetService.GetSingleSpreadsheet(tokenValue, spreadsheetId);
             return Ok(response);
         }
         [HttpGet("get/active")]
-        public async Task<ActionResult<ServiceResponse<object>>> GetActiveSpreadsheet()
+        public async Task<ActionResult<ServiceResponse<object>>> GetActiveSpreadsheet(int? dzematId)
         {
             Request.Headers.TryGetValue("Authorization", out var token);
             string tokenValue = token
                 .ToString()
                 .Split(" ")
                 .ElementAt(1);
-            var response = await _spreadsheetService.GetActiveSpreadsheet(tokenValue);
+            var response = await _spreadsheetService.GetActiveSpreadsheet(tokenValue, dzematId);
             return Ok(response);
         }
 
         [HttpGet("get/report")]
-        public async Task<ActionResult<ServiceResponse<SpreadsheetReportDto>>> GetSpreadsheetReport(int spreadsheetYear)
+        public async Task<ActionResult<ServiceResponse<SpreadsheetReportDto>>> GetSpreadsheetReport(int spreadsheetYear, int? dzematId)
         {
             Request.Headers.TryGetValue("Authorization", out var token);
             string tokenValue = token
                 .ToString()
                 .Split(" ")
                 .ElementAt(1);
-            var response = await _spreadsheetService.GetSpreadsheetReport(tokenValue, spreadsheetYear);
+            var response = await _spreadsheetService.GetSpreadsheetReport(tokenValue, spreadsheetYear, dzematId);
             return Ok(response);
         }
 
