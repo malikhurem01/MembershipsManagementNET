@@ -24,5 +24,19 @@ namespace MembershipsManagement.Controllers
             var response = await _dzematService.RegisterDzemat(dzemat);
             return Ok(response);
         }
+
+        [HttpGet("get/medzlis")]
+        public async Task<ActionResult<ServiceResponse<List<GetDzematDto>>>> GetMedzlisDzemat(int medzlisId)
+        {
+            Request.Headers.TryGetValue("Authorization", out var token);
+            string tokenValue = token
+                .ToString()
+                .Split(" ")
+                .ElementAt(1);
+
+            var response = await _dzematService.GetMedzlisDzemat(tokenValue, medzlisId);
+            return Ok(response);
+        }
+
     }
 }

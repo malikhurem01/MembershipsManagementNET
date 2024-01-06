@@ -7,5 +7,7 @@ namespace MembershipsManagement.Services.DzematServiceImpl
     public interface IDzematService
     {
         Task<ServiceResponse<GetDzematDto>> RegisterDzemat(RegisterDzematDto registerDzemat);
+        Task<ServiceResponse<List<GetDzematDto>>> GetMedzlisDzemat(string token, int medzlisId);
+
     }
 }
