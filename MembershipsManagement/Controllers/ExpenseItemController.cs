@@ -19,7 +19,7 @@ namespace MembershipsManagement.Controllers
         }
 
         [HttpGet("active")]
-        public async Task<ActionResult<ServiceResponse<GetExpenseItemsView>>> GetActivedExpenseItems()
+        public async Task<ActionResult<ServiceResponse<GetExpenseItemsView>>> GetActivedExpenseItems(int? dzematId)
         {
             Request.Headers.TryGetValue("Authorization", out var token);
             string tokenValue = token
@@ -27,12 +27,12 @@ namespace MembershipsManagement.Controllers
                 .Split(" ")
                 .ElementAt(1);
 
-            var response = await _expenseItemService.GetActiveExpenseItems(tokenValue);
+            var response = await _expenseItemService.GetActiveExpenseItems(tokenValue, dzematId);
             return response;
         }
 
         [HttpGet("archived")]
-        public async Task<ActionResult<ServiceResponse<GetExpenseItemsView>>> GetArchivedExpenseItems(int spreadsheetId)
+        public async Task<ActionResult<ServiceResponse<GetExpenseItemsView>>> GetArchivedExpenseItems(int spreadsheetId, int? dzematId)
         {
             Request.Headers.TryGetValue("Authorization", out var token);
             string tokenValue = token
@@ -40,7 +40,7 @@ namespace MembershipsManagement.Controllers
                 .Split(" ")
                 .ElementAt(1);
 
-            var response = await _expenseItemService.GetArchivedExpenseItems(tokenValue, spreadsheetId);
+            var response = await _expenseItemService.GetArchivedExpenseItems(tokenValue, spreadsheetId, dzematId);
             return response;
         }
 

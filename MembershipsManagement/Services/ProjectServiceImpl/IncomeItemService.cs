@@ -172,7 +172,7 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
             return response;
         }
 
-        public async Task<ServiceResponse<GetIncomeItemsView>> GetActiveDonationIncomeItems(string token)
+        public async Task<ServiceResponse<GetIncomeItemsView>> GetActiveDonationIncomeItems(string token, int? dzematId)
         {
             var response = new ServiceResponse<GetIncomeItemsView>();
             var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
@@ -192,7 +192,27 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
                 throw new BadRequestException("Supervisor not found");
             }
 
-            var incomeItems = await _incomeItemContext.Spreadsheets
+            GetIncomeItemsView? incomeItems;
+
+            if (supervisor.Position.Equals(Roles.GlavniImam))
+            {
+                incomeItems = await _incomeItemContext.Spreadsheets
+                .Where(p => p.DzematId == dzematId)
+                .Where(p => p.Archived == false)
+                .Include(s => s.IncomeItems)
+                .ThenInclude(e => e.Income)
+                .ThenInclude(e => e.Donator)
+                .Select(p => new GetIncomeItemsView
+                {
+                    IncomeItems = p.IncomeItems.Where(i => i.IncomeType == IncomeType.Donacija).Select(i => _mapper.Map<GetIncomeItemDto>(i)).ToList(),
+                    SpreadsheetYear = p.Year,
+                    SpreadsheetId = p.Id,
+                    TotalIncomeAmountListed = p.IncomeItems.Select(e => e.Income.GroupBy(e => e.IncomeItemId).Select(e => e.Sum(inc => inc.Amount)).ToList()).ToList()
+                }).FirstOrDefaultAsync();
+            }
+            else
+            {
+                incomeItems = await _incomeItemContext.Spreadsheets
                 .Where(p => p.DzematId == supervisor.DzematId)
                 .Where(p => p.Archived == false)
                 .Include(s => s.IncomeItems)
@@ -205,6 +225,7 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
                     SpreadsheetId = p.Id,
                     TotalIncomeAmountListed = p.IncomeItems.Select(e => e.Income.GroupBy(e => e.IncomeItemId).Select(e => e.Sum(inc => inc.Amount)).ToList()).ToList()
                 }).FirstOrDefaultAsync();
+            }
 
             response.Data = incomeItems;
             response.Message = "Aktivni prilivi novca uspješno učitani";
@@ -212,7 +233,7 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
             return response;
         }
 
-        public async Task<ServiceResponse<GetIncomeItemsView>> GetArchivedDonationIncomeItems(string token, int spreadsheetId)
+        public async Task<ServiceResponse<GetIncomeItemsView>> GetArchivedDonationIncomeItems(string token, int spreadsheetId, int? dzematId)
         {
             var response = new ServiceResponse<GetIncomeItemsView>();
             var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
@@ -232,20 +253,42 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
                 throw new BadRequestException("Supervisor not found");
             }
 
-            var incomeItems = await _incomeItemContext.Spreadsheets
-                .Where(p => p.DzematId == supervisor.DzematId)
-                .Where(p => p.Id == spreadsheetId)
-                .Where(p => p.Archived == true)
-                .Include(s => s.IncomeItems)
-                .ThenInclude(e => e.Income)
-                .ThenInclude(e => e.Donator)
-                .Select(p => new GetIncomeItemsView
-                {
-                    IncomeItems = p.IncomeItems.Where(i => i.IncomeType == IncomeType.Donacija).Select(i => _mapper.Map<GetIncomeItemDto>(i)).ToList(),
-                    SpreadsheetYear = p.Year,
-                    SpreadsheetId = p.Id,
-                    TotalIncomeAmountListed = p.IncomeItems.Select(e => e.Income.GroupBy(e => e.IncomeItemId).Select(e => e.Sum(inc => inc.Amount)).ToList()).ToList()
-                }).FirstOrDefaultAsync();
+            GetIncomeItemsView? incomeItems;
+
+            if (supervisor.Position.Equals(Roles.GlavniImam))
+            {
+                incomeItems = await _incomeItemContext.Spreadsheets
+                    .Where(p => p.DzematId == dzematId)
+                    .Where(p => p.Id == spreadsheetId)
+                    .Where(p => p.Archived == true)
+                    .Include(s => s.IncomeItems)
+                    .ThenInclude(e => e.Income)
+                    .ThenInclude(e => e.Donator)
+                    .Select(p => new GetIncomeItemsView
+                    {
+                        IncomeItems = p.IncomeItems.Where(i => i.IncomeType == IncomeType.Donacija).Select(i => _mapper.Map<GetIncomeItemDto>(i)).ToList(),
+                        SpreadsheetYear = p.Year,
+                        SpreadsheetId = p.Id,
+                        TotalIncomeAmountListed = p.IncomeItems.Select(e => e.Income.GroupBy(e => e.IncomeItemId).Select(e => e.Sum(inc => inc.Amount)).ToList()).ToList()
+                    }).FirstOrDefaultAsync();
+            }
+            else
+            {
+                incomeItems = await _incomeItemContext.Spreadsheets
+                    .Where(p => p.DzematId == supervisor.DzematId)
+                    .Where(p => p.Id == spreadsheetId)
+                    .Where(p => p.Archived == true)
+                    .Include(s => s.IncomeItems)
+                    .ThenInclude(e => e.Income)
+                    .ThenInclude(e => e.Donator)
+                    .Select(p => new GetIncomeItemsView
+                    {
+                        IncomeItems = p.IncomeItems.Where(i => i.IncomeType == IncomeType.Donacija).Select(i => _mapper.Map<GetIncomeItemDto>(i)).ToList(),
+                        SpreadsheetYear = p.Year,
+                        SpreadsheetId = p.Id,
+                        TotalIncomeAmountListed = p.IncomeItems.Select(e => e.Income.GroupBy(e => e.IncomeItemId).Select(e => e.Sum(inc => inc.Amount)).ToList()).ToList()
+                    }).FirstOrDefaultAsync();
+            }
 
             response.Data = incomeItems;
             response.Message = "Arhivirane donacije novca uspješno učitani";
@@ -253,7 +296,7 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
             return response;
         }
 
-        public async Task<ServiceResponse<GetIncomeItemsView>> GetActiveIncomeItems(string token)
+        public async Task<ServiceResponse<GetIncomeItemsView>> GetActiveIncomeItems(string token, int? dzematId)
         {
             var response = new ServiceResponse<GetIncomeItemsView>();
             var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
@@ -273,7 +316,27 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
                 throw new BadRequestException("Supervisor not found");
             }
 
-            var incomeItems = await _incomeItemContext.Spreadsheets
+            GetIncomeItemsView? incomeItems;
+
+            if (supervisor.Position.Equals(Roles.GlavniImam))
+            {
+                incomeItems = await _incomeItemContext.Spreadsheets
+                .Where(p => p.DzematId == dzematId)
+                .Where(p => p.Archived == false)
+                .Include(s => s.IncomeItems)
+                .ThenInclude(e => e.Income)
+                .Select(p => new GetIncomeItemsView
+                {
+                    IncomeItems = p.IncomeItems.Where(i => i.IncomeType != IncomeType.Donacija).Select(i => _mapper.Map<GetIncomeItemDto>(i)).ToList(),
+                    SpreadsheetYear = p.Year,
+                    SpreadsheetId = p.Id,
+                    TotalExpensesAmountListed = p.ExpenseItems.Select(e => e.Expenses.GroupBy(e => e.ExpenseItemId).Select(e => e.Sum(exp => exp.Amount)).ToList()).ToList(),
+                    TotalIncomeAmountListed = p.IncomeItems.Select(e => e.Income.GroupBy(e => e.IncomeItemId).Select(e => e.Sum(inc => inc.Amount)).ToList()).ToList()
+                }).FirstOrDefaultAsync();
+            }
+            else
+            {
+                incomeItems = await _incomeItemContext.Spreadsheets
                 .Where(p => p.DzematId == supervisor.DzematId)
                 .Where(p => p.Archived == false)
                 .Include(s => s.IncomeItems)
@@ -286,6 +349,7 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
                     TotalExpensesAmountListed = p.ExpenseItems.Select(e => e.Expenses.GroupBy(e => e.ExpenseItemId).Select(e => e.Sum(exp => exp.Amount)).ToList()).ToList(),
                     TotalIncomeAmountListed = p.IncomeItems.Select(e => e.Income.GroupBy(e => e.IncomeItemId).Select(e => e.Sum(inc => inc.Amount)).ToList()).ToList()
                 }).FirstOrDefaultAsync();
+            }
 
             response.Data = incomeItems;
             response.Message = "Aktivni prilivi novca uspješno učitani";
@@ -293,7 +357,7 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
             return response;
         }
 
-        public async Task<ServiceResponse<GetIncomeItemsView>> GetArchivedIncomeItems(string token, int spreadsheetId)
+        public async Task<ServiceResponse<GetIncomeItemsView>> GetArchivedIncomeItems(string token, int spreadsheetId, int? dzematId)
         {
             var response = new ServiceResponse<GetIncomeItemsView>();
             var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
@@ -313,8 +377,13 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
                 throw new BadRequestException("Supervisor not found");
             }
 
-            var incomeItems = await _incomeItemContext.Spreadsheets
-                           .Where(p => p.DzematId == supervisor.DzematId)
+            GetIncomeItemsView? incomeItems;
+
+            if (supervisor.Position.Equals(Roles.GlavniImam))
+            {
+
+                incomeItems = await _incomeItemContext.Spreadsheets
+                           .Where(p => p.DzematId == dzematId)
                            .Where(p => p.Id == spreadsheetId)
                            .Where(p => p.Archived == true)
                            .Include(s => s.IncomeItems)
@@ -326,7 +395,22 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
                                SpreadsheetId = p.Id,
                                TotalIncomeAmountListed = p.IncomeItems.Select(e => e.Income.GroupBy(e => e.IncomeItemId).Select(e => e.Sum(inc => inc.Amount)).ToList()).ToList()
                            }).FirstOrDefaultAsync();
-
+            }
+            else {
+                incomeItems = await _incomeItemContext.Spreadsheets
+               .Where(p => p.DzematId == supervisor.DzematId)
+               .Where(p => p.Id == spreadsheetId)
+               .Where(p => p.Archived == true)
+               .Include(s => s.IncomeItems)
+               .ThenInclude(e => e.Income)
+               .Select(p => new GetIncomeItemsView
+               {
+                   IncomeItems = p.IncomeItems.Where(i => i.IncomeType != IncomeType.Donacija).Select(i => _mapper.Map<GetIncomeItemDto>(i)).ToList(),
+                   SpreadsheetYear = p.Year,
+                   SpreadsheetId = p.Id,
+                   TotalIncomeAmountListed = p.IncomeItems.Select(e => e.Income.GroupBy(e => e.IncomeItemId).Select(e => e.Sum(inc => inc.Amount)).ToList()).ToList()
+               }).FirstOrDefaultAsync();
+            }
             response.Data = incomeItems;
             response.Message = "Arhivirani prilivi novca uspješno učitani";
 

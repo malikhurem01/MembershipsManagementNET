@@ -19,7 +19,7 @@ namespace MembershipsManagement.Controllers
         }
 
         [HttpGet("active")]
-        public async Task<ActionResult<ServiceResponse<GetIncomeItemsView>>> GetActiveIncomeItems()
+        public async Task<ActionResult<ServiceResponse<GetIncomeItemsView>>> GetActiveIncomeItems(int? dzematId)
         {
             Request.Headers.TryGetValue("Authorization", out var token);
             string tokenValue = token
@@ -27,12 +27,12 @@ namespace MembershipsManagement.Controllers
                 .Split(" ")
                 .ElementAt(1);
 
-            var response = await _incomeItemService.GetActiveIncomeItems(tokenValue);
+            var response = await _incomeItemService.GetActiveIncomeItems(tokenValue, dzematId);
             return response;
         }
 
         [HttpGet("archived")]
-        public async Task<ActionResult<ServiceResponse<GetIncomeItemsView>>> GetArchivedIncomeItems(int spreadsheetId)
+        public async Task<ActionResult<ServiceResponse<GetIncomeItemsView>>> GetArchivedIncomeItems(int spreadsheetId, int? dzematId)
         {
             Request.Headers.TryGetValue("Authorization", out var token);
             string tokenValue = token
@@ -40,12 +40,12 @@ namespace MembershipsManagement.Controllers
                 .Split(" ")
                 .ElementAt(1);
 
-            var response = await _incomeItemService.GetArchivedIncomeItems(tokenValue, spreadsheetId);
+            var response = await _incomeItemService.GetArchivedIncomeItems(tokenValue, spreadsheetId, dzematId);
             return response;
         }
 
         [HttpGet("active/donation")]
-        public async Task<ActionResult<ServiceResponse<GetIncomeItemsView>>> GetActiveDonationIncomeItems()
+        public async Task<ActionResult<ServiceResponse<GetIncomeItemsView>>> GetActiveDonationIncomeItems(int? dzematId)
         {
             Request.Headers.TryGetValue("Authorization", out var token);
             string tokenValue = token
@@ -53,12 +53,12 @@ namespace MembershipsManagement.Controllers
                 .Split(" ")
                 .ElementAt(1);
 
-            var response = await _incomeItemService.GetActiveDonationIncomeItems(tokenValue);
+            var response = await _incomeItemService.GetActiveDonationIncomeItems(tokenValue, dzematId);
             return response;
         }
 
         [HttpGet("archived/donation")]
-        public async Task<ActionResult<ServiceResponse<GetIncomeItemsView>>> GetArchivedDonationIncomeItems(int spreadsheetId)
+        public async Task<ActionResult<ServiceResponse<GetIncomeItemsView>>> GetArchivedDonationIncomeItems(int spreadsheetId, int? dzematId)
         {
             Request.Headers.TryGetValue("Authorization", out var token);
             string tokenValue = token
@@ -66,7 +66,7 @@ namespace MembershipsManagement.Controllers
                 .Split(" ")
                 .ElementAt(1);
 
-            var response = await _incomeItemService.GetArchivedDonationIncomeItems(tokenValue, spreadsheetId);
+            var response = await _incomeItemService.GetArchivedDonationIncomeItems(tokenValue, spreadsheetId, dzematId);
             return response;
         }
 

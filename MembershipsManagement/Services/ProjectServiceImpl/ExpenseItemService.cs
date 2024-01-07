@@ -132,7 +132,7 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
             return response;
         }
 
-        public async Task<ServiceResponse<GetExpenseItemsView>> GetActiveExpenseItems(string token)
+        public async Task<ServiceResponse<GetExpenseItemsView>> GetActiveExpenseItems(string token, int? dzematId)
         {
             var response = new ServiceResponse<GetExpenseItemsView>();
             var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
@@ -152,7 +152,26 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
                 throw new BadRequestException("Supervisor not found");
             }
 
-            var expenseItems = await _expenseItemContext.Spreadsheets
+            GetExpenseItemsView? expenseItems;
+
+            if (supervisor.Position.Equals(Roles.GlavniImam))
+            {
+                expenseItems = await _expenseItemContext.Spreadsheets
+                .Where(p => p.DzematId == dzematId)
+                .Where(p => p.Archived == false)
+                .Include(s => s.ExpenseItems)
+                .ThenInclude(e => e.Expenses)
+                .Select(p => new GetExpenseItemsView
+                {
+                    ExpenseItems = p.ExpenseItems.Select(e => _mapper.Map<GetExpenseItemDto>(e)).ToList(),
+                    SpreadsheetYear = p.Year,
+                    SpreadsheetId = p.Id,
+                    TotalExpensesAmountListed = p.ExpenseItems.Select(e => e.Expenses.GroupBy(e => e.ExpenseItemId).Select(e => e.Sum(exp => exp.Amount)).ToList()).ToList()
+                }).FirstOrDefaultAsync();
+            }
+            else
+            {
+                expenseItems = await _expenseItemContext.Spreadsheets
                 .Where(p => p.DzematId == supervisor.DzematId)
                 .Where(p => p.Archived == false)
                 .Include(s => s.ExpenseItems)
@@ -164,6 +183,8 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
                     SpreadsheetId = p.Id,
                     TotalExpensesAmountListed = p.ExpenseItems.Select(e => e.Expenses.GroupBy(e => e.ExpenseItemId).Select(e => e.Sum(exp => exp.Amount)).ToList()).ToList()
                 }).FirstOrDefaultAsync();
+            }
+            
                 
             response.Data = expenseItems;
             response.Message = "Aktivni troškovi uspješno učitani";
@@ -171,7 +192,7 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
             return response;
             
         }
-        public async Task<ServiceResponse<GetExpenseItemsView>> GetArchivedExpenseItems(string token, int spreadsheetId)
+        public async Task<ServiceResponse<GetExpenseItemsView>> GetArchivedExpenseItems(string token, int spreadsheetId, int? dzematId)
         {
             var response = new ServiceResponse<GetExpenseItemsView>();
             var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
@@ -191,7 +212,28 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
                 throw new BadRequestException("Supervisor not found");
             }
 
-            var expenseItems = await _expenseItemContext.Spreadsheets
+            GetExpenseItemsView? expenseItems;
+
+            if (supervisor.Position.Equals(Roles.GlavniImam))
+            {
+                expenseItems = await _expenseItemContext.Spreadsheets
+                 .Where(p => p.DzematId == dzematId)
+                 .Where(p => p.Id == spreadsheetId)
+                 .Where(p => p.Archived == true)
+                 .Include(s => s.ExpenseItems)
+                 .ThenInclude(e => e.Expenses)
+                 .Select(p => new GetExpenseItemsView
+                 {
+                     ExpenseItems = p.ExpenseItems.Select(e => _mapper.Map<GetExpenseItemDto>(e)).ToList(),
+                     SpreadsheetYear = p.Year,
+                     SpreadsheetId = p.Id,
+                     TotalExpensesAmountListed = p.ExpenseItems.Select(e => e.Expenses.GroupBy(e => e.ExpenseItemId).Select(e => e.Sum(exp => exp.Amount)).ToList()).ToList(),
+                     TotalIncomeAmountListed = p.IncomeItems.Select(e => e.Income.GroupBy(e => e.IncomeItemId).Select(e => e.Sum(inc => inc.Amount)).ToList()).ToList()
+                 }).FirstOrDefaultAsync();
+            }
+            else
+            {
+                expenseItems = await _expenseItemContext.Spreadsheets
                  .Where(p => p.DzematId == supervisor.DzematId)
                  .Where(p => p.Id == spreadsheetId)
                  .Where(p => p.Archived == true)
@@ -205,6 +247,7 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
                      TotalExpensesAmountListed = p.ExpenseItems.Select(e => e.Expenses.GroupBy(e => e.ExpenseItemId).Select(e => e.Sum(exp => exp.Amount)).ToList()).ToList(),
                      TotalIncomeAmountListed = p.IncomeItems.Select(e => e.Income.GroupBy(e => e.IncomeItemId).Select(e => e.Sum(inc => inc.Amount)).ToList()).ToList()
                  }).FirstOrDefaultAsync();
+            }
 
             response.Data = expenseItems;
             response.Message = "Arhivirani troškovi uspješno učitani";

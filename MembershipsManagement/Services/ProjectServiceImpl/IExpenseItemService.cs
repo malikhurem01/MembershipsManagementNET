@@ -9,7 +9,7 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
         Task<ServiceResponse<GetExpenseItemDto>> DeleteExpenseItem(string token, DeleteExpenseItemDto expenseItem);
         Task<ServiceResponse<GetExpenseDto>> AddExpense(string token, AddExpenseDto expense);
         Task<ServiceResponse<GetExpenseDto>> DeleteExpense(string token, DeleteExpenseDto expense);
-        Task<ServiceResponse<GetExpenseItemsView>> GetActiveExpenseItems(string token);
-        Task<ServiceResponse<GetExpenseItemsView>> GetArchivedExpenseItems(string token, int spreadsheetId);
+        Task<ServiceResponse<GetExpenseItemsView>> GetActiveExpenseItems(string token, int? dzematId);
+        Task<ServiceResponse<GetExpenseItemsView>> GetArchivedExpenseItems(string token, int spreadsheetId, int? dzematId);
     }
 }
