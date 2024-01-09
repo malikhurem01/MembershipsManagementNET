@@ -14,6 +14,5 @@ namespace MembershipsManagement.DTOs.PaymentDTOs
         public Supervisor Supervisor { get; set; }
         public int SpreadsheetId { get; set; }
         public Spreadsheet Spreadsheet { get; set; }
-        public int nesto {get; set;}
     }
 }
