@@ -259,10 +259,7 @@ namespace MembershipsManagement.Services.Authentication
                             fetchedUser.LastName = modifiedUser.LastName;
                         }
 
-                        if(!string.IsNullOrEmpty(modifiedUser.FathersName))
-                        {
-                            fetchedUser.FathersName = modifiedUser.FathersName;
-                        }
+                        fetchedUser.FathersName = modifiedUser.FathersName;
 
                         if(!string.IsNullOrEmpty(modifiedUser.Email))
                         {
@@ -276,25 +273,10 @@ namespace MembershipsManagement.Services.Authentication
                             fetchedUser.NormalizedUserName = modifiedUser.UserName.ToUpper();
                         }
 
-                        if(!string.IsNullOrEmpty(modifiedUser.PlaceOfResidence))
-                        {
-                            fetchedUser.PlaceOfResidence = modifiedUser.PlaceOfResidence;
-                        }
-
-                        if(!string.IsNullOrEmpty(modifiedUser.Address))
-                        {
-                            fetchedUser.Address = modifiedUser.Address;
-                        }
-
-                        if(!string.IsNullOrEmpty(modifiedUser.ZipCode))
-                        {
-                            fetchedUser.ZipCode = modifiedUser.ZipCode;
-                        }
-
-                        if(!string.IsNullOrEmpty(modifiedUser.PhoneNumber))
-                        {
-                            fetchedUser.PhoneNumber = modifiedUser.PhoneNumber;
-                        }
+                        fetchedUser.PlaceOfResidence = modifiedUser.PlaceOfResidence;
+                        fetchedUser.Address = modifiedUser.Address;
+                        fetchedUser.ZipCode = modifiedUser.ZipCode;
+                        fetchedUser.PhoneNumber = modifiedUser.PhoneNumber;
 
                         fetchedUser.DateModified = DateTime.UtcNow;
 
