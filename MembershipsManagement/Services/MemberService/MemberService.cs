@@ -108,6 +108,7 @@ namespace MembershipsManagement.Services.MemberServiceImpl
             memberFetched.EvNumber = memberModified.EvNumber;
             memberFetched.Note = memberModified.Note;
             memberFetched.Status = memberModified.Status;
+            memberFetched.Active = memberModified.Active;
 
             await _memberContext.SaveChangesAsync();
 
@@ -262,6 +263,7 @@ namespace MembershipsManagement.Services.MemberServiceImpl
             string? firstName,
             string? lastName,
             string? fathersName,
+            bool? hasPayed,
             int pageNumber,
             int pageSize)
         {
@@ -302,6 +304,10 @@ namespace MembershipsManagement.Services.MemberServiceImpl
             {
                 membersInfoQuery = membersInfoQuery.Where(mi =>
                 mi.Member.FathersName.Contains(fathersName));
+            }
+            if (hasPayed == true)
+            {
+                membersInfoQuery = membersInfoQuery.Where(mi => mi.Member.Debt == 0);
             }
 
             var spreadsheetMemberInfoQuery = membersInfoQuery
