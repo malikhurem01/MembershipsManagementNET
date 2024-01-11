@@ -258,8 +258,10 @@ namespace MembershipsManagement.Services.MemberServiceImpl
             throw new NotImplementedException();
         }
 
-        public async Task<ServiceResponse<PagedList<GetSpreadsheetMemberInfo>>> GetFilteredMembersForSpredsheet(string token,
+        public async Task<ServiceResponse<PagedList<GetSpreadsheetMemberInfo>>> GetFilteredMembersForSpredsheet(
+            string token,
             int spreadsheetId, 
+            string? evNumber,
             string? firstName,
             string? lastName,
             string? fathersName,
@@ -289,6 +291,12 @@ namespace MembershipsManagement.Services.MemberServiceImpl
             }
 
             membersInfoQuery = membersInfoQuery.Where(mi => mi.SpreadsheetId == spreadsheetId);
+
+            if(int.TryParse(evNumber, out int parsedEvNumber))
+            {
+                membersInfoQuery = membersInfoQuery.Where(
+                mi => mi.Member.EvNumber == parsedEvNumber);
+            }
 
             if (!string.IsNullOrEmpty(firstName))
             {

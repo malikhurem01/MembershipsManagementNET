@@ -37,6 +37,11 @@ namespace MembershipsManagement.Services.FinanceServices
                 .Include(mi => mi.Payments)
                 .FirstOrDefaultAsync();
 
+            if(memberInfo.Member.Active == false)
+            {
+                throw new BadRequestException("Ne možete dodati uplatu članu neaktivnom članu");
+            }
+
             if(memberInfo is null)
             {
                 throw new EntityNotFoundException("No join info for member ID: " 
