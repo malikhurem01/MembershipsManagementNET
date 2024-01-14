@@ -44,6 +44,14 @@ namespace MembershipsManagement.Services.MemberServiceImpl
                 throw new EntityNotFoundException("FATAL ERROR. No supervisor ID: " + userId + " for dzemat with ID: " + member.DzematId + " was found.");
             }
 
+            var memberWithSameEvNumber = await _memberContext.Members.Where(m => m.DzematId == member.DzematId).Where(m => m.EvNumber == member.EvNumber).FirstOrDefaultAsync();
+
+            if (memberWithSameEvNumber is not null)
+            {
+                throw new BadRequestException("Član sa evidencionim brojem " + member.EvNumber + " već postoji");
+
+            }
+
             var memberToAdd = _mapper.Map<Member>(member);
 
                 var activeDzematSpreadsheet = await _memberContext.Spreadsheets
