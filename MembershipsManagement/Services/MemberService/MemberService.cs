@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using AutoMapper.Execution;
 using MembershipsManagement.Data;
 using MembershipsManagement.DTOs;
 using MembershipsManagement.DTOs.MemberDTOs;
@@ -45,7 +44,7 @@ namespace MembershipsManagement.Services.MemberServiceImpl
                 throw new EntityNotFoundException("FATAL ERROR. No supervisor ID: " + userId + " for dzemat with ID: " + member.DzematId + " was found.");
             }
 
-           /* var memberWithSameEvNumber = await _memberContext.Members.Where(m => m.DzematId == member.DzematId).Where(m => m.EvNumber == member.EvNumber).FirstOrDefaultAsync();
+            /* var memberWithSameEvNumber = await _memberContext.Members.Where(m => m.DzematId == member.DzematId).Where(m => m.EvNumber == member.EvNumber).FirstOrDefaultAsync();
 
             if (memberWithSameEvNumber is not null)
             {
