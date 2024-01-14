@@ -63,13 +63,13 @@ namespace MembershipsManagement.Services.MemberServiceImpl
 
                 switch (memberToAdd.Status)
                 {
-                    case Status.Brak:
+                    case Status.Marriage:
                         memberToAdd.Debt = activeDzematSpreadsheet.MarriageFee;
                         break;
-                    case Status.DobnaGranica:
+                    case Status.AgeLimit:
                         memberToAdd.Debt = activeDzematSpreadsheet.AgeLimitFee;
                         break;
-                    case Status.Udovac:
+                    case Status.Widower:
                         memberToAdd.Debt = activeDzematSpreadsheet.WidowerFee;
                         break;
                     default:
@@ -97,6 +97,7 @@ namespace MembershipsManagement.Services.MemberServiceImpl
                 .Include(member => member.Dzemat)
                 .Include(member => member.Payments)
                 .Include(member => member.Spreadsheets)
+                .ThenInclude(sp => sp.MemberInfo)
                 .Include(member => member.FamilyMembers)
                 .FirstOrDefaultAsync();
 
@@ -123,6 +124,34 @@ namespace MembershipsManagement.Services.MemberServiceImpl
             }*/
             memberFetched.EvNumber = memberModified.EvNumber;
             memberFetched.Note = memberModified.Note;
+            if (!memberFetched.Status.Equals(memberModified.Status))
+            {
+                var activeSpreadsheet = memberFetched.Spreadsheets.Where(sp => sp.Archived == false).FirstOrDefault();
+                int oldStatusPrice = activeSpreadsheet.MemberInfo.Where(mi => mi.MemberId == memberFetched.Id).Select(mi => mi.MembershipFee).FirstOrDefault();
+                int newStatusPrice;
+                int debt;
+                switch (memberModified.Status)
+                {
+                    case Status.Marriage:
+                        newStatusPrice = activeSpreadsheet.MarriageFee; break;
+                    case Status.Widower:
+                        newStatusPrice = activeSpreadsheet.WidowerFee; break;
+                    case Status.AgeLimit:
+                        newStatusPrice = activeSpreadsheet.AgeLimitFee; break;
+                    default: newStatusPrice = 0; break;
+                }
+                if (memberFetched.Status > memberModified.Status)
+                {
+                    debt = newStatusPrice - oldStatusPrice;
+                    memberFetched.Debt += debt;
+
+                }
+                if (memberFetched.Status < memberModified.Status)
+                {
+                    debt = oldStatusPrice - newStatusPrice;
+                    memberFetched.Debt -= debt;
+                }
+            }
             memberFetched.Status = memberModified.Status;
             memberFetched.Active = memberModified.Active;
 
@@ -388,7 +417,7 @@ namespace MembershipsManagement.Services.MemberServiceImpl
                     Email = "@@ČlanEmail@gmail.com",
                     Debt = 0,
                     Note = "@@Napomena",
-                    Status = Status.Brak,
+                    Status = Status.Marriage,
                     DzematId = dzematId,
                     Active = true
                 };

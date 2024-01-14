@@ -2,8 +2,8 @@
 {
     public enum Status
     {
-        Brak,
-        Udovac,
-        DobnaGranica
+        Marriage,
+        Widower,
+        AgeLimit
     }
 }

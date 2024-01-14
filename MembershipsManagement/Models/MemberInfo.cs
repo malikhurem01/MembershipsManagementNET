@@ -17,13 +17,13 @@
                 {
                     switch (this.Member.Status)
                     {
-                        case Status.Brak:
+                        case Status.Marriage:
                             value = this.Spreadsheet.MarriageFee;
                             break;
-                        case Status.Udovac:
+                        case Status.Widower:
                             value = this.Spreadsheet.WidowerFee;
                             break;
-                        case Status.DobnaGranica:
+                        case Status.AgeLimit:
                             value = this.Spreadsheet.AgeLimitFee;
                             break;
                     }

@@ -103,13 +103,13 @@ namespace MembershipsManagement.Services.SpreadSheets
                 int debtToAdd;
                 switch (m.Status)
                 {
-                    case Status.Brak:
+                    case Status.Marriage:
                         debtToAdd = spreadsheetToAdd.MarriageFee;
                         break;
-                    case Status.DobnaGranica:
+                    case Status.AgeLimit:
                         debtToAdd = spreadsheetToAdd.AgeLimitFee;
                         break;
-                    case Status.Udovac:
+                    case Status.Widower:
                         debtToAdd = spreadsheetToAdd.WidowerFee;
                         break;
                     default:
@@ -381,13 +381,13 @@ namespace MembershipsManagement.Services.SpreadSheets
                                    DzematName = dzemat.Name,
                                    MarriageStatusMembersCount = sr.Dzemat.Spreadsheets
                                    .Where(spreadsheet => spreadsheet.Id == spreadsheetId)
-                                   .Select(activeSpreadsheet => activeSpreadsheet.Members.Where(member => member.Status == Status.Brak).Count()).First(),
+                                   .Select(activeSpreadsheet => activeSpreadsheet.Members.Where(member => member.Status == Status.Marriage).Count()).First(),
                                    AgeLimitStatusMembersCount = sr.Dzemat.Spreadsheets
                                    .Where(spreadsheet => spreadsheet.Id == spreadsheetId)
-                                   .Select(activeSpreadsheet => activeSpreadsheet.Members.Where(member => member.Status == Status.DobnaGranica).Count()).First(),
+                                   .Select(activeSpreadsheet => activeSpreadsheet.Members.Where(member => member.Status == Status.AgeLimit).Count()).First(),
                                    WidowerStatusMembersCount = sr.Dzemat.Spreadsheets
                                    .Where(spreadsheet => spreadsheet.Id == spreadsheetId)
-                                   .Select(activeSpreadsheet => activeSpreadsheet.Members.Where(member => member.Status == Status.Udovac).Count()).First(),
+                                   .Select(activeSpreadsheet => activeSpreadsheet.Members.Where(member => member.Status == Status.Widower).Count()).First(),
                                    Budget = (double)sr.Dzemat.Budget,
                                    TotalPaymentsAmountListed = sr.Dzemat.Spreadsheets
                                    .Where(spreadsheet => spreadsheet.Id == spreadsheetId)
@@ -425,13 +425,13 @@ namespace MembershipsManagement.Services.SpreadSheets
                                     DzematName = sr.Dzemat.Name,
                                     MarriageStatusMembersCount = sr.Dzemat.Spreadsheets
                                     .Where(spreadsheet => spreadsheet.Id == spreadsheetId)
-                                    .Select(activeSpreadsheet => activeSpreadsheet.Members.Where(member => member.Status == Status.Brak).Count()).First(),
+                                    .Select(activeSpreadsheet => activeSpreadsheet.Members.Where(member => member.Status == Status.Marriage).Count()).First(),
                                     AgeLimitStatusMembersCount = sr.Dzemat.Spreadsheets
                                     .Where(spreadsheet => spreadsheet.Id == spreadsheetId)
-                                    .Select(activeSpreadsheet => activeSpreadsheet.Members.Where(member => member.Status == Status.DobnaGranica).Count()).First(),
+                                    .Select(activeSpreadsheet => activeSpreadsheet.Members.Where(member => member.Status == Status.AgeLimit).Count()).First(),
                                     WidowerStatusMembersCount = sr.Dzemat.Spreadsheets
                                     .Where(spreadsheet => spreadsheet.Id == spreadsheetId)
-                                    .Select(activeSpreadsheet => activeSpreadsheet.Members.Where(member => member.Status == Status.Udovac).Count()).First(),
+                                    .Select(activeSpreadsheet => activeSpreadsheet.Members.Where(member => member.Status == Status.Widower).Count()).First(),
                                     Budget = (double)sr.Dzemat.Budget,
                                     TotalPaymentsAmountListed = sr.Dzemat.Spreadsheets
                                     .Where(spreadsheet => spreadsheet.Id == spreadsheetId)

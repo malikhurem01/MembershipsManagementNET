@@ -51,7 +51,8 @@ namespace MembershipsManagement.Services.FinanceServices
                     + " was found.");
             }
 
-            if (payment.Amount == 0)
+
+            if (payment.Amount <= 0)
             {
                 throw new BadRequestException("Iznos mora biti veći od 0KM");
             }
