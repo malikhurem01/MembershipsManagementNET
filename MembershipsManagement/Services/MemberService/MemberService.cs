@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using AutoMapper.Execution;
 using MembershipsManagement.Data;
 using MembershipsManagement.DTOs;
 using MembershipsManagement.DTOs.MemberDTOs;
@@ -44,13 +45,12 @@ namespace MembershipsManagement.Services.MemberServiceImpl
                 throw new EntityNotFoundException("FATAL ERROR. No supervisor ID: " + userId + " for dzemat with ID: " + member.DzematId + " was found.");
             }
 
-            var memberWithSameEvNumber = await _memberContext.Members.Where(m => m.DzematId == member.DzematId).Where(m => m.EvNumber == member.EvNumber).FirstOrDefaultAsync();
+           /* var memberWithSameEvNumber = await _memberContext.Members.Where(m => m.DzematId == member.DzematId).Where(m => m.EvNumber == member.EvNumber).FirstOrDefaultAsync();
 
             if (memberWithSameEvNumber is not null)
             {
                 throw new BadRequestException("Član sa evidencionim brojem " + member.EvNumber + " već postoji");
-
-            }
+            }*/
 
             var memberToAdd = _mapper.Map<Member>(member);
 
@@ -113,6 +113,15 @@ namespace MembershipsManagement.Services.MemberServiceImpl
             memberFetched.Address = memberModified.Address;
             memberFetched.Email = memberModified.Email;
             memberFetched.PhoneNumber = memberModified.PhoneNumber;
+            /*if(memberFetched.EvNumber != memberModified.EvNumber)
+            {
+                var memberWithSameEvNumber = await _memberContext.Members.Where(m => m.DzematId == memberModified.DzematId).Where(m => m.EvNumber == memberModified.EvNumber).FirstOrDefaultAsync();
+
+                if (memberWithSameEvNumber is not null)
+                {
+                    throw new BadRequestException("Član sa evidencionim brojem " + memberModified.EvNumber + " već postoji");
+                }
+            }*/
             memberFetched.EvNumber = memberModified.EvNumber;
             memberFetched.Note = memberModified.Note;
             memberFetched.Status = memberModified.Status;
