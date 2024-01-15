@@ -82,7 +82,16 @@ namespace MembershipsManagement.Services.SpreadSheets
                     throw new BadRequestException("Godina nove baze ne može biti manja od godine već postojeće, novije, baze (" + nearestSpreadsheetYear.Year + ")");
 
                 }
+            }
 
+            if(spreadsheet.AgeLimitFee <= 0 || spreadsheet.WidowerFee <= 0 || spreadsheet.MarriageFee <= 0)
+            {
+                throw new BadRequestException("Iznos članarine ne smije biti 0KM ili manje od 0KM");
+            }
+
+            if((spreadsheet.AgeLimitFee > spreadsheet.WidowerFee ||  spreadsheet.WidowerFee > spreadsheet.MarriageFee || spreadsheet.AgeLimitFee > spreadsheet.MarriageFee))
+            {
+                throw new BadRequestException("Iznos članarina mora imati redoslijed. Najviši iznos mora imati članarina za brak, potom za udovca/icu a potom za graničnu dob.");
             }
 
             var spreadsheetToAdd = _mapper.Map<Spreadsheet>(spreadsheet);
