@@ -1,6 +1,3 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
 name: Build and deploy ASP.Net Core app to Azure Web App - ClanarineTest2024
 
 on:
@@ -19,47 +16,46 @@ jobs:
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '6.0.x'
+          dotnet-version: "6.0.x"
 
       - name: Build with dotnet
         run: dotnet build --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
+        run: dotnet publish -c Release -o ./myapp # Change the output directory to a local folder
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
+          path: ./myapp # Upload the correct publish directory as artifact
 
   deploy:
     runs-on: windows-latest
     needs: build
     environment:
-      name: 'Production'
+      name: "Production"
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write #This is required for requesting the JWT
+      id-token: write # This is required for requesting the JWT
 
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: .net-app
-      
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_B44E5FD6BD694E739E4190DFEB8E2626 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_AA066CC8766D461D91A982FCD01C019E }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_E7CD8D6D249E4F4F99422BE6AE06AE5F }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_DACB3835E5444DCFABCCE55B9020B5EC }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_5B55177A37474C8AA7197504B894FFB0 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_DA805FFEE3FF4CC790994C49C4E8FA02 }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'ClanarineTest2024'
-          slot-name: 'Production'
-          package: .
-          
+          app-name: "ClanarineTest2024"
+          slot-name: "Production"
+          package: "./myapp" # Use the correct publish output directory
