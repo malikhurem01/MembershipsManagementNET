@@ -38,6 +38,7 @@ namespace MembershipsManagement.Data
             _modelBuilder.Entity<Supervisor>().ToTable("Supervisors");
             _modelBuilder.Entity<Admin>().ToTable("Admins");
             /// SEED DEFAULT ACCOUNT
+            /// 
             _modelBuilder.Entity<Medzlis>().HasData(new Medzlis { Id = 1, Name = "Tuzla", UserName = "medzlistuzla", Address = "Trg Slobode bb", Location = "Tuzla", ZipCode = 75000 });
             _modelBuilder.Entity<Dzemat>().HasData(new Dzemat { Id = 1, MedzlisId = 1, Name = "Lipnica", UserName = "dzematlipnica", Address = "Lipnica bb", Location = "Gornja Lipnica", Budget = 0, ZipCode = 75213 });
             _modelBuilder.Entity<Medzlis>().HasData(new Medzlis { Id = 2, Name = "Gračanica", UserName = "medzlisgracanica", Address = "Gračanica bb", Location = "Gračanica", ZipCode = 75326 });

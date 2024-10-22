@@ -41,6 +41,12 @@ namespace MembershipsManagement.Services.Authentication
         {
             var response = new ServiceResponse<GetUserDto>();
             var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
+            //
+            /*
+            eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiI4NTYzZWJlYy00M2Q1LTQ0OGYtYmVkZC00MDlhMWM3ZWQ2YjQiLCJuYW1lIjoibXVo
+            YW1lZGR1cmFrb3ZpYzkyODAiLCJuYmYiOjE3MjkxOTgwNDksImV4cCI6MTcyOTIwMzQ0OSwiaWF0IjoxNzI5MTk4MDQ5fQ.SaQsZ5Ob4e37UZi4qTMn1TwdH
+            IuTjZeREr5ak4xWHd7Ckkqp6ZuQ_u1vaGgeImK00LIsA2b2DpwTASh4z51UAQ
+             */
             var userId = decodedToken.Claims
                 .Where(claim => claim.Type
                 .Equals("nameid"))
