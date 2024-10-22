@@ -38,5 +38,12 @@ namespace MembershipsManagement.Controllers
             return Ok(response);
         }
 
+        [HttpGet("get/all")]
+        public async Task<ActionResult<ServiceResponse<List<GetDzematDto>>>> GetDzematList()
+        {
+            var response = await _dzematService.GetDzematList();
+            return Ok(response);
+        }
+
     }
 }

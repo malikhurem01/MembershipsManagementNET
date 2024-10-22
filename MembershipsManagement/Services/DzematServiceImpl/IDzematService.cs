@@ -8,6 +8,7 @@ namespace MembershipsManagement.Services.DzematServiceImpl
     {
         Task<ServiceResponse<GetDzematDto>> RegisterDzemat(RegisterDzematDto registerDzemat);
         Task<ServiceResponse<List<GetDzematDto>>> GetMedzlisDzemat(string token, int medzlisId);
+        Task<ServiceResponse<List<GetDzematDto>>> GetDzematList();
 
     }
 }

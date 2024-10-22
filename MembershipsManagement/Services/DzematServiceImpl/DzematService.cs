@@ -23,6 +23,17 @@ namespace MembershipsManagement.Services.DzematServiceImpl
             _mapper = mapper;
         }
 
+        public async Task<ServiceResponse<List<GetDzematDto>>> GetDzematList()
+        {
+            var response = new ServiceResponse<List<GetDzematDto>>();
+            var dzematList = await _context.Dzemati.ToListAsync();
+
+            response.Data = dzematList.Select(m => _mapper.Map<GetDzematDto>(m)).ToList();
+            response.Message = "List of all medzlis has been fetched from the database.";
+
+            return response;
+        }
+
         public async Task<ServiceResponse<List<GetDzematDto>>> GetMedzlisDzemat(string token, int medzlisId)
         {
             var response = new ServiceResponse<List<GetDzematDto>>();
