@@ -17,7 +17,7 @@ namespace MembershipsManagement.HostedServices
             _jobManager.AddOrUpdate(
                        "recurring-job-every-4-minutes-to-ping-database",
                        () => PingDatabase(),
-                       "*/1 * * * *"); // Cron expression for every 4 minutes
+                       "*/4 * * * *"); // Cron expression for every 4 minutes
             Console.WriteLine("Application has started");
             return Task.CompletedTask;
         }
