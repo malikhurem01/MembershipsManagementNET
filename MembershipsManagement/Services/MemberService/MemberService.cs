@@ -79,6 +79,7 @@ namespace MembershipsManagement.Services.MemberServiceImpl
 
 
                 memberToAdd.Debt += member.Debt;
+                memberToAdd.Active = true;
                 _memberContext.Members.Add(memberToAdd);
                     await _memberContext.SaveChangesAsync();
                 }
