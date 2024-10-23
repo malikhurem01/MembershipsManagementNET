@@ -7,6 +7,7 @@ namespace MembershipsManagement.DTOs.ProjectDTOs
         public int DzematId { get; set; }
         public int IncomeItemId { get; set; }
         public int? DonatorId { get; set; }
+        public int? MemberId { get; set; }
         public double Amount { get; set; }
         public string? Note { get; set; } = string.Empty;
         public DateTime Date { get; set; }

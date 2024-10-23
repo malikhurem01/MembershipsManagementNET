@@ -251,6 +251,9 @@ namespace MembershipsManagement.Migrations
                     b.Property<int>("IncomeType")
                         .HasColumnType("int");
 
+                    b.Property<int?>("MemberId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Note")
                         .HasColumnType("nvarchar(max)");
 
@@ -263,6 +266,8 @@ namespace MembershipsManagement.Migrations
                     b.HasIndex("DonatorId");
 
                     b.HasIndex("IncomeItemId");
+
+                    b.HasIndex("MemberId");
 
                     b.HasIndex("SupervisorId");
 
@@ -333,10 +338,9 @@ namespace MembershipsManagement.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("Address")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("DateOfBirth")
+                    b.Property<DateTime?>("DateOfBirth")
                         .HasColumnType("datetime2");
 
                     b.Property<double>("Debt")
@@ -346,14 +350,12 @@ namespace MembershipsManagement.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Email")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("EvNumber")
                         .HasColumnType("int");
 
                     b.Property<string>("FathersName")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FirstName")
@@ -365,11 +367,9 @@ namespace MembershipsManagement.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Note")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneNumber")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Status")
@@ -838,6 +838,10 @@ namespace MembershipsManagement.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("MembershipsManagement.Entities.Member", "Member")
+                        .WithMany("IncomeItems")
+                        .HasForeignKey("MemberId");
+
                     b.HasOne("MembershipsManagement.Models.Supervisor", "Supervisor")
                         .WithMany()
                         .HasForeignKey("SupervisorId")
@@ -847,6 +851,8 @@ namespace MembershipsManagement.Migrations
                     b.Navigation("Donator");
 
                     b.Navigation("IncomeItem");
+
+                    b.Navigation("Member");
 
                     b.Navigation("Supervisor");
                 });
@@ -1054,6 +1060,8 @@ namespace MembershipsManagement.Migrations
             modelBuilder.Entity("MembershipsManagement.Entities.Member", b =>
                 {
                     b.Navigation("FamilyMembers");
+
+                    b.Navigation("IncomeItems");
 
                     b.Navigation("MemberInfo");
 

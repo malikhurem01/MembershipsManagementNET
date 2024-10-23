@@ -201,6 +201,9 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
                 .Where(p => p.Archived == false)
                 .Include(s => s.IncomeItems)
                 .ThenInclude(e => e.Income)
+                .ThenInclude(e => e.Member)
+                .Include(s => s.IncomeItems)
+                .ThenInclude(e => e.Income)
                 .ThenInclude(e => e.Donator)
                 .Select(p => new GetIncomeItemsView
                 {
@@ -215,6 +218,9 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
                 incomeItems = await _incomeItemContext.Spreadsheets
                 .Where(p => p.DzematId == supervisor.DzematId)
                 .Where(p => p.Archived == false)
+                .Include(s => s.IncomeItems)
+                .ThenInclude(e => e.Income)
+                .ThenInclude(e => e.Member)
                 .Include(s => s.IncomeItems)
                 .ThenInclude(e => e.Income)
                 .ThenInclude(e => e.Donator)
@@ -262,8 +268,11 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
                     .Where(p => p.Id == spreadsheetId)
                     .Where(p => p.Archived == true)
                     .Include(s => s.IncomeItems)
-                    .ThenInclude(e => e.Income)
-                    .ThenInclude(e => e.Donator)
+                .ThenInclude(e => e.Income)
+                .ThenInclude(e => e.Member)
+                .Include(s => s.IncomeItems)
+                .ThenInclude(e => e.Income)
+                .ThenInclude(e => e.Donator)
                     .Select(p => new GetIncomeItemsView
                     {
                         IncomeItems = p.IncomeItems.Where(i => i.IncomeType == IncomeType.Donacija).Select(i => _mapper.Map<GetIncomeItemDto>(i)).ToList(),
@@ -279,8 +288,11 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
                     .Where(p => p.Id == spreadsheetId)
                     .Where(p => p.Archived == true)
                     .Include(s => s.IncomeItems)
-                    .ThenInclude(e => e.Income)
-                    .ThenInclude(e => e.Donator)
+                .ThenInclude(e => e.Income)
+                .ThenInclude(e => e.Member)
+                .Include(s => s.IncomeItems)
+                .ThenInclude(e => e.Income)
+                .ThenInclude(e => e.Donator)
                     .Select(p => new GetIncomeItemsView
                     {
                         IncomeItems = p.IncomeItems.Where(i => i.IncomeType == IncomeType.Donacija).Select(i => _mapper.Map<GetIncomeItemDto>(i)).ToList(),

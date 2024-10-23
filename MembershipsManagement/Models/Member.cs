@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using MembershipsManagement.Models;
+using System.Runtime.CompilerServices;
 
 namespace MembershipsManagement.Entities
 {
@@ -21,6 +22,7 @@ namespace MembershipsManagement.Entities
         public List<FamilyMember>? FamilyMembers { get; set; } = new List<FamilyMember>();
         public List<Spreadsheet>? Spreadsheets { get; set; } = new List<Spreadsheet>();
         public List<MemberInfo>? MemberInfo { get; set; } = new List<MemberInfo>();
+        public List<Income>? IncomeItems { get; set; } = new List<Income>();
         public int DzematId { get; set; }
         public Dzemat Dzemat { get; set; }
     }
