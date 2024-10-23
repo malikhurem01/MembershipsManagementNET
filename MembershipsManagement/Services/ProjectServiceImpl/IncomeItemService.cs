@@ -199,6 +199,8 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
                 incomeItems = await _incomeItemContext.Spreadsheets
                 .Where(p => p.DzematId == dzematId)
                 .Where(p => p.Archived == false)
+                .Include(s => s.ExpenseItems)
+                .ThenInclude(s => s.Expenses)
                 .Include(s => s.IncomeItems)
                 .ThenInclude(e => e.Income)
                 .ThenInclude(e => e.Member)
@@ -210,14 +212,17 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
                     IncomeItems = p.IncomeItems.Where(i => i.IncomeType == IncomeType.Donacija).Select(i => _mapper.Map<GetIncomeItemDto>(i)).ToList(),
                     SpreadsheetYear = p.Year,
                     SpreadsheetId = p.Id,
-                    TotalIncomeAmountListed = p.IncomeItems.Select(e => e.Income.GroupBy(e => e.IncomeItemId).Select(e => e.Sum(inc => inc.Amount)).ToList()).ToList()
-                }).FirstOrDefaultAsync();
+                    TotalIncomeAmountListed = p.IncomeItems.Select(e => e.Income.GroupBy(e => e.IncomeItemId).Select(e => e.Sum(inc => inc.Amount)).ToList()).ToList(),
+                    TotalExpensesAmountListed = p.ExpenseItems.Select(e => e.Expenses.GroupBy(e => e.ExpenseItemId).Select(e => e.Sum(inc => inc.Amount)).ToList()).ToList()
+                }).FirstOrDefaultAsync();                
             }
             else
             {
                 incomeItems = await _incomeItemContext.Spreadsheets
                 .Where(p => p.DzematId == supervisor.DzematId)
                 .Where(p => p.Archived == false)
+                .Include(s => s.ExpenseItems)
+                .ThenInclude(s => s.Expenses)
                 .Include(s => s.IncomeItems)
                 .ThenInclude(e => e.Income)
                 .ThenInclude(e => e.Member)
@@ -229,7 +234,8 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
                     IncomeItems = p.IncomeItems.Where(i => i.IncomeType == IncomeType.Donacija).Select(i => _mapper.Map<GetIncomeItemDto>(i)).ToList(),
                     SpreadsheetYear = p.Year,
                     SpreadsheetId = p.Id,
-                    TotalIncomeAmountListed = p.IncomeItems.Select(e => e.Income.GroupBy(e => e.IncomeItemId).Select(e => e.Sum(inc => inc.Amount)).ToList()).ToList()
+                    TotalIncomeAmountListed = p.IncomeItems.Select(e => e.Income.GroupBy(e => e.IncomeItemId).Select(e => e.Sum(inc => inc.Amount)).ToList()).ToList(),
+                    TotalExpensesAmountListed = p.ExpenseItems.Select(e => e.Expenses.GroupBy(e => e.ExpenseItemId).Select(e => e.Sum(inc => inc.Amount)).ToList()).ToList()
                 }).FirstOrDefaultAsync();
             }
 
@@ -267,6 +273,8 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
                     .Where(p => p.DzematId == dzematId)
                     .Where(p => p.Id == spreadsheetId)
                     .Where(p => p.Archived == true)
+                     .Include(s => s.ExpenseItems)
+                    .ThenInclude(s => s.Expenses)
                     .Include(s => s.IncomeItems)
                 .ThenInclude(e => e.Income)
                 .ThenInclude(e => e.Member)
@@ -278,7 +286,8 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
                         IncomeItems = p.IncomeItems.Where(i => i.IncomeType == IncomeType.Donacija).Select(i => _mapper.Map<GetIncomeItemDto>(i)).ToList(),
                         SpreadsheetYear = p.Year,
                         SpreadsheetId = p.Id,
-                        TotalIncomeAmountListed = p.IncomeItems.Select(e => e.Income.GroupBy(e => e.IncomeItemId).Select(e => e.Sum(inc => inc.Amount)).ToList()).ToList()
+                        TotalIncomeAmountListed = p.IncomeItems.Select(e => e.Income.GroupBy(e => e.IncomeItemId).Select(e => e.Sum(inc => inc.Amount)).ToList()).ToList(),
+                        TotalExpensesAmountListed = p.ExpenseItems.Select(e => e.Expenses.GroupBy(e => e.ExpenseItemId).Select(e => e.Sum(inc => inc.Amount)).ToList()).ToList()
                     }).FirstOrDefaultAsync();
             }
             else
@@ -287,6 +296,8 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
                     .Where(p => p.DzematId == supervisor.DzematId)
                     .Where(p => p.Id == spreadsheetId)
                     .Where(p => p.Archived == true)
+                                         .Include(s => s.ExpenseItems)
+                    .ThenInclude(s => s.Expenses)
                     .Include(s => s.IncomeItems)
                 .ThenInclude(e => e.Income)
                 .ThenInclude(e => e.Member)
@@ -298,7 +309,8 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
                         IncomeItems = p.IncomeItems.Where(i => i.IncomeType == IncomeType.Donacija).Select(i => _mapper.Map<GetIncomeItemDto>(i)).ToList(),
                         SpreadsheetYear = p.Year,
                         SpreadsheetId = p.Id,
-                        TotalIncomeAmountListed = p.IncomeItems.Select(e => e.Income.GroupBy(e => e.IncomeItemId).Select(e => e.Sum(inc => inc.Amount)).ToList()).ToList()
+                        TotalIncomeAmountListed = p.IncomeItems.Select(e => e.Income.GroupBy(e => e.IncomeItemId).Select(e => e.Sum(inc => inc.Amount)).ToList()).ToList(),
+                        TotalExpensesAmountListed = p.ExpenseItems.Select(e => e.Expenses.GroupBy(e => e.ExpenseItemId).Select(e => e.Sum(inc => inc.Amount)).ToList()).ToList()
                     }).FirstOrDefaultAsync();
             }
 
@@ -335,6 +347,8 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
                 incomeItems = await _incomeItemContext.Spreadsheets
                 .Where(p => p.DzematId == dzematId)
                 .Where(p => p.Archived == false)
+                                     .Include(s => s.ExpenseItems)
+                    .ThenInclude(s => s.Expenses)
                 .Include(s => s.IncomeItems)
                 .ThenInclude(e => e.Income)
                 .Select(p => new GetIncomeItemsView
@@ -398,6 +412,8 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
                            .Where(p => p.DzematId == dzematId)
                            .Where(p => p.Id == spreadsheetId)
                            .Where(p => p.Archived == true)
+                                                .Include(s => s.ExpenseItems)
+                    .ThenInclude(s => s.Expenses)
                            .Include(s => s.IncomeItems)
                            .ThenInclude(e => e.Income)
                            .Select(p => new GetIncomeItemsView
@@ -405,7 +421,9 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
                                IncomeItems = p.IncomeItems.Where(i => i.IncomeType != IncomeType.Donacija).Select(i => _mapper.Map<GetIncomeItemDto>(i)).ToList(),
                                SpreadsheetYear = p.Year,
                                SpreadsheetId = p.Id,
-                               TotalIncomeAmountListed = p.IncomeItems.Select(e => e.Income.GroupBy(e => e.IncomeItemId).Select(e => e.Sum(inc => inc.Amount)).ToList()).ToList()
+                               TotalIncomeAmountListed = p.IncomeItems.Select(e => e.Income.GroupBy(e => e.IncomeItemId).Select(e => e.Sum(inc => inc.Amount)).ToList()).ToList(),
+                                             TotalExpensesAmountListed = p.ExpenseItems.Select(e => e.Expenses.GroupBy(e => e.ExpenseItemId).Select(e => e.Sum(exp => exp.Amount)).ToList()).ToList(),
+
                            }).FirstOrDefaultAsync();
             }
             else {
@@ -413,6 +431,8 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
                .Where(p => p.DzematId == supervisor.DzematId)
                .Where(p => p.Id == spreadsheetId)
                .Where(p => p.Archived == true)
+                                                              .Include(s => s.ExpenseItems)
+                    .ThenInclude(s => s.Expenses)
                .Include(s => s.IncomeItems)
                .ThenInclude(e => e.Income)
                .Select(p => new GetIncomeItemsView
@@ -420,7 +440,9 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
                    IncomeItems = p.IncomeItems.Where(i => i.IncomeType != IncomeType.Donacija).Select(i => _mapper.Map<GetIncomeItemDto>(i)).ToList(),
                    SpreadsheetYear = p.Year,
                    SpreadsheetId = p.Id,
-                   TotalIncomeAmountListed = p.IncomeItems.Select(e => e.Income.GroupBy(e => e.IncomeItemId).Select(e => e.Sum(inc => inc.Amount)).ToList()).ToList()
+                   TotalIncomeAmountListed = p.IncomeItems.Select(e => e.Income.GroupBy(e => e.IncomeItemId).Select(e => e.Sum(inc => inc.Amount)).ToList()).ToList(),
+                                TotalExpensesAmountListed = p.ExpenseItems.Select(e => e.Expenses.GroupBy(e => e.ExpenseItemId).Select(e => e.Sum(exp => exp.Amount)).ToList()).ToList(),
+
                }).FirstOrDefaultAsync();
             }
             response.Data = incomeItems;

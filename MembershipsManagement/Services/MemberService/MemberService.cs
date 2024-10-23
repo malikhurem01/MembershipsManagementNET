@@ -177,6 +177,7 @@ namespace MembershipsManagement.Services.MemberServiceImpl
 
             var membersFetched = await _memberContext.Members
                 .Where(member => member.DzematId == supervisor.DzematId)
+                .OrderBy(member => member.FirstName)
                 .ToListAsync();
 
             response.Data = membersFetched

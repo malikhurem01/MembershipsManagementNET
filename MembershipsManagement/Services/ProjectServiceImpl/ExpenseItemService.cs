@@ -159,14 +159,18 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
                 expenseItems = await _expenseItemContext.Spreadsheets
                 .Where(p => p.DzematId == dzematId)
                 .Where(p => p.Archived == false)
-                .Include(s => s.ExpenseItems)
-                .ThenInclude(e => e.Expenses)
+                                               .Include(s => s.ExpenseItems)
+                    .ThenInclude(s => s.Expenses)
+                                                                   .Include(s => s.IncomeItems)
+                    .ThenInclude(s => s.Income)
                 .Select(p => new GetExpenseItemsView
                 {
                     ExpenseItems = p.ExpenseItems.Select(e => _mapper.Map<GetExpenseItemDto>(e)).ToList(),
                     SpreadsheetYear = p.Year,
                     SpreadsheetId = p.Id,
-                    TotalExpensesAmountListed = p.ExpenseItems.Select(e => e.Expenses.GroupBy(e => e.ExpenseItemId).Select(e => e.Sum(exp => exp.Amount)).ToList()).ToList()
+                    TotalExpensesAmountListed = p.ExpenseItems.Select(e => e.Expenses.GroupBy(e => e.ExpenseItemId).Select(e => e.Sum(exp => exp.Amount)).ToList()).ToList(),
+                                   TotalIncomeAmountListed = p.IncomeItems.Select(e => e.Income.GroupBy(e => e.IncomeItemId).Select(e => e.Sum(exp => exp.Amount)).ToList()).ToList()
+
                 }).FirstOrDefaultAsync();
             }
             else
@@ -176,12 +180,16 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
                 .Where(p => p.Archived == false)
                 .Include(s => s.ExpenseItems)
                 .ThenInclude(e => e.Expenses)
+                 .Include(s => s.IncomeItems)
+                    .ThenInclude(s => s.Income)
                 .Select(p => new GetExpenseItemsView
                 {
                     ExpenseItems = p.ExpenseItems.Select(e => _mapper.Map<GetExpenseItemDto>(e)).ToList(),
                     SpreadsheetYear = p.Year,
                     SpreadsheetId = p.Id,
-                    TotalExpensesAmountListed = p.ExpenseItems.Select(e => e.Expenses.GroupBy(e => e.ExpenseItemId).Select(e => e.Sum(exp => exp.Amount)).ToList()).ToList()
+                    TotalExpensesAmountListed = p.ExpenseItems.Select(e => e.Expenses.GroupBy(e => e.ExpenseItemId).Select(e => e.Sum(exp => exp.Amount)).ToList()).ToList(),
+                    TotalIncomeAmountListed = p.IncomeItems.Select(e => e.Income.GroupBy(e => e.IncomeItemId).Select(e => e.Sum(exp => exp.Amount)).ToList()).ToList()
+
                 }).FirstOrDefaultAsync();
             }
             
@@ -222,6 +230,8 @@ namespace MembershipsManagement.Services.ProjectServiceImpl
                  .Where(p => p.Archived == true)
                  .Include(s => s.ExpenseItems)
                  .ThenInclude(e => e.Expenses)
+                  .Include(s => s.IncomeItems)
+                    .ThenInclude(s => s.Income)
                  .Select(p => new GetExpenseItemsView
                  {
                      ExpenseItems = p.ExpenseItems.Select(e => _mapper.Map<GetExpenseItemDto>(e)).ToList(),
