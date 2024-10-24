@@ -29,25 +29,11 @@ namespace MembershipsManagement.HostedServices
 
         public void PingDatabase()
         {
-            try
+            using (SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
             {
-                using (SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
-                {
-                    // Open connection (this is effectively the "ping")
-                    connection.Open();
-
-                    // If the connection is opened successfully, the server is reachable
-                    Console.WriteLine("SQL Server is reachable.");
-
-                    // Closing the connection
-                    connection.Close();
-                }
-            }
-            catch (SqlException ex)
-            {
-                // Handle the exception if the connection fails
-                Console.WriteLine("Unable to reach SQL Server.");
-                Console.WriteLine("Error: " + ex.Message);
+                connection.Open();
+                Console.WriteLine("Hangfire: SQL Server is reachable.");
+                connection.Close();
             }
         }
     }
