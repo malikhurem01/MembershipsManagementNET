@@ -4,9 +4,11 @@ using MembershipsManagement.DTOs;
 using MembershipsManagement.DTOs.MemberDTOs;
 using MembershipsManagement.DTOs.MemberInfoDTOs;
 using MembershipsManagement.DTOs.PaymentDTOs;
+using MembershipsManagement.DTOs.SpreadsheetDTOs;
 using MembershipsManagement.DTOs.User;
 using MembershipsManagement.Entities;
 using MembershipsManagement.Exceptions;
+using MembershipsManagement.Models;
 using Microsoft.EntityFrameworkCore;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
@@ -429,6 +431,84 @@ namespace MembershipsManagement.Services.MemberServiceImpl
             await _memberContext.SaveChangesAsync();
 
             return "Dodano 500 članova";
+        }
+
+        public async Task<ServiceResponse<MemberInfoReport>> GetMemberInfoReport(int memberId)
+        {
+            var response = new ServiceResponse<MemberInfoReport>();
+
+            List<GetMemberInfoDTO> memberInfoList = await _memberContext.MembersInfo
+                .Where(mi => mi.MemberId == memberId)
+                .Include(mi => mi.Member)
+                .ThenInclude(m => m.IncomeItems)
+                .Include(mi => mi.Spreadsheet)
+                .ThenInclude(s => s.IncomeItems)
+                .Include(mi => mi.Spreadsheet)
+                .ThenInclude(s => s.ExpenseItems)
+                .Include(mi => mi.Spreadsheet)
+                .ThenInclude(s => s.Payments)
+                .Select(mi => new GetMemberInfoDTO()
+                {
+                    Member = null,
+                    Spreadsheet = new GetSpreadsheetDto()
+                    {
+                        AgeLimitFee = -1,
+                        MarriageFee = -1,
+                        WidowerFee = -1,
+                        Archived = mi.Spreadsheet.Archived,
+                        Year = mi.Spreadsheet.Year,
+                        Payments = null,
+                        Dzemat = null,
+                        DzematId = -1,
+                        Id = -1,
+                        Members = null,
+                        Projects = null
+                    },
+                    Payments = mi.Payments.Select(p => new GetPaymentDto()
+                    {
+                        Id = -1,
+                        Amount = p.Amount,
+                        DateOfPayment = p.DateOfPayment,
+                        Member = null,
+                        MemberId = -1,
+                        Spreadsheet = null,
+                        SpreadsheetId = -1,
+                        Supervisor = new Supervisor()
+                        {
+                            Address = "",
+                            Dzemat = null,
+                            DzematId = -1,
+                            Email = "",
+                            FathersName = p.Supervisor.FathersName,
+                            FirstName = p.Supervisor.FirstName,
+                            LastName = p.Supervisor.LastName,
+                            Id = "",
+                            Medzlis = null,
+                            MedzlisId = -1,
+                            PhoneNumber = "",
+                            PlaceOfResidence = "",
+                            Position = p.Supervisor.Position,
+                            ZipCode = "",
+                            UserName = ""
+                        },
+                    }).ToList(),
+                    TotalAmountPayed = mi.Payments.Sum(p => p.Amount),
+                    MembershipFee = mi.MembershipFee
+                }).ToListAsync();
+
+            MemberInfoReport report = new MemberInfoReport()
+            {
+                Information = memberInfoList,
+                Member = _mapper.Map<GetMemberDto>(await _memberContext.Members
+                .Where(m => m.Id == memberId)
+                .Include(m => m.Dzemat)
+                .ThenInclude(d => d.Medzlis)
+                .FirstOrDefaultAsync())
+            };
+
+            response.Data = report;
+            response.Message = "Member view has been successfully loaded";
+            return response;
         }
     }
 }

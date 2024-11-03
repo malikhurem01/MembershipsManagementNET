@@ -1,4 +1,5 @@
-﻿using MembershipsManagement.Entities;
+﻿using MembershipsManagement.DTOs.DzematDTOs;
+using MembershipsManagement.Entities;
 
 namespace MembershipsManagement.DTOs.MemberDTOs
 {
@@ -17,7 +18,8 @@ namespace MembershipsManagement.DTOs.MemberDTOs
         public string? Note { get; set; } = string.Empty;
         public int EvNumber { get; set; }
         public List<GetFamilyMemberDto> FamilyMembers { get; set; } = new List<GetFamilyMemberDto>();
-        public int DzematId { get; set; } 
+        public int DzematId { get; set; }
+        public GetDzematDto? Dzemat { get; set; }
         public bool Active { get; set; }
     }
 }

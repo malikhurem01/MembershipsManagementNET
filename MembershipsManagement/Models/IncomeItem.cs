@@ -10,6 +10,7 @@ namespace MembershipsManagement.Models
         public Spreadsheet Spreadsheet { get; set; }
         public IncomeType IncomeType { get; set; }
         public List<Income>? Income { get; set; } = new List<Income>();
+        public bool? NotifyMembers { get; set; }
         public double TotalIncome
         {
             get

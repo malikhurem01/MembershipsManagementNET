@@ -7,6 +7,7 @@ namespace MembershipsManagement.DTOs.MemberInfoDTOs
     public class GetMemberInfoDTO
     {
         public GetMemberDto Member { get; set; }
+        public int SpreadsheetId { get; set; }
         public GetSpreadsheetDto Spreadsheet { get; set; }
         public List<GetPaymentDto>? Payments { get; set; } = new List<GetPaymentDto>();
         public int MembershipFee { get; set; }

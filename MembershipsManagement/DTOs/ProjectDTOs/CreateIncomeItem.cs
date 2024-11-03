@@ -7,6 +7,7 @@ namespace MembershipsManagement.DTOs.ProjectDTOs
         public string Name { get; set; } = string.Empty;
         public int DzematId { get; set; }
         public int SpreadsheetId { get; set; }
+        public bool? NotifyMembers { get; set; }
         public IncomeType IncomeType { get; set; }
 
     }

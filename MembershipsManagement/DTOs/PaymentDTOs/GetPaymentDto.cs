@@ -11,7 +11,7 @@ namespace MembershipsManagement.DTOs.PaymentDTOs
         public int MemberId { get; set; }
         public Member Member { get; set; }
         public string SupervisorId { get; set; } = string.Empty;
-        public Supervisor Supervisor { get; set; }
+        public Supervisor? Supervisor { get; set; }
         public int SpreadsheetId { get; set; }
         public Spreadsheet Spreadsheet { get; set; }
     }

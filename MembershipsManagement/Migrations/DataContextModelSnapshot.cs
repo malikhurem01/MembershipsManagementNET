@@ -496,6 +496,9 @@ namespace MembershipsManagement.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool?>("NotifyMembers")
+                        .HasColumnType("bit");
+
                     b.Property<int>("SpreadsheetId")
                         .HasColumnType("int");
 

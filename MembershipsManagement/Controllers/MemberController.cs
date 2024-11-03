@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace MembershipsManagement.Controllers
 {
     [ApiController]
-    [Authorize]
     [Route("api/[controller]")]
     public class MemberController : ControllerBase
     {
@@ -17,6 +16,13 @@ namespace MembershipsManagement.Controllers
         public MemberController(IMemberService memberService)
         {
             _memberService = memberService;
+        }
+
+        [HttpGet("view")]
+        public async Task<ActionResult<ServiceResponse<MemberInfoReport>>> GetMemberInfoReport(int memberId)
+        {
+            var response = await _memberService.GetMemberInfoReport(memberId);
+            return Ok(response);
         }
 
         [HttpPost("add")]

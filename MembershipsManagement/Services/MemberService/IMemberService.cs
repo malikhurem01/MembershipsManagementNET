@@ -17,5 +17,6 @@ namespace MembershipsManagement.Services.MemberServiceImpl
         Task<ServiceResponse<GetMemberDto>> GetSingleMember(string token, int memberId);
         Task<ServiceResponse<string>> DeleteMember(DeleteMemberDto member);
         Task<ServiceResponse<GetMemberDto>> DeleteMemberFamily(string token, DeleteFamilyMemberDto familyMember);
+        Task<ServiceResponse<MemberInfoReport>> GetMemberInfoReport(int memberId);
     }
 }
