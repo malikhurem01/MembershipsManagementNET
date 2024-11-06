@@ -8,6 +8,7 @@ namespace MembershipsManagement.Services.MemberServiceImpl
     public interface IMemberService
     {
         Task<object> Populate(int dzematId);
+        Task<ServiceResponse<string>> ImportMembersFromCSV();
         Task<ServiceResponse<GetMemberDto>> AddMember(string token, AddMemberDto member);
         Task<ServiceResponse<GetMemberDto>> AddMemberFamily(string token, AddMemberFamilyDto familyMember);
         Task<ServiceResponse<PagedList<GetSpreadsheetMemberInfo>>> GetFilteredMembersForSpredsheet(string token, int spreadsheetId, string? evNumber, string? firstName, string? lastName, string? fathersName, bool? hasPayed, int pageNumber, int pageSize);

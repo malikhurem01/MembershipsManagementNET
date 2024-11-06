@@ -1,15 +1,19 @@
 ﻿using AutoMapper;
+using CsvHelper;
 using MembershipsManagement.Data;
 using MembershipsManagement.DTOs;
+using MembershipsManagement.DTOs.DzematDTOs;
 using MembershipsManagement.DTOs.MemberDTOs;
 using MembershipsManagement.DTOs.MemberInfoDTOs;
 using MembershipsManagement.DTOs.PaymentDTOs;
+using MembershipsManagement.DTOs.ProjectDTOs;
 using MembershipsManagement.DTOs.SpreadsheetDTOs;
 using MembershipsManagement.DTOs.User;
 using MembershipsManagement.Entities;
 using MembershipsManagement.Exceptions;
 using MembershipsManagement.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -344,7 +348,7 @@ namespace MembershipsManagement.Services.MemberServiceImpl
             if(int.TryParse(evNumber, out int parsedEvNumber))
             {
                 membersInfoQuery = membersInfoQuery.Where(
-                mi => mi.Member.EvNumber == parsedEvNumber);
+                mi => mi.Member.EvNumber.Equals(parsedEvNumber));
             }
 
             if (!string.IsNullOrEmpty(firstName))
@@ -411,7 +415,7 @@ namespace MembershipsManagement.Services.MemberServiceImpl
             {
                 Member newMember = new Member()
                 {
-                    EvNumber = i + 1,
+                    EvNumber = i + "1",
                     FirstName = "@@ČlanIme" + i + 1,
                     FathersName = "@@ČlanOtac" + i + 1,
                     LastName = "@@ČlanPrezime" + i + 1,
@@ -496,18 +500,68 @@ namespace MembershipsManagement.Services.MemberServiceImpl
                     MembershipFee = mi.MembershipFee
                 }).ToListAsync();
 
-            MemberInfoReport report = new MemberInfoReport()
-            {
-                Information = memberInfoList,
-                Member = _mapper.Map<GetMemberDto>(await _memberContext.Members
+            var member = await _memberContext.Members
                 .Where(m => m.Id == memberId)
                 .Include(m => m.Dzemat)
                 .ThenInclude(d => d.Medzlis)
-                .FirstOrDefaultAsync())
+                .FirstOrDefaultAsync();
+
+            var publicIncomeItems = await _memberContext.IncomeItems
+                .Where(it => it.Spreadsheet.DzematId == member.DzematId)
+                .Where(it => it.NotifyMembers == true)
+                .Include(it => it.Spreadsheet)
+                .GroupBy(p => p.Spreadsheet.Year).ToListAsync();
+
+            MemberInfoReport report = new MemberInfoReport()
+            {
+                Information = memberInfoList,
+                Member = _mapper.Map<GetMemberDto>(member),
+                IncomeItems = publicIncomeItems
             };
 
             response.Data = report;
             response.Message = "Member view has been successfully loaded";
+            return response;
+        }
+
+        public async Task<ServiceResponse<string>> ImportMembersFromCSV()
+        {
+            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "lukavacgrad.csv");
+
+            List<CSVMember> MembersToAdd = new List<CSVMember>();
+
+            using (var reader = new StreamReader(filePath))
+            using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+            {
+                {
+                    foreach (var record in csv.GetRecords<CSVMember>())
+                    {
+                        MembersToAdd.Add(record);
+                    }
+                }
+            }
+            List<Member> MembersForDatabase = new List<Member>();
+            foreach (var member in MembersToAdd)
+            {
+                Member memberForDatabase = new Member()
+                {
+                    DzematId = 10,
+                    EvNumber = member.EvNumber,
+                    Active = true,
+                    Address = member.Address,
+                    FathersName = member.FathersName,
+                    FirstName = member.FirstName,
+                    LastName = member.LastName,
+                    Debt = 0
+                };
+                MembersForDatabase.Add(memberForDatabase);
+            }
+
+            _memberContext.Members.AddRange(MembersForDatabase);
+            await _memberContext.SaveChangesAsync();
+
+            var response = new ServiceResponse<string>();
+            response.Data = "uspješno importovani članovi u bazu podataka";
             return response;
         }
     }

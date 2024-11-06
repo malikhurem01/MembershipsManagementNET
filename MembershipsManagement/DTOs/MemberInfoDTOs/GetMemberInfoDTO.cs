@@ -12,6 +12,7 @@ namespace MembershipsManagement.DTOs.MemberInfoDTOs
         public List<GetPaymentDto>? Payments { get; set; } = new List<GetPaymentDto>();
         public int MembershipFee { get; set; }
         public double TotalAmountPayed { get; set; }
+        public bool HasPayed { get; set; }
         public double Debt { get; set; }
         public string Note { get; set; } = string.Empty;
     }

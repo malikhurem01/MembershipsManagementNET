@@ -4,6 +4,7 @@
     {
         Marriage,
         Widower,
-        AgeLimit
+        AgeLimit,
+        NOT_SET
     }
 }

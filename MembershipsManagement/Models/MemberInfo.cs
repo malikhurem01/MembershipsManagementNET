@@ -26,9 +26,20 @@
                         case Status.AgeLimit:
                             value = this.Spreadsheet.AgeLimitFee;
                             break;
+                        case Status.NOT_SET:
+                            value = 0;
+                            break;
                     }
                 }
                 return value;
+            }
+        }
+
+        public bool HasPayed
+        {
+            get
+            {
+                return this.TotalAmountPayed == this.MembershipFee;
             }
         }
         public double TotalAmountPayed

@@ -121,6 +121,9 @@ namespace MembershipsManagement.Services.SpreadSheets
                     case Status.Widower:
                         debtToAdd = spreadsheetToAdd.WidowerFee;
                         break;
+                    case Status.NOT_SET:
+                        debtToAdd = 0;
+                        break;
                     default:
                         debtToAdd = 0;
                         break;
@@ -488,7 +491,7 @@ namespace MembershipsManagement.Services.SpreadSheets
                 .SelectMany(s => s.Dzemat.Members.Where(member => member.Debt > 0).Select(member => new DebtWarningReport
                 {
                     DzematName = member.Dzemat.Name,
-                    Debt = member.Debt,
+                    Debt = (double)member.Debt,
                     FirstName = member.FirstName,
                     FathersName = member.FathersName,
                     LastName = member.LastName

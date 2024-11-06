@@ -1,7 +1,6 @@
 ﻿using MembershipsManagement.DTOs.MemberDTOs;
-using MembershipsManagement.DTOs.PaymentDTOs;
-using MembershipsManagement.DTOs.SpreadsheetDTOs;
-using MembershipsManagement.Entities;
+using MembershipsManagement.DTOs.ProjectDTOs;
+using MembershipsManagement.Models;
 
 namespace MembershipsManagement.DTOs.MemberInfoDTOs
 {
@@ -9,5 +8,6 @@ namespace MembershipsManagement.DTOs.MemberInfoDTOs
     {
         public GetMemberDto Member { get; set; }
         public List<GetMemberInfoDTO> Information { get; set; }
+        public List<IGrouping<int, IncomeItem>> IncomeItems { get; set; }
     }
 }

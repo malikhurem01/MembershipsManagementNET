@@ -346,7 +346,7 @@ namespace MembershipsManagement.Migrations
                     b.Property<DateTime?>("DateOfBirth")
                         .HasColumnType("datetime2");
 
-                    b.Property<double>("Debt")
+                    b.Property<double?>("Debt")
                         .HasColumnType("float");
 
                     b.Property<int>("DzematId")
@@ -355,8 +355,9 @@ namespace MembershipsManagement.Migrations
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("EvNumber")
-                        .HasColumnType("int");
+                    b.Property<string>("EvNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FathersName")
                         .HasColumnType("nvarchar(max)");

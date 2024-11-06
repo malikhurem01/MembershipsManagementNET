@@ -1,10 +1,13 @@
-﻿using MembershipsManagement.DTOs;
+﻿using CsvHelper;
+using MembershipsManagement.DTOs;
 using MembershipsManagement.DTOs.MemberDTOs;
 using MembershipsManagement.DTOs.MemberInfoDTOs;
 using MembershipsManagement.Entities;
 using MembershipsManagement.Services.MemberServiceImpl;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Formats.Asn1;
+using System.Globalization;
 
 namespace MembershipsManagement.Controllers
 {
@@ -22,6 +25,13 @@ namespace MembershipsManagement.Controllers
         public async Task<ActionResult<ServiceResponse<MemberInfoReport>>> GetMemberInfoReport(int memberId)
         {
             var response = await _memberService.GetMemberInfoReport(memberId);
+            return Ok(response);
+        }
+
+        [HttpGet("csv")]
+        public async Task<ActionResult<ServiceResponse<string>>> GetMemebrsFromCSV()
+        {
+            var response = await _memberService.ImportMembersFromCSV();
             return Ok(response);
         }
 

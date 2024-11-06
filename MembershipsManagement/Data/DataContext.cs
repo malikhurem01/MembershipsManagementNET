@@ -33,6 +33,7 @@ namespace MembershipsManagement.Data
             ///
             _modelBuilder.Entity<MemberInfo>().Ignore(mi => mi.MembershipFee);
             _modelBuilder.Entity<MemberInfo>().Ignore(mi => mi.TotalAmountPayed);
+            _modelBuilder.Entity<MemberInfo>().Ignore(mi => mi.HasPayed);
             /// Authentication models |INHERITANCE|
             _modelBuilder.Entity<User>().ToTable("Users");
             _modelBuilder.Entity<Supervisor>().ToTable("Supervisors");
