@@ -8,6 +8,5 @@ namespace MembershipsManagement.DTOs.MemberInfoDTOs
     {
         public GetMemberDto Member { get; set; }
         public List<GetMemberInfoDTO> Information { get; set; }
-        public List<IGrouping<int, IncomeItem>> IncomeItems { get; set; }
     }
 }

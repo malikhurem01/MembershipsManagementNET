@@ -506,17 +506,10 @@ namespace MembershipsManagement.Services.MemberServiceImpl
                 .ThenInclude(d => d.Medzlis)
                 .FirstOrDefaultAsync();
 
-            var publicIncomeItems = await _memberContext.IncomeItems
-                .Where(it => it.Spreadsheet.DzematId == member.DzematId)
-                .Where(it => it.NotifyMembers == true)
-                .Include(it => it.Spreadsheet)
-                .GroupBy(p => p.Spreadsheet.Year).ToListAsync();
-
             MemberInfoReport report = new MemberInfoReport()
             {
                 Information = memberInfoList,
                 Member = _mapper.Map<GetMemberDto>(member),
-                IncomeItems = publicIncomeItems
             };
 
             response.Data = report;
