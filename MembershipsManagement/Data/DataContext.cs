@@ -47,6 +47,7 @@ namespace MembershipsManagement.Data
             _modelBuilder.Entity<Dzemat>().HasData(new Dzemat { Id = 3, MedzlisId = 2, Name = "Test", UserName = "testtest", Address = "Golaći bb", Location = "Golaći", Budget = 0, ZipCode = 75326 });
         }
 
+        public DbSet<UserLoginLog> UserLoginLogs { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<Supervisor> Supervisors { get; set; }
         public DbSet<Admin> Admins { get; set; }

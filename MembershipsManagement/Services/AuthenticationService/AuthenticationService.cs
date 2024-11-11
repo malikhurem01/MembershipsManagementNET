@@ -20,6 +20,7 @@ namespace MembershipsManagement.Services.Authentication
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly IHttpContextAccessor _contextAccessor;
         private readonly IConfiguration _configuration;
         private readonly DataContext _authContext;
         private readonly IMapper _mapper;
@@ -27,13 +28,15 @@ namespace MembershipsManagement.Services.Authentication
         public AuthenticationService(
             UserManager<IdentityUser> userManager,
             IConfiguration configuration,
-            SignInManager<IdentityUser> signInManager, 
+            SignInManager<IdentityUser> signInManager,
+            IHttpContextAccessor contextAccessor,
             IMapper mapper, DataContext authContext
          )
         {
             _userManager = userManager;
             _configuration = configuration;
             _signInManager = signInManager;
+            _contextAccessor = contextAccessor;
             _mapper = mapper;
             _authContext = authContext;
         }
@@ -88,6 +91,7 @@ namespace MembershipsManagement.Services.Authentication
             var fetchedUser = await _userManager.FindByEmailAsync(user.Email);
 
                 var savedUser = await _authContext.Supervisors
+                    .Include(u => u.Dzemat)
                     .Where(u => u.Id.Equals(fetchedUser.Id)).FirstOrDefaultAsync();
 
             if(savedUser.Position == Roles.GlavniImam)
@@ -124,6 +128,20 @@ namespace MembershipsManagement.Services.Authentication
                 getUserDto.Token = CreateSupervisorToken(savedUser);
                 response.Data = getUserDto;
                 response.Message = "Supervisor " + user.Email + " has successfully logged in.";
+
+                var loginLog = new UserLoginLog
+                {
+                    UserId = fetchedUser.Id,
+                    FirstName = savedUser.FirstName,
+                    LastName = savedUser.LastName,
+                    DzematName = savedUser.Dzemat.Name,
+                    LoginTime = DateTime.UtcNow,
+                    IPAddress = _contextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString(),
+                    DeviceInfo = _contextAccessor.HttpContext?.Request.Headers["User-Agent"].ToString()
+                };
+
+                _authContext.UserLoginLogs.Add(loginLog);
+                await _authContext.SaveChangesAsync();
             }
             return response;
         }

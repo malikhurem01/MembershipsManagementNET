@@ -506,10 +506,28 @@ namespace MembershipsManagement.Services.MemberServiceImpl
                 .ThenInclude(d => d.Medzlis)
                 .FirstOrDefaultAsync();
 
+            if(member is null)
+            {
+                throw new EntityNotFoundException("Member was not found.");
+            }
+
+            List<MemberInfoIncomeItemReport> groupedIncomeItems = await _memberContext.IncomeItems
+                .Where(it => it.Spreadsheet.DzematId == member.DzematId)
+                .Where(it => it.NotifyMembers == true)
+                .GroupBy(i => i.Spreadsheet.Year)
+                .Select(g => new MemberInfoIncomeItemReport
+                {
+                    SpreadsheetYear = g.Key,
+                    IncomeItems = g.Select(item => _mapper.Map<GetIncomeItemDto>(item)).ToList()
+                })
+                .ToListAsync();
+
+
             MemberInfoReport report = new MemberInfoReport()
             {
                 Information = memberInfoList,
                 Member = _mapper.Map<GetMemberDto>(member),
+                IncomeItems = groupedIncomeItems
             };
 
             response.Data = report;
