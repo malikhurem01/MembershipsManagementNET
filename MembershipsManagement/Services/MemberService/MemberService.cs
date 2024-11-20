@@ -456,44 +456,18 @@ namespace MembershipsManagement.Services.MemberServiceImpl
                     Member = null,
                     Spreadsheet = new GetSpreadsheetDto()
                     {
-                        AgeLimitFee = -1,
-                        MarriageFee = -1,
-                        WidowerFee = -1,
                         Archived = mi.Spreadsheet.Archived,
-                        Year = mi.Spreadsheet.Year,
-                        Payments = null,
-                        Dzemat = null,
-                        DzematId = -1,
-                        Id = -1,
-                        Members = null,
-                        Projects = null
+                        Year = mi.Spreadsheet.Year
                     },
                     Payments = mi.Payments.Select(p => new GetPaymentDto()
                     {
-                        Id = -1,
                         Amount = p.Amount,
                         DateOfPayment = p.DateOfPayment,
-                        Member = null,
-                        MemberId = -1,
-                        Spreadsheet = null,
-                        SpreadsheetId = -1,
                         Supervisor = new Supervisor()
                         {
-                            Address = "",
-                            Dzemat = null,
-                            DzematId = -1,
-                            Email = "",
                             FathersName = p.Supervisor.FathersName,
                             FirstName = p.Supervisor.FirstName,
-                            LastName = p.Supervisor.LastName,
-                            Id = "",
-                            Medzlis = null,
-                            MedzlisId = -1,
-                            PhoneNumber = "",
-                            PlaceOfResidence = "",
-                            Position = p.Supervisor.Position,
-                            ZipCode = "",
-                            UserName = ""
+                            LastName = p.Supervisor.LastName
                         },
                     }).ToList(),
                     TotalAmountPayed = mi.Payments.Sum(p => p.Amount),
@@ -518,7 +492,10 @@ namespace MembershipsManagement.Services.MemberServiceImpl
                 .Select(g => new MemberInfoIncomeItemReport
                 {
                     SpreadsheetYear = g.Key,
-                    IncomeItems = g.Select(item => _mapper.Map<GetIncomeItemDto>(item)).ToList()
+                    IncomeItems = g.Select(item => _mapper.Map<GetIncomeItemDto>(new GetIncomeItemDto()
+                    {
+                        Name = item.Name
+                    })).ToList()
                 })
                 .ToListAsync();
 
