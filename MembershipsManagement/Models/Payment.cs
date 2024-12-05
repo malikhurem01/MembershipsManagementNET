@@ -7,7 +7,7 @@ namespace MembershipsManagement.Entities
         public int Id { get; set; }
         public double Amount { get; set; }
         public DateTime DateOfPayment { get; set; }
-        public int MemberId { get; set; }
+        public string MemberId { get; set; } = string.Empty;
         public Member Member { get; set; }
         public int SpreadsheetId { get; set; }
         public Spreadsheet Spreadsheet { get; set; }

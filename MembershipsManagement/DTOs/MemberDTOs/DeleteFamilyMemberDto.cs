@@ -3,6 +3,6 @@
     public class DeleteFamilyMemberDto
     {
         public int Id { get; set; }
-        public int MemberId { get; set; }
+        public string MemberId { get; set; }
     }
 }

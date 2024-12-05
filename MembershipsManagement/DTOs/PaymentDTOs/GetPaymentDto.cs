@@ -8,7 +8,7 @@ namespace MembershipsManagement.DTOs.PaymentDTOs
         public int Id { get; set; }
         public double Amount { get; set; }
         public DateTime DateOfPayment { get; set; }
-        public int MemberId { get; set; }
+        public string MemberId { get; set; }
         public Member Member { get; set; }
         public string SupervisorId { get; set; } = string.Empty;
         public Supervisor? Supervisor { get; set; }

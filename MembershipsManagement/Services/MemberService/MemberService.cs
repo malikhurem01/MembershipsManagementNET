@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using ClosedXML.Excel;
 using CsvHelper;
 using MembershipsManagement.Data;
 using MembershipsManagement.DTOs;
@@ -12,9 +13,11 @@ using MembershipsManagement.DTOs.User;
 using MembershipsManagement.Entities;
 using MembershipsManagement.Exceptions;
 using MembershipsManagement.Models;
+using MembershipsManagement.Services.Authentication;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -24,15 +27,17 @@ namespace MembershipsManagement.Services.MemberServiceImpl
     {
         private readonly IMapper _mapper;
         private readonly DataContext _memberContext;
-        public MemberService(IMapper mapper, DataContext memberContext)
+        private readonly IAuthenticationService _authService;
+        public MemberService(IMapper mapper, DataContext memberContext, IAuthenticationService authService)
         {
             _mapper = mapper;
             _memberContext = memberContext;
+            _authService = authService;
         }
 
-        public async Task<ServiceResponse<GetMemberDto>> AddMember(string token, AddMemberDto member)
+        public async Task<ServiceResponse<GetMemberTemporaryCredentials>> AddMember(string token, AddMemberDto member)
         {
-            var response = new ServiceResponse<GetMemberDto>();
+            var response = new ServiceResponse<GetMemberTemporaryCredentials>();
             var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
             var userId = decodedToken.Claims
                 .Where(claim => claim.Type
@@ -50,22 +55,22 @@ namespace MembershipsManagement.Services.MemberServiceImpl
                 throw new EntityNotFoundException("FATAL ERROR. No supervisor ID: " + userId + " for dzemat with ID: " + member.DzematId + " was found.");
             }
 
-            /* var memberWithSameEvNumber = await _memberContext.Members.Where(m => m.DzematId == member.DzematId).Where(m => m.EvNumber == member.EvNumber).FirstOrDefaultAsync();
+            var memberWithSameEvNumber = await _memberContext.Members.Where(m => m.DzematId == member.DzematId).Where(m => m.EvNumber.Equals(member.EvNumber)).FirstOrDefaultAsync();
 
             if (memberWithSameEvNumber is not null)
             {
                 throw new BadRequestException("Član sa evidencionim brojem " + member.EvNumber + " već postoji");
-            }*/
+            }
 
             var memberToAdd = _mapper.Map<Member>(member);
 
-                var activeDzematSpreadsheet = await _memberContext.Spreadsheets
-                    .Where(s => s.DzematId == member.DzematId)
-                    .Where(s => s.Archived == false)
-                    .FirstOrDefaultAsync();
-                if(activeDzematSpreadsheet is not null)
-                {
-                    memberToAdd.Spreadsheets.Add(activeDzematSpreadsheet);
+            var activeDzematSpreadsheet = await _memberContext.Spreadsheets
+                .Where(s => s.DzematId == member.DzematId)
+                .Where(s => s.Archived == false)
+                .FirstOrDefaultAsync();
+            if (activeDzematSpreadsheet is not null)
+            {
+                memberToAdd.Spreadsheets.Add(activeDzematSpreadsheet);
 
                 switch (memberToAdd.Status)
                 {
@@ -86,12 +91,10 @@ namespace MembershipsManagement.Services.MemberServiceImpl
 
                 memberToAdd.Debt += member.Debt;
                 memberToAdd.Active = true;
-                _memberContext.Members.Add(memberToAdd);
-                    await _memberContext.SaveChangesAsync();
-                }
-            
-            response.Data = _mapper.Map<GetMemberDto>(memberToAdd);
-            response.Message = "Član je uspješno dodan";
+            }
+
+            response = await _authService.RegisterMember(memberToAdd);
+            response.Message = "Član je uspješno registrovan";
             return response;
         }
 
@@ -134,7 +137,7 @@ namespace MembershipsManagement.Services.MemberServiceImpl
             if (!memberFetched.Status.Equals(memberModified.Status))
             {
                 var activeSpreadsheet = memberFetched.Spreadsheets.Where(sp => sp.Archived == false).FirstOrDefault();
-                int oldStatusPrice = activeSpreadsheet.MemberInfo.Where(mi => mi.MemberId == memberFetched.Id).Select(mi => mi.MembershipFee).FirstOrDefault();
+                int oldStatusPrice = activeSpreadsheet.MemberInfo.Where(mi => mi.MemberId.Equals(memberFetched.Id)).Select(mi => mi.MembershipFee).FirstOrDefault();
                 int newStatusPrice;
                 int debt;
                 switch (memberModified.Status)
@@ -193,7 +196,7 @@ namespace MembershipsManagement.Services.MemberServiceImpl
             return response;
         }
 
-        public async Task<ServiceResponse<GetMemberDto>> GetSingleMember(string token, int memberId)
+        public async Task<ServiceResponse<GetMemberDto>> GetSingleMember(string token, string memberId)
         {
             var response = new ServiceResponse<GetMemberDto>();
             var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
@@ -205,11 +208,11 @@ namespace MembershipsManagement.Services.MemberServiceImpl
 
             var supervisor = await _memberContext.Supervisors.Where(s => s.Id.Equals(userId)).Include(s => s.Dzemat).FirstOrDefaultAsync();
             var memberFetched = await _memberContext.Members
-                .Where(member => member.Id == memberId)
+                .Where(member => member.Id.Equals(memberId))
                 .Where(member => member.DzematId == supervisor.DzematId)
                 .FirstOrDefaultAsync();
             response.Data = _mapper.Map<GetMemberDto>(memberFetched);
-            response.Message = memberFetched != null? "Member has been fetched." : "No member has been found.";
+            response.Message = memberFetched != null ? "Member has been fetched." : "No member has been found.";
             return response;
         }
 
@@ -219,7 +222,7 @@ namespace MembershipsManagement.Services.MemberServiceImpl
             var memberToDelete = await _memberContext.Members
                 .Where(c => c.Id == member.Id)
                 .FirstOrDefaultAsync();
-            if(memberToDelete == null)
+            if (memberToDelete == null)
             {
                 throw new EntityNotFoundException("Member with ID: " + member.Id + " was not found in database.");
             }
@@ -247,7 +250,7 @@ namespace MembershipsManagement.Services.MemberServiceImpl
                 .Where(member => member.DzematId.Equals(supervisor.DzematId))
                 .FirstOrDefaultAsync();
 
-            if (memberFetched is null) 
+            if (memberFetched is null)
                 throw new EntityNotFoundException("Member ID: " + familyMember.MemberId + " in džemat ID: " + supervisor.DzematId + " was not found.");
 
             memberFetched.FamilyMembers.Add(_mapper.Map<FamilyMember>(familyMember));
@@ -295,11 +298,11 @@ namespace MembershipsManagement.Services.MemberServiceImpl
 
         }
 
-        public async Task<ServiceResponse<List<GetFamilyMemberDto>>> GetFamily(string token, int memberId)
+        public async Task<ServiceResponse<List<GetFamilyMemberDto>>> GetFamily(string token, string memberId)
         {
             var response = new ServiceResponse<List<GetFamilyMemberDto>>();
             var memberFamily = await _memberContext.FamilyMembers
-                .Where(fm => fm.MemberId == memberId)
+                .Where(fm => fm.MemberId.Equals(memberId))
                 .ToListAsync();
             response.Data = memberFamily.Select(fm => _mapper.Map<GetFamilyMemberDto>(fm)).ToList();
             response.Message = "Fetched family members";
@@ -313,7 +316,7 @@ namespace MembershipsManagement.Services.MemberServiceImpl
 
         public async Task<ServiceResponse<PagedList<GetSpreadsheetMemberInfo>>> GetFilteredMembersForSpredsheet(
             string token,
-            int spreadsheetId, 
+            int spreadsheetId,
             string? evNumber,
             string? firstName,
             string? lastName,
@@ -332,7 +335,7 @@ namespace MembershipsManagement.Services.MemberServiceImpl
 
             var supervisor = await _memberContext.Supervisors.Where(s => s.Id.Equals(userId)).FirstOrDefaultAsync();
 
-            IQueryable<MemberInfo> membersInfoQuery;
+            IQueryable<Entities.MemberInfo> membersInfoQuery;
 
             if (supervisor.Position.Equals(Roles.GlavniImam))
             {
@@ -345,7 +348,7 @@ namespace MembershipsManagement.Services.MemberServiceImpl
 
             membersInfoQuery = membersInfoQuery.Where(mi => mi.SpreadsheetId == spreadsheetId);
 
-            if(int.TryParse(evNumber, out int parsedEvNumber))
+            if (int.TryParse(evNumber, out int parsedEvNumber))
             {
                 membersInfoQuery = membersInfoQuery.Where(
                 mi => mi.Member.EvNumber.Equals(parsedEvNumber));
@@ -437,12 +440,12 @@ namespace MembershipsManagement.Services.MemberServiceImpl
             return "Dodano 500 članova";
         }
 
-        public async Task<ServiceResponse<MemberInfoReport>> GetMemberInfoReport(int memberId)
+        public async Task<ServiceResponse<MemberInfoReport>> GetMemberInfoReport(string memberId)
         {
             var response = new ServiceResponse<MemberInfoReport>();
 
             List<GetMemberInfoDTO> memberInfoList = await _memberContext.MembersInfo
-                .Where(mi => mi.MemberId == memberId)
+                .Where(mi => mi.MemberId.Equals(memberId))
                 .Include(mi => mi.Member)
                 .ThenInclude(m => m.IncomeItems)
                 .Include(mi => mi.Spreadsheet)
@@ -475,12 +478,12 @@ namespace MembershipsManagement.Services.MemberServiceImpl
                 }).ToListAsync();
 
             var member = await _memberContext.Members
-                .Where(m => m.Id == memberId)
+                .Where(m => m.Id.Equals(memberId))
                 .Include(m => m.Dzemat)
                 .ThenInclude(d => d.Medzlis)
                 .FirstOrDefaultAsync();
 
-            if(member is null)
+            if (member is null)
             {
                 throw new EntityNotFoundException("Member was not found.");
             }
@@ -512,9 +515,9 @@ namespace MembershipsManagement.Services.MemberServiceImpl
             return response;
         }
 
-        public async Task<ServiceResponse<string>> ImportMembersFromCSV()
+        public async Task<ServiceResponse<string>> ImportMembersFromCSV(string dzematname)
         {
-            string filePath = Path.Combine(Directory.GetCurrentDirectory(), "lukavacgrad.csv");
+            string filePath = Path.Combine(Directory.GetCurrentDirectory(), dzematname + ".csv");
 
             List<CSVMember> MembersToAdd = new List<CSVMember>();
 
@@ -528,12 +531,13 @@ namespace MembershipsManagement.Services.MemberServiceImpl
                     }
                 }
             }
-            List<Member> MembersForDatabase = new List<Member>();
+            int count = 0;
+            var createdAccountsList = new List<GetMemberTemporaryCredentials>();
             foreach (var member in MembersToAdd)
             {
-                Member memberForDatabase = new Member()
+                AddMemberDto memberForDatabase = new AddMemberDto()
                 {
-                    DzematId = 10,
+                    DzematId = 1,
                     EvNumber = member.EvNumber,
                     Active = true,
                     Address = member.Address,
@@ -542,15 +546,110 @@ namespace MembershipsManagement.Services.MemberServiceImpl
                     LastName = member.LastName,
                     Debt = 0
                 };
-                MembersForDatabase.Add(memberForDatabase);
+
+
+                var userManagerResponse = await AddMemberFromCSV(memberForDatabase);
+                createdAccountsList.Add(userManagerResponse.Data);
+                Console.WriteLine("Dodano članova: " + ++count);
+
+                if (count == 100)
+                {
+                    break;
+                }
             }
 
-            _memberContext.Members.AddRange(MembersForDatabase);
-            await _memberContext.SaveChangesAsync();
-
+            GenerateExcel(createdAccountsList, dzematname);
             var response = new ServiceResponse<string>();
-            response.Data = "uspješno importovani članovi u bazu podataka";
+            response.Data = "Uspješno importovani članovi u bazu podataka";
             return response;
+        }
+
+        public async Task<ServiceResponse<GetMemberTemporaryCredentials>?> AddMemberFromCSV(AddMemberDto member)
+        {
+            var response = new ServiceResponse<GetMemberTemporaryCredentials>();
+            var memberWithSameEvNumber = await _memberContext
+                .Members.Where(m => m.DzematId == member.DzematId).Where(m => m.EvNumber.Equals(member.EvNumber)).FirstOrDefaultAsync();
+
+            if (memberWithSameEvNumber is not null)
+            {
+                return null;
+            }
+
+            var memberToAdd = _mapper.Map<Member>(member);
+
+            var activeDzematSpreadsheet = await _memberContext.Spreadsheets
+                .Where(s => s.DzematId == member.DzematId)
+                .Where(s => s.Archived == false)
+                .FirstOrDefaultAsync();
+
+            if (activeDzematSpreadsheet is not null)
+            {
+                memberToAdd.Spreadsheets.Add(activeDzematSpreadsheet);
+
+                switch (memberToAdd.Status)
+                {
+                    case Status.Marriage:
+                        memberToAdd.Debt = activeDzematSpreadsheet.MarriageFee;
+                        break;
+                    case Status.AgeLimit:
+                        memberToAdd.Debt = activeDzematSpreadsheet.AgeLimitFee;
+                        break;
+                    case Status.Widower:
+                        memberToAdd.Debt = activeDzematSpreadsheet.WidowerFee;
+                        break;
+                    default:
+                        memberToAdd.Debt = 0;
+                        break;
+                }
+
+
+                memberToAdd.Debt += member.Debt;
+                memberToAdd.Active = true;
+            }
+
+            response = await _authService.RegisterMember(memberToAdd);
+            return response;
+        }
+
+        private string GenerateExcel(List<GetMemberTemporaryCredentials> memberData, string fileName)
+        {
+            using (var workbook = new XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add("Kredencijali");
+
+                // Columns
+                worksheet.Cell(1, 1).Value = "#";
+                worksheet.Cell(1, 2).Value = "Ev. broj";
+                worksheet.Cell(1, 3).Value = "Ime";
+                worksheet.Cell(1, 4).Value = "Ime oca";
+                worksheet.Cell(1, 5).Value = "Prezime";
+                worksheet.Cell(1, 6).Value = "Email";
+                worksheet.Cell(1, 7).Value = "Korisničko ime";
+                worksheet.Cell(1, 8).Value = "Privremena šifra";
+
+
+                //Rows
+                var properties = typeof(GetMemberTemporaryCredentials).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+
+                // Add data rows
+                for (int rowIndex = 0; rowIndex < memberData.Count; rowIndex++)
+                {
+                    var item = memberData[rowIndex];
+                    worksheet.Cell(rowIndex + 1, 1).Value = rowIndex + 2;
+                    for (int colIndex = 0; colIndex < properties.Length; colIndex++)
+                    {
+                        var propertyValue = properties[colIndex].GetValue(item);
+                        worksheet.Cell(rowIndex + 2, colIndex + 2).Value = propertyValue?.ToString();
+                    }
+                }
+                // Format Header
+                var headerRange = worksheet.Range("A1:C1");
+                headerRange.Style.Font.Bold = true;
+                headerRange.Style.Fill.BackgroundColor = XLColor.LightBlue;
+
+                workbook.SaveAs(Path.Combine(Directory.GetCurrentDirectory(), "Synapse_" + fileName + "_Kredencijali.xlsx"));
+                return "Svi akaunti uspješno otvoreni";
+            }
         }
     }
 }

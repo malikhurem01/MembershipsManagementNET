@@ -2,6 +2,7 @@
 using MembershipsManagement.Data;
 using MembershipsManagement.DTOs.AuthDTOs;
 using MembershipsManagement.DTOs.DzematDTOs;
+using MembershipsManagement.DTOs.MemberDTOs;
 using MembershipsManagement.DTOs.User;
 using MembershipsManagement.DTOs.UserDTOs;
 using MembershipsManagement.Entities;
@@ -9,6 +10,7 @@ using MembershipsManagement.Exceptions;
 using MembershipsManagement.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -171,6 +173,63 @@ namespace MembershipsManagement.Services.Authentication
                 response.Data = getUserDto;
                 response.Message = "Admin " + user.Email + " has successfully logged in.";
             }
+            return response;
+        }
+
+        static string GenerateRandomString(int length)
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            Random random = new Random();
+            StringBuilder result = new StringBuilder(length);
+
+            for (int i = 0; i < length; i++)
+            {
+                result.Append(chars[random.Next(chars.Length)]);
+            }
+
+            return result.ToString();
+        }
+
+        public async Task<ServiceResponse<GetMemberTemporaryCredentials>> RegisterMember(Member user)
+        {
+            ServiceResponse<GetMemberTemporaryCredentials> response = new ServiceResponse<GetMemberTemporaryCredentials>();
+            if(user.Email?.Length < 1)
+            {
+                user.Email = user.FirstName.ToLower() + user.LastName.ToLower() + user.EvNumber.ToLower() + "@synapse.ba";
+                user.HasAccount = false;
+            }
+            if(user.PhoneNumber?.Length < 1)
+            {
+                user.PhoneNumber = "0";
+                user.HasAccount = false;
+            }
+
+            user.DateRegistered = DateTime.UtcNow;
+            //Dodati da dva membera (korisnika) ne mogu imati isti username
+            user.UserName = user.FirstName.ToLower() + user.LastName.ToLower() + user.EvNumber.ToLower();
+            user.UserName = user.UserName.Replace(" ", "");
+            user.LockoutEnabled = true;
+            string tempPassword = GenerateRandomString(10);
+            var result = await _userManager.CreateAsync(user, tempPassword);
+            StringBuilder stringBuilder = new StringBuilder();
+            if (!result.Succeeded)
+            {
+                foreach (IdentityError error in result.Errors)
+                {
+                    stringBuilder.Append(error.Description);
+                }
+                throw new BadRequestException(stringBuilder.ToString());
+            }
+            response.Data = new GetMemberTemporaryCredentials()
+            {
+                EvNumber = user.EvNumber,
+                FirstName = user.FirstName,
+                FathersName = user.FathersName,
+                LastName = user.LastName,
+                Email = user.Email,
+                UserName = user.UserName,
+                TemporaryPassword = tempPassword
+            };
             return response;
         }
 
@@ -379,5 +438,6 @@ namespace MembershipsManagement.Services.Authentication
             response.Data = _mapper.Map<GetUserDto>(fetchedUser);
             return response;
         }
+
     }
 }

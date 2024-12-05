@@ -5,20 +5,19 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace MembershipsManagement.Migrations
 {
-    public partial class blabla : Migration
+    public partial class initial3 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<DateTime>(
                 name: "DateModified",
-                table: "Users",
+                table: "Members",
                 type: "datetime2",
-                nullable: false,
-                defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
+                nullable: true);
 
             migrationBuilder.AddColumn<DateTime>(
                 name: "DateRegistered",
-                table: "Users",
+                table: "Members",
                 type: "datetime2",
                 nullable: false,
                 defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
@@ -28,11 +27,11 @@ namespace MembershipsManagement.Migrations
         {
             migrationBuilder.DropColumn(
                 name: "DateModified",
-                table: "Users");
+                table: "Members");
 
             migrationBuilder.DropColumn(
                 name: "DateRegistered",
-                table: "Users");
+                table: "Members");
         }
     }
 }

@@ -11,7 +11,7 @@ namespace MembershipsManagement.Entities
         public Supervisor Supervisor { get; set; }
         public int? DonatorId { get; set; }
         public Donator? Donator { get; set; }
-        public int? MemberId { get; set; }
+        public string? MemberId { get; set; }
         public Member? Member { get; set; }
         public string? Note { get; set; } = string.Empty;
         public double Amount { get; set; }

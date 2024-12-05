@@ -7,7 +7,7 @@ namespace MembershipsManagement.DTOs.PaymentDTOs
     {
         public double Amount { get; set; }
         public DateTime DateOfPayment { get; set; }
-        public int MemberId { get; set; }
+        public string MemberId { get; set; }
         public int SpreadsheetId { get; set; }
     }
 }

@@ -37,6 +37,7 @@ namespace MembershipsManagement.Data
             /// Authentication models |INHERITANCE|
             _modelBuilder.Entity<User>().ToTable("Users");
             _modelBuilder.Entity<Supervisor>().ToTable("Supervisors");
+            _modelBuilder.Entity<Member>().ToTable("Members");
             _modelBuilder.Entity<Admin>().ToTable("Admins");
             /// SEED DEFAULT ACCOUNT
             /// 

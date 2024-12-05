@@ -4,22 +4,23 @@
 
 namespace MembershipsManagement.Migrations
 {
-    public partial class notifymembersincomeitem : Migration
+    public partial class initial2 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<bool>(
-                name: "NotifyMembers",
-                table: "IncomeItems",
+                name: "HasAccount",
+                table: "Members",
                 type: "bit",
-                nullable: true);
+                nullable: false,
+                defaultValue: false);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "NotifyMembers",
-                table: "IncomeItems");
+                name: "HasAccount",
+                table: "Members");
         }
     }
 }

@@ -218,8 +218,9 @@ namespace MembershipsManagement.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("MemberId")
-                        .HasColumnType("int");
+                    b.Property<string>("MemberId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -254,8 +255,8 @@ namespace MembershipsManagement.Migrations
                     b.Property<int>("IncomeType")
                         .HasColumnType("int");
 
-                    b.Property<int?>("MemberId")
-                        .HasColumnType("int");
+                    b.Property<string>("MemberId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Note")
                         .HasColumnType("nvarchar(max)");
@@ -329,63 +330,6 @@ namespace MembershipsManagement.Migrations
                         });
                 });
 
-            modelBuilder.Entity("MembershipsManagement.Entities.Member", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<bool>("Active")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Address")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("DateOfBirth")
-                        .HasColumnType("datetime2");
-
-                    b.Property<double?>("Debt")
-                        .HasColumnType("float");
-
-                    b.Property<int>("DzematId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Email")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("EvNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FathersName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Note")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DzematId");
-
-                    b.ToTable("Members");
-                });
-
             modelBuilder.Entity("MembershipsManagement.Entities.MemberInfo", b =>
                 {
                     b.Property<int>("Id")
@@ -394,8 +338,9 @@ namespace MembershipsManagement.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int>("MemberId")
-                        .HasColumnType("int");
+                    b.Property<string>("MemberId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("SpreadsheetId")
                         .HasColumnType("int");
@@ -423,8 +368,9 @@ namespace MembershipsManagement.Migrations
                     b.Property<DateTime>("DateOfPayment")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("MemberId")
-                        .HasColumnType("int");
+                    b.Property<string>("MemberId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("MemberInfoId")
                         .HasColumnType("int");
@@ -750,6 +696,60 @@ namespace MembershipsManagement.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("MembershipsManagement.Entities.Member", b =>
+                {
+                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Address")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("DateModified")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DateOfBirth")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DateRegistered")
+                        .HasColumnType("datetime2");
+
+                    b.Property<double?>("Debt")
+                        .HasColumnType("float");
+
+                    b.Property<int>("DzematId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("EvNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FathersName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("HasAccount")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasIndex("DzematId");
+
+                    b.ToTable("Members", (string)null);
+                });
+
             modelBuilder.Entity("MembershipsManagement.Entities.User", b =>
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
@@ -906,16 +906,6 @@ namespace MembershipsManagement.Migrations
                     b.Navigation("Supervisor");
                 });
 
-            modelBuilder.Entity("MembershipsManagement.Entities.Member", b =>
-                {
-                    b.HasOne("MembershipsManagement.Entities.Dzemat", "Dzemat")
-                        .WithMany("Members")
-                        .HasForeignKey("DzematId")
-                        .IsRequired();
-
-                    b.Navigation("Dzemat");
-                });
-
             modelBuilder.Entity("MembershipsManagement.Entities.MemberInfo", b =>
                 {
                     b.HasOne("MembershipsManagement.Entities.Member", "Member")
@@ -1050,6 +1040,22 @@ namespace MembershipsManagement.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("MembershipsManagement.Entities.Member", b =>
+                {
+                    b.HasOne("MembershipsManagement.Entities.Dzemat", "Dzemat")
+                        .WithMany("Members")
+                        .HasForeignKey("DzematId")
+                        .IsRequired();
+
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
+                        .WithOne()
+                        .HasForeignKey("MembershipsManagement.Entities.Member", "Id")
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired();
+
+                    b.Navigation("Dzemat");
+                });
+
             modelBuilder.Entity("MembershipsManagement.Entities.User", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
@@ -1117,17 +1123,6 @@ namespace MembershipsManagement.Migrations
                     b.Navigation("Supervisors");
                 });
 
-            modelBuilder.Entity("MembershipsManagement.Entities.Member", b =>
-                {
-                    b.Navigation("FamilyMembers");
-
-                    b.Navigation("IncomeItems");
-
-                    b.Navigation("MemberInfo");
-
-                    b.Navigation("Payments");
-                });
-
             modelBuilder.Entity("MembershipsManagement.Entities.MemberInfo", b =>
                 {
                     b.Navigation("Payments");
@@ -1147,6 +1142,17 @@ namespace MembershipsManagement.Migrations
             modelBuilder.Entity("MembershipsManagement.Models.IncomeItem", b =>
                 {
                     b.Navigation("Income");
+                });
+
+            modelBuilder.Entity("MembershipsManagement.Entities.Member", b =>
+                {
+                    b.Navigation("FamilyMembers");
+
+                    b.Navigation("IncomeItems");
+
+                    b.Navigation("MemberInfo");
+
+                    b.Navigation("Payments");
                 });
 #pragma warning restore 612, 618
         }
