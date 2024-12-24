@@ -696,60 +696,6 @@ namespace MembershipsManagement.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("MembershipsManagement.Entities.Member", b =>
-                {
-                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
-
-                    b.Property<bool>("Active")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Address")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("DateModified")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DateOfBirth")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("DateRegistered")
-                        .HasColumnType("datetime2");
-
-                    b.Property<double?>("Debt")
-                        .HasColumnType("float");
-
-                    b.Property<int>("DzematId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("EvNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FathersName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("HasAccount")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Note")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.HasIndex("DzematId");
-
-                    b.ToTable("Members", (string)null);
-                });
-
             modelBuilder.Entity("MembershipsManagement.Entities.User", b =>
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
@@ -772,6 +718,9 @@ namespace MembershipsManagement.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("HasVerified")
+                        .HasColumnType("bit");
+
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -788,6 +737,37 @@ namespace MembershipsManagement.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.ToTable("Users", (string)null);
+                });
+
+            modelBuilder.Entity("MembershipsManagement.Entities.Member", b =>
+                {
+                    b.HasBaseType("MembershipsManagement.Entities.User");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("DateOfBirth")
+                        .HasColumnType("datetime2");
+
+                    b.Property<double?>("Debt")
+                        .HasColumnType("float");
+
+                    b.Property<int>("DzematId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("EvNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasIndex("DzematId");
+
+                    b.ToTable("Members", (string)null);
                 });
 
             modelBuilder.Entity("MembershipsManagement.Models.Admin", b =>
@@ -1040,22 +1020,6 @@ namespace MembershipsManagement.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("MembershipsManagement.Entities.Member", b =>
-                {
-                    b.HasOne("MembershipsManagement.Entities.Dzemat", "Dzemat")
-                        .WithMany("Members")
-                        .HasForeignKey("DzematId")
-                        .IsRequired();
-
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
-                        .WithOne()
-                        .HasForeignKey("MembershipsManagement.Entities.Member", "Id")
-                        .OnDelete(DeleteBehavior.ClientCascade)
-                        .IsRequired();
-
-                    b.Navigation("Dzemat");
-                });
-
             modelBuilder.Entity("MembershipsManagement.Entities.User", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
@@ -1063,6 +1027,22 @@ namespace MembershipsManagement.Migrations
                         .HasForeignKey("MembershipsManagement.Entities.User", "Id")
                         .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("MembershipsManagement.Entities.Member", b =>
+                {
+                    b.HasOne("MembershipsManagement.Entities.Dzemat", "Dzemat")
+                        .WithMany("Members")
+                        .HasForeignKey("DzematId")
+                        .IsRequired();
+
+                    b.HasOne("MembershipsManagement.Entities.User", null)
+                        .WithOne()
+                        .HasForeignKey("MembershipsManagement.Entities.Member", "Id")
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired();
+
+                    b.Navigation("Dzemat");
                 });
 
             modelBuilder.Entity("MembershipsManagement.Models.Admin", b =>

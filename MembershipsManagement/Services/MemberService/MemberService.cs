@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using ClosedXML.Excel;
 using CsvHelper;
+using DocumentFormat.OpenXml.InkML;
 using MembershipsManagement.Data;
 using MembershipsManagement.DTOs;
 using MembershipsManagement.DTOs.DzematDTOs;
@@ -15,6 +16,8 @@ using MembershipsManagement.Exceptions;
 using MembershipsManagement.Models;
 using MembershipsManagement.Services.Authentication;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
+using Newtonsoft.Json.Linq;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
@@ -35,10 +38,10 @@ namespace MembershipsManagement.Services.MemberServiceImpl
             _authService = authService;
         }
 
-        public async Task<ServiceResponse<GetMemberTemporaryCredentials>> AddMember(string token, AddMemberDto member)
+        public async Task<ServiceResponse<GetMemberDto>> AddMember(string token, AddMemberDto member)
         {
-            var response = new ServiceResponse<GetMemberTemporaryCredentials>();
-            var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
+            var response = new ServiceResponse<GetMemberDto>();
+            /*var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(token);
             var userId = decodedToken.Claims
                 .Where(claim => claim.Type
                 .Equals("nameid"))
@@ -53,7 +56,7 @@ namespace MembershipsManagement.Services.MemberServiceImpl
             if (supervisor is null)
             {
                 throw new EntityNotFoundException("FATAL ERROR. No supervisor ID: " + userId + " for dzemat with ID: " + member.DzematId + " was found.");
-            }
+            }*/
 
             var memberWithSameEvNumber = await _memberContext.Members.Where(m => m.DzematId == member.DzematId).Where(m => m.EvNumber.Equals(member.EvNumber)).FirstOrDefaultAsync();
 
@@ -93,7 +96,10 @@ namespace MembershipsManagement.Services.MemberServiceImpl
                 memberToAdd.Active = true;
             }
 
-            response = await _authService.RegisterMember(memberToAdd);
+            _memberContext.Members.Add(memberToAdd);
+            await _memberContext.SaveChangesAsync();
+
+            response.Data = _mapper.Map<GetMemberDto>(memberToAdd);
             response.Message = "Član je uspješno registrovan";
             return response;
         }
@@ -440,9 +446,16 @@ namespace MembershipsManagement.Services.MemberServiceImpl
             return "Dodano 500 članova";
         }
 
-        public async Task<ServiceResponse<MemberInfoReport>> GetMemberInfoReport(string memberId)
+        public async Task<ServiceResponse<MemberInfoReport>> GetMemberInfoReport(string tokenValue)
         {
             var response = new ServiceResponse<MemberInfoReport>();
+
+            var decodedToken = new JwtSecurityTokenHandler().ReadJwtToken(tokenValue);
+            var memberId = decodedToken.Claims
+                .Where(claim => claim.Type
+                .Equals("nameid"))
+                .Select(claim => claim.Value)
+                .SingleOrDefault();
 
             List<GetMemberInfoDTO> memberInfoList = await _memberContext.MembersInfo
                 .Where(mi => mi.MemberId.Equals(memberId))
@@ -533,51 +546,64 @@ namespace MembershipsManagement.Services.MemberServiceImpl
             }
             int count = 0;
             var createdAccountsList = new List<GetMemberTemporaryCredentials>();
-            foreach (var member in MembersToAdd)
+            using (var transaction = await _memberContext.Database.BeginTransactionAsync())
             {
-                AddMemberDto memberForDatabase = new AddMemberDto()
+                try
                 {
-                    DzematId = 1,
-                    EvNumber = member.EvNumber,
-                    Active = true,
-                    Address = member.Address,
-                    FathersName = member.FathersName,
-                    FirstName = member.FirstName,
-                    LastName = member.LastName,
-                    Debt = 0
-                };
+                    foreach (var member in MembersToAdd)
+                    {
+                        AddMemberDto memberForDatabase = new AddMemberDto()
+                        {
+                            DzematId = 1,
+                            EvNumber = member.EvNumber,
+                            Active = true,
+                            Address = member.Address,
+                            FathersName = member.FathersName,
+                            FirstName = member.FirstName,
+                            LastName = member.LastName,
+                            Debt = 0
+                        };
 
+                        var userManagerResponse = await AddMemberFromCSV(memberForDatabase, transaction);
+                        createdAccountsList.Add(userManagerResponse.Data);
+                        Console.WriteLine("Dodano članova: " + ++count);
+                        
 
-                var userManagerResponse = await AddMemberFromCSV(memberForDatabase);
-                createdAccountsList.Add(userManagerResponse.Data);
-                Console.WriteLine("Dodano članova: " + ++count);
-
-                if (count == 100)
+                        if (count == 100)
+                        {
+                            break;
+                        }
+                    }
+                    await transaction.CommitAsync();
+                }
+                catch (Exception)
                 {
-                    break;
+                    // In case of any exception, roll back the transaction
+                    await transaction.RollbackAsync();
+                    throw; // Re-throw the exception for further handling
                 }
             }
-
             GenerateExcel(createdAccountsList, dzematname);
             var response = new ServiceResponse<string>();
             response.Data = "Uspješno importovani članovi u bazu podataka";
             return response;
         }
-
-        public async Task<ServiceResponse<GetMemberTemporaryCredentials>?> AddMemberFromCSV(AddMemberDto member)
+        public async Task<ServiceResponse<GetMemberTemporaryCredentials>?> AddMemberFromCSV(AddMemberDto member, IDbContextTransaction transaction)
         {
+            _memberContext.Database.UseTransaction(transaction.GetDbTransaction());
+
             var response = new ServiceResponse<GetMemberTemporaryCredentials>();
-            var memberWithSameEvNumber = await _memberContext
+           /* var memberWithSameEvNumber = await _memberContext
                 .Members.Where(m => m.DzematId == member.DzematId).Where(m => m.EvNumber.Equals(member.EvNumber)).FirstOrDefaultAsync();
 
             if (memberWithSameEvNumber is not null)
             {
                 return null;
-            }
+            }*/
 
             var memberToAdd = _mapper.Map<Member>(member);
 
-            var activeDzematSpreadsheet = await _memberContext.Spreadsheets
+            /*var activeDzematSpreadsheet = await _memberContext.Spreadsheets
                 .Where(s => s.DzematId == member.DzematId)
                 .Where(s => s.Archived == false)
                 .FirstOrDefaultAsync();
@@ -604,10 +630,10 @@ namespace MembershipsManagement.Services.MemberServiceImpl
 
 
                 memberToAdd.Debt += member.Debt;
-                memberToAdd.Active = true;
-            }
+            }*/
+            memberToAdd.Active = true;
 
-            response = await _authService.RegisterMember(memberToAdd);
+            response = await _authService.RegisterMember(memberToAdd, transaction);
             return response;
         }
 
@@ -618,14 +644,12 @@ namespace MembershipsManagement.Services.MemberServiceImpl
                 var worksheet = workbook.Worksheets.Add("Kredencijali");
 
                 // Columns
-                worksheet.Cell(1, 1).Value = "#";
-                worksheet.Cell(1, 2).Value = "Ev. broj";
-                worksheet.Cell(1, 3).Value = "Ime";
-                worksheet.Cell(1, 4).Value = "Ime oca";
-                worksheet.Cell(1, 5).Value = "Prezime";
-                worksheet.Cell(1, 6).Value = "Email";
-                worksheet.Cell(1, 7).Value = "Korisničko ime";
-                worksheet.Cell(1, 8).Value = "Privremena šifra";
+                worksheet.Cell(1, 1).Value = "Ev. broj";
+                worksheet.Cell(1, 2).Value = "Ime";
+                worksheet.Cell(1, 3).Value = "Ime oca";
+                worksheet.Cell(1, 4).Value = "Prezime";
+                worksheet.Cell(1, 5).Value = "Korisničko ime";
+                worksheet.Cell(1, 6).Value = "Privremena šifra";
 
 
                 //Rows
@@ -635,17 +659,28 @@ namespace MembershipsManagement.Services.MemberServiceImpl
                 for (int rowIndex = 0; rowIndex < memberData.Count; rowIndex++)
                 {
                     var item = memberData[rowIndex];
-                    worksheet.Cell(rowIndex + 1, 1).Value = rowIndex + 2;
                     for (int colIndex = 0; colIndex < properties.Length; colIndex++)
                     {
                         var propertyValue = properties[colIndex].GetValue(item);
-                        worksheet.Cell(rowIndex + 2, colIndex + 2).Value = propertyValue?.ToString();
+                        worksheet.Cell(rowIndex + 2, colIndex + 1).Value = propertyValue?.ToString();
                     }
                 }
                 // Format Header
-                var headerRange = worksheet.Range("A1:C1");
+                var headerRange = worksheet.Range("A1:F1");
                 headerRange.Style.Font.Bold = true;
                 headerRange.Style.Fill.BackgroundColor = XLColor.LightBlue;
+
+                //Format Columns
+                worksheet.Column(1).Width = 10;
+                worksheet.Column(2).Width = 20;
+                worksheet.Column(3).Width = 20;
+                worksheet.Column(4).Width = 20;
+                worksheet.Column(5).Width = 30;
+                worksheet.Column(5).Style.Font.Bold = true;
+                worksheet.Column(5).Style.Fill.BackgroundColor = XLColor.LightBlue;
+                worksheet.Column(6).Width = 30;
+                worksheet.Column(6).Style.Font.Bold = true;
+                worksheet.Column(6).Style.Fill.BackgroundColor = XLColor.LightBlue;
 
                 workbook.SaveAs(Path.Combine(Directory.GetCurrentDirectory(), "Synapse_" + fileName + "_Kredencijali.xlsx"));
                 return "Svi akaunti uspješno otvoreni";

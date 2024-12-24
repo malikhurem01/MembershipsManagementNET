@@ -8,6 +8,6 @@
         Mutevelija,
         DzematskiOdbor,
         GlavniImam,
-        Clan
+        Member
     }
 }

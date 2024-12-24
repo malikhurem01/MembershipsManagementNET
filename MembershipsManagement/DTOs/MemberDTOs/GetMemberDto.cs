@@ -5,6 +5,7 @@ namespace MembershipsManagement.DTOs.MemberDTOs
 {
     public class GetMemberDto
     {
+        public bool HasVerified { get; set; }
         public string Id { get; set; }
         public string FirstName { get; set; } = string.Empty;
         public string? FathersName { get; set; } = string.Empty;

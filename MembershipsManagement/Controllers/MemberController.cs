@@ -22,9 +22,14 @@ namespace MembershipsManagement.Controllers
         }
 
         [HttpGet("view")]
-        public async Task<ActionResult<ServiceResponse<MemberInfoReport>>> GetMemberInfoReport(string memberId)
+        public async Task<ActionResult<ServiceResponse<MemberInfoReport>>> GetMemberInfoReport()
         {
-            var response = await _memberService.GetMemberInfoReport(memberId);
+            Request.Headers.TryGetValue("Authorization", out var token);
+            string tokenValue = token
+                .ToString()
+                .Split(" ")
+                .ElementAt(1);
+            var response = await _memberService.GetMemberInfoReport(tokenValue);
             return Ok(response);
         }
 
@@ -38,12 +43,12 @@ namespace MembershipsManagement.Controllers
         [HttpPost("add")]
         public async Task<ActionResult<ServiceResponse<GetMemberTemporaryCredentials>>> AddMember(AddMemberDto member)
         {
-            /*Request.Headers.TryGetValue("Authorization", out var token);
+            Request.Headers.TryGetValue("Authorization", out var token);
             string tokenValue = token
-                .ToString()tokenValue
+                .ToString()
                 .Split(" ")
-                .ElementAt(1);*/
-            var response = await _memberService.AddMember("", member);
+                .ElementAt(1);
+            var response = await _memberService.AddMember(tokenValue, member);
             return Ok(response);
         }
 

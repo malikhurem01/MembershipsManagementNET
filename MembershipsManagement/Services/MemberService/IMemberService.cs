@@ -9,7 +9,7 @@ namespace MembershipsManagement.Services.MemberServiceImpl
     {
         Task<object> Populate(int dzematId);
         Task<ServiceResponse<string>> ImportMembersFromCSV(string dzematname);
-        Task<ServiceResponse<GetMemberTemporaryCredentials>> AddMember(string token, AddMemberDto member);
+        Task<ServiceResponse<GetMemberDto>> AddMember(string token, AddMemberDto member);
         Task<ServiceResponse<GetMemberDto>> AddMemberFamily(string token, AddMemberFamilyDto familyMember);
         Task<ServiceResponse<PagedList<GetSpreadsheetMemberInfo>>> GetFilteredMembersForSpredsheet(string token, int spreadsheetId, string? evNumber, string? firstName, string? lastName, string? fathersName, bool? hasPayed, int pageNumber, int pageSize);
         Task<ServiceResponse<GetMemberDto>> ModifyMember(ModifyMemberDto memberModified);
@@ -18,6 +18,6 @@ namespace MembershipsManagement.Services.MemberServiceImpl
         Task<ServiceResponse<GetMemberDto>> GetSingleMember(string token, string memberId);
         Task<ServiceResponse<string>> DeleteMember(DeleteMemberDto member);
         Task<ServiceResponse<GetMemberDto>> DeleteMemberFamily(string token, DeleteFamilyMemberDto familyMember);
-        Task<ServiceResponse<MemberInfoReport>> GetMemberInfoReport(string memberId);
+        Task<ServiceResponse<MemberInfoReport>> GetMemberInfoReport(string tokenValue);
     }
 }
