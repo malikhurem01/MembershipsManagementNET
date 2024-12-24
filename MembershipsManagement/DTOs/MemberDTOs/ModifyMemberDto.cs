@@ -4,7 +4,7 @@ namespace MembershipsManagement.DTOs.MemberDTOs
 {
     public class ModifyMemberDto
     {
-        public int Id { get; set; }
+        public string Id { get; set; }
         public string EvNumber { get; set; }
         public string FirstName { get; set; } = string.Empty;
         public string? FathersName { get; set; } = string.Empty;

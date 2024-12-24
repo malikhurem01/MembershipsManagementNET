@@ -7,6 +7,7 @@
         Blagajnik,
         Mutevelija,
         DzematskiOdbor,
-        GlavniImam
+        GlavniImam,
+        Member
     }
 }

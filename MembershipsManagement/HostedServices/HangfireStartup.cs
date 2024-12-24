@@ -29,12 +29,12 @@ namespace MembershipsManagement.HostedServices
 
         public void PingDatabase()
         {
-            /*using (SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
+            using (SqlConnection connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
             {
                 connection.Open();
                 Console.WriteLine("Hangfire: SQL Server is reachable.");
                 connection.Close();
-            }*/
+            }
             Console.WriteLine("hangfire ping function disabled");
         }
     }

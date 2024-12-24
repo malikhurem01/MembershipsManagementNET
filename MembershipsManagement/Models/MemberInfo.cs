@@ -3,7 +3,7 @@
     public class MemberInfo
     {
         public int Id { get; set; }
-        public int MemberId { get; set; }
+        public string MemberId { get; set; }
         public Member Member { get; set; }
         public int SpreadsheetId { get; set; }
         public Spreadsheet Spreadsheet { get; set; }

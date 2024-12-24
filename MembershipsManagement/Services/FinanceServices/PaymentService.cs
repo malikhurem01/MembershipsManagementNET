@@ -30,7 +30,7 @@ namespace MembershipsManagement.Services.FinanceServices
                             .SingleOrDefault();
 
             var memberInfo = await _context.MembersInfo
-                .Where(mi => mi.MemberId == payment.MemberId)
+                .Where(mi => mi.MemberId.Equals(payment.MemberId))
                 .Where(mi => mi.SpreadsheetId == payment.SpreadsheetId)
                 .Include(mi => mi.Spreadsheet)
                 .Include(mi => mi.Member)
@@ -83,7 +83,7 @@ namespace MembershipsManagement.Services.FinanceServices
             var response = new ServiceResponse<string>();
             var paymentToDelete = await _context.Payments
                 .Where(p => p.Id == payment.Id)
-                .Where(p => p.MemberId == payment.MemberId)
+                .Where(p => p.MemberId.Equals(payment.MemberId))
                 .Where(p => p.SpreadsheetId == payment.SpreadsheetId)
                 .FirstOrDefaultAsync();
 
@@ -96,7 +96,7 @@ namespace MembershipsManagement.Services.FinanceServices
             }
 
             var memberInfo = await _context.MembersInfo
-                .Where(mi => mi.MemberId == payment.MemberId)
+                .Where(mi => mi.MemberId.Equals(payment.MemberId))
                 .Where(mi => mi.SpreadsheetId == payment.SpreadsheetId)
                 .Include(mi => mi.Member)
                 .FirstOrDefaultAsync();
@@ -137,7 +137,7 @@ namespace MembershipsManagement.Services.FinanceServices
                 throw new EntityNotFoundException("FATAL ERROR: Supervisor with ID: " + supervisorId + " was not found in the database.");
             }
 
-            var member = await _context.Members.Where(m => m.Id == memberId).Where(m => m.DzematId == supervisor.DzematId).Include(m => m.Payments).FirstOrDefaultAsync();
+            var member = await _context.Members.Where(m => m.Id.Equals(memberId)).Where(m => m.DzematId == supervisor.DzematId).Include(m => m.Payments).FirstOrDefaultAsync();
 
             if(member is null)
             {
@@ -167,7 +167,7 @@ namespace MembershipsManagement.Services.FinanceServices
             }
 
             var member = await _context.Members
-                .Where(m => m.Id == memberId)
+                .Where(m => m.Id.Equals(memberId))
                 .Where(m => m.DzematId == supervisor.DzematId)
                 .Include(m => m.Payments
                 .Where(p => p.SpreadsheetId == spreadsheetId))

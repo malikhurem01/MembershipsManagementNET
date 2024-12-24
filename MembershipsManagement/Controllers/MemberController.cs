@@ -22,21 +22,26 @@ namespace MembershipsManagement.Controllers
         }
 
         [HttpGet("view")]
-        public async Task<ActionResult<ServiceResponse<MemberInfoReport>>> GetMemberInfoReport(int memberId)
+        public async Task<ActionResult<ServiceResponse<MemberInfoReport>>> GetMemberInfoReport()
         {
-            var response = await _memberService.GetMemberInfoReport(memberId);
+            Request.Headers.TryGetValue("Authorization", out var token);
+            string tokenValue = token
+                .ToString()
+                .Split(" ")
+                .ElementAt(1);
+            var response = await _memberService.GetMemberInfoReport(tokenValue);
             return Ok(response);
         }
 
-        [HttpGet("csv")]
-        public async Task<ActionResult<ServiceResponse<string>>> GetMemebrsFromCSV()
+        [HttpPost("csv")]
+        public async Task<ActionResult<ServiceResponse<string>>> GetMemebrsFromCSV(string dzematname)
         {
-            var response = await _memberService.ImportMembersFromCSV();
+            var response = await _memberService.ImportMembersFromCSV(dzematname);
             return Ok(response);
         }
 
         [HttpPost("add")]
-        public async Task<ActionResult<ServiceResponse<GetMemberDto>>> AddMember(AddMemberDto member)
+        public async Task<ActionResult<ServiceResponse<GetMemberTemporaryCredentials>>> AddMember(AddMemberDto member)
         {
             Request.Headers.TryGetValue("Authorization", out var token);
             string tokenValue = token
@@ -98,7 +103,7 @@ namespace MembershipsManagement.Controllers
         }
 
         [HttpGet("get/single")]
-        public async Task<ActionResult<ServiceResponse<GetMemberDto>>> GetSingleMember(int memberId)
+        public async Task<ActionResult<ServiceResponse<GetMemberDto>>> GetSingleMember(string memberId)
         {
             Request.Headers.TryGetValue("Authorization", out var token);
             string tokenValue = token
@@ -122,7 +127,7 @@ namespace MembershipsManagement.Controllers
         }
 
         [HttpGet("get/family")]
-        public async Task<ActionResult<ServiceResponse<List<GetFamilyMemberDto>>>> GetFamily(int memberId)
+        public async Task<ActionResult<ServiceResponse<List<GetFamilyMemberDto>>>> GetFamily(string memberId)
         {
             Request.Headers.TryGetValue("Authorization", out var token);
             string tokenValue = token

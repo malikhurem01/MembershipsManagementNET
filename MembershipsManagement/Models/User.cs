@@ -4,6 +4,7 @@ namespace MembershipsManagement.Entities
 {
     public class User : IdentityUser
     {
+        public bool HasVerified { get; set; }
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
         public string FathersName { get; set; } = string.Empty;

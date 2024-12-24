@@ -49,28 +49,13 @@ namespace MembershipsManagement.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Donators",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Donators", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Medzlisi",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UserName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Location = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ZipCode = table.Column<int>(type: "int", nullable: false)
@@ -197,6 +182,8 @@ namespace MembershipsManagement.Migrations
                     Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ZipCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PlaceOfResidence = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DateRegistered = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DateModified = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Position = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -221,7 +208,8 @@ namespace MembershipsManagement.Migrations
                     Location = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ZipCode = table.Column<int>(type: "int", nullable: true),
-                    Budget = table.Column<double>(type: "float", nullable: true)
+                    Budget = table.Column<double>(type: "float", nullable: true),
+                    DateRegistered = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -250,28 +238,81 @@ namespace MembershipsManagement.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Members",
+                name: "UserLoginLogs",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    EvNumber = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    FathersName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    DzematName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    LoginTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IPAddress = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DeviceInfo = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserLoginLogs", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserLoginLogs_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Donators",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    DzematId = table.Column<int>(type: "int", nullable: false),
+                    IsInstitution = table.Column<bool>(type: "bit", nullable: false),
+                    InstitutionName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FathersName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Donators", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Donators_Dzemati_DzematId",
+                        column: x => x.DzematId,
+                        principalTable: "Dzemati",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Members",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    EvNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FathersName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Active = table.Column<bool>(type: "bit", nullable: false),
-                    Debt = table.Column<double>(type: "float", nullable: false),
-                    Note = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Debt = table.Column<double>(type: "float", nullable: true),
+                    Note = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Status = table.Column<int>(type: "int", nullable: false),
                     DzematId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Members", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Members_AspNetUsers_Id",
+                        column: x => x.Id,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Members_Dzemati_DzematId",
                         column: x => x.DzematId,
@@ -340,7 +381,7 @@ namespace MembershipsManagement.Migrations
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
-                    MemberId = table.Column<int>(type: "int", nullable: false)
+                    MemberId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -374,12 +415,34 @@ namespace MembershipsManagement.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "IncomeItems",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    SpreadsheetId = table.Column<int>(type: "int", nullable: false),
+                    IncomeType = table.Column<int>(type: "int", nullable: false),
+                    NotifyMembers = table.Column<bool>(type: "bit", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_IncomeItems", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_IncomeItems_Spreadsheets_SpreadsheetId",
+                        column: x => x.SpreadsheetId,
+                        principalTable: "Spreadsheets",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "MembersInfo",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    MemberId = table.Column<int>(type: "int", nullable: false),
+                    MemberId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     SpreadsheetId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -395,29 +458,6 @@ namespace MembershipsManagement.Migrations
                         column: x => x.SpreadsheetId,
                         principalTable: "Spreadsheets",
                         principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Incomes",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    SupervisorId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Amount = table.Column<double>(type: "float", nullable: false),
-                    Note = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IncomeType = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Incomes", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Incomes_Supervisors_SupervisorId",
-                        column: x => x.SupervisorId,
-                        principalTable: "Supervisors",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -450,6 +490,48 @@ namespace MembershipsManagement.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Incomes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    IncomeItemId = table.Column<int>(type: "int", nullable: false),
+                    SupervisorId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    DonatorId = table.Column<int>(type: "int", nullable: true),
+                    MemberId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    Note = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Amount = table.Column<double>(type: "float", nullable: false),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IncomeType = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Incomes", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Incomes_Donators_DonatorId",
+                        column: x => x.DonatorId,
+                        principalTable: "Donators",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Incomes_IncomeItems_IncomeItemId",
+                        column: x => x.IncomeItemId,
+                        principalTable: "IncomeItems",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Incomes_Members_MemberId",
+                        column: x => x.MemberId,
+                        principalTable: "Members",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Incomes_Supervisors_SupervisorId",
+                        column: x => x.SupervisorId,
+                        principalTable: "Supervisors",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Payments",
                 columns: table => new
                 {
@@ -457,7 +539,7 @@ namespace MembershipsManagement.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Amount = table.Column<double>(type: "float", nullable: false),
                     DateOfPayment = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    MemberId = table.Column<int>(type: "int", nullable: false),
+                    MemberId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     SpreadsheetId = table.Column<int>(type: "int", nullable: false),
                     SupervisorId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     MemberInfoId = table.Column<int>(type: "int", nullable: false)
@@ -492,28 +574,28 @@ namespace MembershipsManagement.Migrations
 
             migrationBuilder.InsertData(
                 table: "Medzlisi",
-                columns: new[] { "Id", "Address", "Location", "Name", "ZipCode" },
-                values: new object[] { 1, "Trg Slobode bb", "Tuzla", "Tuzla", 75000 });
+                columns: new[] { "Id", "Address", "Location", "Name", "UserName", "ZipCode" },
+                values: new object[] { 1, "Trg Slobode bb", "Tuzla", "Tuzla", "medzlistuzla", 75000 });
 
             migrationBuilder.InsertData(
                 table: "Medzlisi",
-                columns: new[] { "Id", "Address", "Location", "Name", "ZipCode" },
-                values: new object[] { 2, "Gračanica bb", "Gračanica", "Gračanica", 75326 });
+                columns: new[] { "Id", "Address", "Location", "Name", "UserName", "ZipCode" },
+                values: new object[] { 2, "Gračanica bb", "Gračanica", "Gračanica", "medzlisgracanica", 75326 });
 
             migrationBuilder.InsertData(
                 table: "Dzemati",
-                columns: new[] { "Id", "Address", "Budget", "Location", "MedzlisId", "Name", "UserName", "ZipCode" },
-                values: new object[] { 1, "Lipnica bb", 0.0, "Gornja Lipnica", 1, "Lipnica", "dzematlipnica", 75213 });
+                columns: new[] { "Id", "Address", "Budget", "DateRegistered", "Location", "MedzlisId", "Name", "UserName", "ZipCode" },
+                values: new object[] { 1, "Lipnica bb", 0.0, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Gornja Lipnica", 1, "Lipnica", "dzematlipnica", 75213 });
 
             migrationBuilder.InsertData(
                 table: "Dzemati",
-                columns: new[] { "Id", "Address", "Budget", "Location", "MedzlisId", "Name", "UserName", "ZipCode" },
-                values: new object[] { 2, "Golaći bb", 0.0, "Golaći", 2, "Golaći", "dzematgolaci", 75326 });
+                columns: new[] { "Id", "Address", "Budget", "DateRegistered", "Location", "MedzlisId", "Name", "UserName", "ZipCode" },
+                values: new object[] { 2, "Golaći bb", 0.0, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Golaći", 2, "Golaći", "dzematgolaci", 75326 });
 
             migrationBuilder.InsertData(
                 table: "Dzemati",
-                columns: new[] { "Id", "Address", "Budget", "Location", "MedzlisId", "Name", "UserName", "ZipCode" },
-                values: new object[] { 3, "Golaći bb", 0.0, "Golaći", 2, "Test", "testtest", 75326 });
+                columns: new[] { "Id", "Address", "Budget", "DateRegistered", "Location", "MedzlisId", "Name", "UserName", "ZipCode" },
+                values: new object[] { 3, "Golaći bb", 0.0, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Golaći", 2, "Test", "testtest", 75326 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -555,6 +637,11 @@ namespace MembershipsManagement.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Donators_DzematId",
+                table: "Donators",
+                column: "DzematId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Dzemati_MedzlisId",
                 table: "Dzemati",
                 column: "MedzlisId");
@@ -577,6 +664,26 @@ namespace MembershipsManagement.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_FamilyMembers_MemberId",
                 table: "FamilyMembers",
+                column: "MemberId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_IncomeItems_SpreadsheetId",
+                table: "IncomeItems",
+                column: "SpreadsheetId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Incomes_DonatorId",
+                table: "Incomes",
+                column: "DonatorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Incomes_IncomeItemId",
+                table: "Incomes",
+                column: "IncomeItemId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Incomes_MemberId",
+                table: "Incomes",
                 column: "MemberId");
 
             migrationBuilder.CreateIndex(
@@ -633,6 +740,11 @@ namespace MembershipsManagement.Migrations
                 name: "IX_Supervisors_MedzlisId",
                 table: "Supervisors",
                 column: "MedzlisId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserLoginLogs_UserId",
+                table: "UserLoginLogs",
+                column: "UserId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -656,9 +768,6 @@ namespace MembershipsManagement.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "Donators");
-
-            migrationBuilder.DropTable(
                 name: "Expenses");
 
             migrationBuilder.DropTable(
@@ -671,10 +780,19 @@ namespace MembershipsManagement.Migrations
                 name: "Payments");
 
             migrationBuilder.DropTable(
+                name: "UserLoginLogs");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "ExpenseItems");
+
+            migrationBuilder.DropTable(
+                name: "Donators");
+
+            migrationBuilder.DropTable(
+                name: "IncomeItems");
 
             migrationBuilder.DropTable(
                 name: "MembersInfo");

@@ -59,6 +59,13 @@ namespace MembershipsManagement.Controllers
             return Ok(response);
         }
 
+        [HttpPost("login/member")]
+        public async Task<ActionResult<ServiceResponse<GetUserDto>>> LoginMember(MemberLoginDto user)
+        {
+            var response = await _authService.LoginMember(user);
+            return Ok(response);
+        }
+
         [Authorize]
         [HttpGet("current/user")]
         public async Task<ActionResult<ServiceResponse<GetUserDto>>> GetUserByToken()

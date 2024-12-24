@@ -4,7 +4,7 @@
 
 namespace MembershipsManagement.Migrations
 {
-    public partial class memberToDonator : Migration
+    public partial class initial4 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

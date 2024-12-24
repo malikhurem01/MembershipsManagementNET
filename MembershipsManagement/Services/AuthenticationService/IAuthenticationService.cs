@@ -1,14 +1,18 @@
 ﻿using MembershipsManagement.DTOs.AuthDTOs;
 using MembershipsManagement.DTOs.DzematDTOs;
+using MembershipsManagement.DTOs.MemberDTOs;
 using MembershipsManagement.DTOs.User;
 using MembershipsManagement.DTOs.UserDTOs;
 using MembershipsManagement.Entities;
 using MembershipsManagement.Models;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace MembershipsManagement.Services.Authentication
 {
     public interface IAuthenticationService
     {
+        Task<ServiceResponse<GetUserDto>> LoginMember(MemberLoginDto user);
+        Task<ServiceResponse<GetMemberTemporaryCredentials>> RegisterMember(Member user, IDbContextTransaction transaction);
         Task<ServiceResponse<GetUserDto>> RegisterSupervisor(RegisterUserDto user);
         Task<ServiceResponse<GetUserDto>> GetUserByToken(string token);
         Task<ServiceResponse<GetUserDto>> ModifyUser(string token, ModifyUserDto modifiedUser);

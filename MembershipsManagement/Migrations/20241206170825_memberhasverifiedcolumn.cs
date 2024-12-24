@@ -4,23 +4,23 @@
 
 namespace MembershipsManagement.Migrations
 {
-    public partial class addedincometype : Migration
+    public partial class memberhasverifiedcolumn : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<int>(
-                name: "IncomeType",
-                table: "IncomeItems",
-                type: "int",
+            migrationBuilder.AddColumn<bool>(
+                name: "HasVerified",
+                table: "Members",
+                type: "bit",
                 nullable: false,
-                defaultValue: 0);
+                defaultValue: false);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "IncomeType",
-                table: "IncomeItems");
+                name: "HasVerified",
+                table: "Members");
         }
     }
 }

@@ -18,5 +18,6 @@ namespace MembershipsManagement.DTOs.MemberDTOs
         public List<AddMemberFamilyDto>? FamilyMembers { get; set; } = new List<AddMemberFamilyDto>();
         public int DzematId { get; set; }
         public bool Active { get; set; } = true;
+        public bool CreateAccount { get; set; }
     }
 }

@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using DocumentFormat.OpenXml.InkML;
 using MembershipsManagement.Data;
 using MembershipsManagement.DTOs.AuthDTOs;
 using MembershipsManagement.DTOs.DzematDTOs;
+using MembershipsManagement.DTOs.MemberDTOs;
 using MembershipsManagement.DTOs.User;
 using MembershipsManagement.DTOs.UserDTOs;
 using MembershipsManagement.Entities;
@@ -9,6 +11,7 @@ using MembershipsManagement.Exceptions;
 using MembershipsManagement.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -58,20 +61,29 @@ namespace MembershipsManagement.Services.Authentication
             {
                 if (fetchedUser.Position != Roles.Admin)
                 {
-                    if(fetchedUser.Position != Roles.GlavniImam) {
-                        fetchedUser = await _authContext.Supervisors
-                          .Where(user => user.Id.Equals(userId))
-                          .Include(user => user.Dzemat)
-                          .ThenInclude(dzemat => dzemat.Medzlis)
-                          .FirstOrDefaultAsync();
+                    if (fetchedUser.Position == Roles.Member)
+                    {
+                        fetchedUser = await _authContext.Members
+                         .Where(user => user.Id.Equals(userId))
+                         .Include(user => user.Dzemat)
+                         .ThenInclude(dzemat => dzemat.Medzlis)
+                         .FirstOrDefaultAsync();
                     }
-                    if (fetchedUser.Position == Roles.GlavniImam)
+                    else if (fetchedUser.Position == Roles.GlavniImam)
                     {
                         fetchedUser = await _authContext.Supervisors
                           .Where(user => user.Id.Equals(userId))
                           .Include(user => user.Medzlis)
                           .FirstOrDefaultAsync();
                     }
+                    else if (fetchedUser.Position != Roles.GlavniImam) {
+                        fetchedUser = await _authContext.Supervisors
+                          .Where(user => user.Id.Equals(userId))
+                          .Include(user => user.Dzemat)
+                          .ThenInclude(dzemat => dzemat.Medzlis)
+                          .FirstOrDefaultAsync();
+                    }
+                    
                 }
             }
             else
@@ -174,6 +186,62 @@ namespace MembershipsManagement.Services.Authentication
             return response;
         }
 
+        static string GenerateRandomString(int length)
+        {
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            Random random = new Random();
+            StringBuilder result = new StringBuilder(length);
+
+            for (int i = 0; i < length; i++)
+            {
+                result.Append(chars[random.Next(chars.Length)]);
+            }
+
+            return result.ToString();
+        }
+
+        public async Task<ServiceResponse<GetMemberTemporaryCredentials>> RegisterMember(Member user, IDbContextTransaction transaction)
+        {
+            _authContext.Database.UseTransaction(transaction.GetDbTransaction());
+            ServiceResponse<GetMemberTemporaryCredentials> response = new ServiceResponse<GetMemberTemporaryCredentials>();
+            /*if(user.Email?.Length < 1)
+            {
+                user.Email = user.FirstName.ToLower() + user.LastName.ToLower() + user.EvNumber.ToLower() + "@synapse.ba";
+            }
+            if(user.PhoneNumber?.Length < 1)
+            {
+                user.PhoneNumber = "0";
+            }*/
+            user.DateRegistered = DateTime.UtcNow;
+            //Dodati da dva membera (korisnika) ne mogu imati isti username
+            user.Email = "NOT_SET" + user.EvNumber + "@THRIVESYNC.BA";
+            user.UserName = user.FirstName.ToLower() + user.LastName.ToLower() + user.EvNumber.ToLower();
+            user.UserName = user.UserName.Replace(" ", "");
+            user.HasVerified = false;
+            user.LockoutEnabled = false;
+            string tempPassword = GenerateRandomString(10);
+            var result = await _userManager.CreateAsync(user, tempPassword);
+            StringBuilder stringBuilder = new StringBuilder();
+            if (!result.Succeeded)
+            {
+                foreach (IdentityError error in result.Errors)
+                {
+                    stringBuilder.Append(error.Description);
+                }
+                throw new BadRequestException(stringBuilder.ToString());
+            }
+            response.Data = new GetMemberTemporaryCredentials()
+            {
+                EvNumber = user.EvNumber,
+                FirstName = user.FirstName,
+                FathersName = user.FathersName,
+                LastName = user.LastName,
+                UserName = user.UserName,
+                TemporaryPassword = tempPassword
+            };
+            return response;
+        }
+
         public async Task<ServiceResponse<GetUserDto>> RegisterSupervisor(RegisterUserDto user)
         {
             ServiceResponse<GetUserDto> response = new ServiceResponse<GetUserDto>();
@@ -206,11 +274,21 @@ namespace MembershipsManagement.Services.Authentication
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
                 new Claim(ClaimTypes.Name, user.UserName)
             };
-
             return WriteToken(claims);
         }
 
         public string CreateAdminToken(Admin user)
+        {
+            List<Claim> claims = new List<Claim>
+             {
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(ClaimTypes.Name, user.UserName)
+            };
+
+            return WriteToken(claims);
+        }
+
+        public string CreateMemberToken(Member user)
         {
             List<Claim> claims = new List<Claim>
              {
@@ -377,6 +455,37 @@ namespace MembershipsManagement.Services.Authentication
                 }
             }
             response.Data = _mapper.Map<GetUserDto>(fetchedUser);
+            return response;
+        }
+
+        public async Task<ServiceResponse<GetUserDto>> LoginMember(MemberLoginDto user)
+        {
+            ServiceResponse<GetUserDto> response = new ServiceResponse<GetUserDto>();
+            var fetchedUser = await _userManager.FindByNameAsync(user.UserName);
+            if (fetchedUser == null)
+            {
+                throw new BadRequestException("Wrong credentials");
+            }
+            var savedUser = await _authContext.Members
+                   .Where(u => u.Id.Equals(fetchedUser.Id))
+                   .Where(u => u.Dzemat.UserName.Equals(user.InstitutionUserName))
+                   .Include(u => u.Dzemat).FirstOrDefaultAsync();
+            if (savedUser == null)
+            {
+                throw new BadRequestException("Fatal error!!! Member logged in but not found in database!!!");
+            }
+            else
+            {
+                var result = await _signInManager.CheckPasswordSignInAsync(fetchedUser, user.Password, false);
+                if (!result.Succeeded)
+                {
+                    throw new BadRequestException("Wrong credentials");
+                }
+                var getUserDto = _mapper.Map<GetUserDto>(fetchedUser);
+                getUserDto.Token = CreateMemberToken(savedUser);
+                response.Data = getUserDto;
+                response.Message = "Member ID: " + savedUser.Id + " has successfully logged in.";
+            }
             return response;
         }
     }

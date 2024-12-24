@@ -1,4 +1,5 @@
 ﻿using MembershipsManagement.Models;
+using Microsoft.AspNetCore.Identity;
 using System.Runtime.CompilerServices;
 
 namespace MembershipsManagement.Entities
@@ -12,17 +13,10 @@ namespace MembershipsManagement.Entities
         public string Address { get; set; } = string.Empty;
     }
 
-    public class Member
+    public class Member : User
     {
-        public int Id { get; set; }
-        public string EvNumber { get; set; }
-        public string FirstName { get; set; } = string.Empty;
-        public string? FathersName { get; set; } = string.Empty;
-        public string LastName { get; set; } = string.Empty;
+        public string EvNumber { get; set; } = string.Empty;
         public DateTime? DateOfBirth { get; set; } 
-        public string? PhoneNumber { get; set; } = string.Empty;
-        public string? Address { get; set; } = string.Empty;
-        public string? Email { get; set; } = string.Empty;
         public bool Active { get; set; }
         public double? Debt { get; set; }
         public string? Note { get; set; } = string.Empty;
